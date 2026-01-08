@@ -40,7 +40,10 @@ export type SoundId =
   | 'ow1'
   | 'ow2'
   | 'ouch'
-  | 'shot';
+  | 'shot'
+  | 'el'
+  | 'level'
+  | 'lan';
 
 interface SoundConfig {
   id: SoundId;
@@ -86,6 +89,9 @@ export class AudioManager {
     { id: 'ow2', file: 'ow2.wav', priority: 'secondary' },
     { id: 'ouch', file: 'ouch.wav', priority: 'secondary' },
     { id: 'shot', file: 'shot.wav', priority: 'secondary' },
+    { id: 'el', file: 'el.wav', priority: 'secondary' },
+    { id: 'level', file: 'level.wav', priority: 'secondary' },
+    { id: 'lan', file: 'lan.wav', priority: 'secondary' },
   ];
 
   private constructor() {

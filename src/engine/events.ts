@@ -188,89 +188,89 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
 // ============================================================================
 
 export const HEALTH_EVENTS: HealthEvent[] = [
-  // Event 0
+  // Event 0 - SelectionDlg.cpp line 145
   {
     freq: 117,
     msg: '你在和一个小贩讨价还价时，竟然被他打了一拳!',
     hunt: 3,
     sound: 'kill.wav'
   },
-  // Event 1
+  // Event 1 - SelectionDlg.cpp line 146
   {
     freq: 157,
     msg: '路上遇到两伙黑社会火拼，你被流弹击中!',
     hunt: 20,
     sound: 'death.wav'
   },
-  // Event 2
+  // Event 2 - SelectionDlg.cpp line 147
   {
     freq: 21,
     msg: '警察带着警犬过来检查工作，警犬咬了你一口!',
     hunt: 1,
     sound: 'dog.wav'
   },
-  // Event 3
+  // Event 3 - SelectionDlg.cpp line 148
   {
     freq: 100,
     msg: '正在马路上行走的时候，突然被一辆摩托车撞倒!',
     hunt: 1,
     sound: 'harley.wav'
   },
-  // Event 4
+  // Event 4 - SelectionDlg.cpp line 149 (FIXED)
+  {
+    freq: 35,
+    msg: '被小混混打了一顿!',
+    hunt: 1,
+    sound: 'hit.wav'
+  },
+  // Event 5 - SelectionDlg.cpp line 150 (FIXED)
   {
     freq: 313,
     msg: '你被一群暴徒殴打!',
     hunt: 10,
     sound: 'flee.wav'
   },
-  // Event 5
+  // Event 6 - SelectionDlg.cpp line 151 (FIXED)
   {
-    freq: 143,
+    freq: 120,
     msg: '路遇抢劫，被人打了一顿!',
     hunt: 5,
-    sound: 'hit.wav'
+    sound: 'death.wav'
   },
-  // Event 6
+  // Event 7 - SelectionDlg.cpp line 152 (FIXED)
   {
-    freq: 298,
-    msg: '你被黑社会的人毒打了一顿!',
-    hunt: 15,
-    sound: 'melee.wav'
-  },
-  // Event 7
-  {
-    freq: 73,
+    freq: 29,
     msg: '你在楼梯上被一伙歹徒推倒!',
-    hunt: 2,
-    sound: 'thump.wav'
+    hunt: 3,
+    sound: 'el.wav'
   },
-  // Event 8
+  // Event 8 - SelectionDlg.cpp line 153 (FIXED)
   {
-    freq: 211,
-    msg: '路遇劫匪!',
-    hunt: 8,
-    sound: 'ow1.wav'
+    freq: 43,
+    msg: '在路边的小吃摊吃坏了肚子!',
+    hunt: 1,
+    sound: 'vomit.wav'
   },
-  // Event 9
+  // Event 9 - SelectionDlg.cpp line 154 (FIXED)
   {
-    freq: 179,
-    msg: '不幸遭遇抢劫!',
-    hunt: 7,
-    sound: 'ow2.wav'
+    freq: 45,
+    msg: '在黑市购买到假货被骗，气得不笑不笑!',
+    hunt: 1,
+    sound: 'level.wav'
   },
-  // Event 10
+  // Event 10 - SelectionDlg.cpp line 155 (FIXED)
   {
-    freq: 194,
-    msg: '被小偷暴打一顿!',
-    hunt: 6,
-    sound: 'ouch.wav'
+    freq: 48,
+    msg: '被小偷偷走了40元!',
+    hunt: 1,
+    sound: 'lan.wav'
   },
-  // Event 11
+  // Event 11 - SelectionDlg.cpp line 156 (FIXED)
   {
-    freq: 131,
-    msg: '遭遇持枪抢劫!',
-    hunt: 12,
-    sound: 'shot.wav'
+    freq: 33,
+    msg: '在大街上被流氓骚扰，吓出了一身冷汗!',
+    hunt: 1,
+    sound: 'breath.wav'
   },
 ];
 
@@ -280,48 +280,49 @@ export const HEALTH_EVENTS: HealthEvent[] = [
 // ============================================================================
 
 export const THEFT_EVENTS: TheftEvent[] = [
-  // Event 0
+  // Event 0 - SelectionDlg.cpp line 183 (FIXED)
   {
-    freq: 100,
-    msg: '糟糕！在马路上遇到抢劫的，你损失了40%的现金!',
-    ratio: 40
-  },
-  // Event 1
-  {
-    freq: 125,
-    msg: '你的钱包被小偷偷走，损失了10%的现金!',
+    freq: 60,
+    msg: '糟糕！在百货大楼遇到扒手，被偷走了10%的现金!',
     ratio: 10
   },
-  // Event 2
+  // Event 1 - SelectionDlg.cpp line 184
   {
-    freq: 175,
-    msg: '真倒霉，在网吧上网被偷了钱，损失了5%的现金!',
-    ratio: 5
+    freq: 125,
+    msg: '一个小偷在街头盯住了你，抢走了你的钱!',
+    ratio: 10
   },
-  // Event 3
-  {
-    freq: 35,
-    msg: '哎呀！接到一个诈骗电话，你损失了15%的存款!',
-    ratio: 15
-    // Note: This affects bank, not cash
-  },
-  // Event 4
+  // Event 2 - SelectionDlg.cpp line 185 (FIXED)
   {
     freq: 100,
-    msg: '你轻信了电视购物广告，结果被骗，损失了20%的现金!',
+    msg: '一个陌生人把你打了一顿，说是认错人了!',
+    ratio: 40
+  },
+  // Event 3 - SelectionDlg.cpp line 186 (FIXED)
+  {
+    freq: 65,
+    msg: '你被流氓婆太太缠住了，不给钱不让走!',
     ratio: 20
   },
-  // Event 5
+  // Event 4 - SelectionDlg.cpp line 187 (FIXED - affects bank)
   {
-    freq: 225,
-    msg: '黑车司机多收了你的钱，损失了5%的现金!',
-    ratio: 5
-  },
-  // Event 6
-  {
-    freq: 150,
-    msg: '遇到碰瓷的，你损失了15%的现金!',
+    freq: 35,
+    msg: '接到电信诈骗电话，损失了15%的存款!',
     ratio: 15
+    // Note: This affects bank, not cash (EventSystem line 208)
+  },
+  // Event 5 - SelectionDlg.cpp line 188 (FIXED - affects bank)
+  {
+    freq: 27,
+    msg: '黑车司机说你没带驾照？不拿出钱来就去找警察吧!',
+    ratio: 10
+    // Note: This affects bank, not cash (EventSystem line 208)
+  },
+  // Event 6 - SelectionDlg.cpp line 189 (FIXED)
+  {
+    freq: 40,
+    msg: '你在大街上被人讹诈，去医院看病花了一笔钱...',
+    ratio: 5
   },
 ];
 

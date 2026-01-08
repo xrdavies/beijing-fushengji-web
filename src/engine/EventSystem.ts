@@ -144,8 +144,14 @@ export class EventSystem {
     // Add to debt
     state.debt += totalCost;
 
-    // Restore health to 100
-    state.health = GAME_CONSTANTS.MAX_HEALTH;
+    // Restore health by +10 (not full restore) - matching C++ line 1617
+    state.health += 10;
+    if (state.health > GAME_CONSTANTS.MAX_HEALTH) {
+      state.health = GAME_CONSTANTS.MAX_HEALTH;
+    }
+
+    // Lose time in hospital - matching C++ line 1620
+    state.timeLeft -= days;
 
     return {
       type: 'auto_hospital',
@@ -194,24 +200,28 @@ export class EventSystem {
 
   /**
    * Apply a single theft event
+   * Ported from: SelectionDlg.cpp lines 1791-1807
    */
   private applyTheftEvent(state: GameState, event: TheftEvent): number {
-    // Event 3 affects bank, others affect cash
-    const isEventIndex3 = THEFT_EVENTS.indexOf(event) === 3;
+    // Events 4 and 5 affect bank, others affect cash (C++ line 1791)
+    const eventIndex = THEFT_EVENTS.indexOf(event);
+    const affectsBank = (eventIndex === 4 || eventIndex === 5);
 
-    if (isEventIndex3) {
-      // Telecom fraud - affects bank
-      const loss = Math.floor(state.bank * (event.ratio / 100));
-      state.bank -= loss;
+    if (affectsBank && state.bank > 0) {
+      // Telecom fraud - affects bank (C++ line 1807)
+      const oldBank = state.bank;
+      state.bank = Math.floor((state.bank / 100) * (100 - event.ratio));
       if (state.bank < 0) state.bank = 0;
-      return loss;
-    } else {
-      // Other theft events - affect cash
-      const loss = Math.floor(state.cash * (event.ratio / 100));
-      state.cash -= loss;
+      return oldBank - state.bank;
+    } else if (!affectsBank) {
+      // Other theft events - affect cash (C++ line 1796)
+      const oldCash = state.cash;
+      state.cash = Math.floor((state.cash / 100) * (100 - event.ratio));
       if (state.cash < 0) state.cash = 0;
-      return loss;
+      return oldCash - state.cash;
     }
+
+    return 0;
   }
 
   /**
