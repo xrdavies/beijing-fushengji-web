@@ -1,0 +1,27 @@
+{
+  "name": "beijing-fushengji-web",
+  "version": "1.0.0",
+  "description": "北京浮生记 (Beijing Fushengji) - Web version built with PixiJS v8",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "assets": "assetpack",
+    "assets:watch": "assetpack --watch"
+  },
+  "keywords": ["game", "pixijs", "trading-simulation", "beijing"],
+  "author": "Original: Guo Xianghao; Web Port: Contributors",
+  "license": "GPL-2.0",
+  "devDependencies": {
+    "@assetpack/core": "^1.7.0",
+    "@types/node": "^25.0.3",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  },
+  "dependencies": {
+    "@pixi/sound": "^6.0.1",
+    "@pixi/ui": "^2.3.2",
+    "pixi.js": "^8.15.0"
+  }
+}
