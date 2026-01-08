@@ -21,15 +21,16 @@ export interface DrugInfo {
 }
 
 // The 8 tradeable goods
+// Drug names from original C++ game
 export const DRUGS: DrugInfo[] = [
   { id: 0, name: '古董瓷器', minPrice: 100, maxPrice: 450 },
   { id: 1, name: '古旧手机', minPrice: 15000, maxPrice: 30000 },
   { id: 2, name: '盗版VCD游戏', minPrice: 5, maxPrice: 55 },
-  { id: 3, name: '紫砂茶具、古董茶', minPrice: 1000, maxPrice: 3500 },
-  { id: 4, name: '新泻特产、特色小食品', minPrice: 5000, maxPrice: 14000 },
+  { id: 3, name: '白酒，茅台等', minPrice: 1000, maxPrice: 3500 },  // FIXED: was 紫砂茶具、古董茶
+  { id: 4, name: '新鲜和小吃（新鲜产品）', minPrice: 5000, maxPrice: 14000 },  // FIXED: was 新泻特产、特色小食品
   { id: 5, name: '丝绸衣服', minPrice: 250, maxPrice: 850 },
   { id: 6, name: '水晶手镯', minPrice: 750, maxPrice: 1500 },
-  { id: 7, name: 'α街画报纸品', minPrice: 65, maxPrice: 245 },
+  { id: 7, name: '仿制化妆品', minPrice: 65, maxPrice: 245 },  // FIXED: was α街画报纸品
 ];
 
 // ============================================================================

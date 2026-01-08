@@ -35,14 +35,15 @@ export class PriceGenerator {
 
     // Generate base prices with random variance
     // Formula: basePrice + randomInt(priceRange)
-    prices[0] = DRUGS[0].minPrice + randomInt(DRUGS[0].maxPrice - DRUGS[0].minPrice + 1); // 100-450
-    prices[1] = DRUGS[1].minPrice + randomInt(DRUGS[1].maxPrice - DRUGS[1].minPrice + 1); // 15000-30000
-    prices[2] = DRUGS[2].minPrice + randomInt(DRUGS[2].maxPrice - DRUGS[2].minPrice + 1); // 5-55
-    prices[3] = DRUGS[3].minPrice + randomInt(DRUGS[3].maxPrice - DRUGS[3].minPrice + 1); // 1000-3500
-    prices[4] = DRUGS[4].minPrice + randomInt(DRUGS[4].maxPrice - DRUGS[4].minPrice + 1); // 5000-14000
-    prices[5] = DRUGS[5].minPrice + randomInt(DRUGS[5].maxPrice - DRUGS[5].minPrice + 1); // 250-850
-    prices[6] = DRUGS[6].minPrice + randomInt(DRUGS[6].maxPrice - DRUGS[6].minPrice + 1); // 750-1500
-    prices[7] = DRUGS[7].minPrice + randomInt(DRUGS[7].maxPrice - DRUGS[7].minPrice + 1); // 65-245
+    // Note: C++ RandomNum(X) returns [0, X-1], so we don't add +1 here
+    prices[0] = DRUGS[0].minPrice + randomInt(DRUGS[0].maxPrice - DRUGS[0].minPrice); // 100-449 (not 450)
+    prices[1] = DRUGS[1].minPrice + randomInt(DRUGS[1].maxPrice - DRUGS[1].minPrice); // 15000-29999 (not 30000)
+    prices[2] = DRUGS[2].minPrice + randomInt(DRUGS[2].maxPrice - DRUGS[2].minPrice); // 5-54 (not 55)
+    prices[3] = DRUGS[3].minPrice + randomInt(DRUGS[3].maxPrice - DRUGS[3].minPrice); // 1000-3499 (not 3500)
+    prices[4] = DRUGS[4].minPrice + randomInt(DRUGS[4].maxPrice - DRUGS[4].minPrice); // 5000-13999 (not 14000)
+    prices[5] = DRUGS[5].minPrice + randomInt(DRUGS[5].maxPrice - DRUGS[5].minPrice); // 250-849 (not 850)
+    prices[6] = DRUGS[6].minPrice + randomInt(DRUGS[6].maxPrice - DRUGS[6].minPrice); // 750-1499 (not 1500)
+    prices[7] = DRUGS[7].minPrice + randomInt(DRUGS[7].maxPrice - DRUGS[7].minPrice); // 65-244 (not 245)
 
     // Randomly hide 'leaveout' number of items (set price to 0)
     // This simulates market availability - not all items are available at all locations

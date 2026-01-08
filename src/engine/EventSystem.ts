@@ -226,44 +226,60 @@ export class EventSystem {
 
   /**
    * Hacker event (if hacking mode enabled)
-   * Ported from: SelectionDlg.cpp hacker event logic
+   * Ported from: SelectionDlg.cpp lines 1814-1850
    *
-   * Original C++:
-   * if (random(1000) % 25 == 0 && bank > 1000) {
-   *   if (random(3) == 0) gain else lose
-   * }
+   * Three-tier logic based on bank balance:
+   * 1. Bank < 1000: No effect (too little to hack)
+   * 2. Bank 1000-100000: Always gain (help poor players)
+   * 3. Bank > 100000: 33% gain / 67% lose (rich players at risk)
    */
   private triggerHackerEvent(state: GameState): GameEvent | null {
     // 2.5% chance (1000 % 25 === 0)
-    if (randomInt(1000) % 25 === 0 && state.bank > 1000) {
-      // 33% chance to gain, 67% chance to lose
-      const isGain = randomInt(3) === 0;
-
-      if (isGain) {
-        // Gain 5-6.67% of bank
-        const gain = Math.floor(state.bank / (15 + randomInt(6))); // 15-20
-        state.bank += gain;
-
-        return {
-          type: 'theft',
-          message: `你的黑客技术帮你从银行系统中获得了¥${gain.toLocaleString('zh-CN')}！`,
-          data: { isHacker: true, isGain: true, amount: gain }
-        };
-      } else {
-        // Lose 5-6.67% of bank
-        const loss = Math.floor(state.bank / (15 + randomInt(6))); // 15-20
-        state.bank -= loss;
-        if (state.bank < 0) state.bank = 0;
-
-        return {
-          type: 'theft',
-          message: `糟糕！你的银行账户被黑客入侵，损失了¥${loss.toLocaleString('zh-CN')}！`,
-          data: { isHacker: true, isGain: false, amount: loss }
-        };
-      }
+    if (randomInt(1000) % 25 !== 0) {
+      return null;
     }
 
-    return null;
+    // Bank < 1000: do nothing (C++ line 1817)
+    if (state.bank < 1000) {
+      return null;
+    }
+
+    let amount: number;
+    let isGain: boolean;
+    let message: string;
+
+    if (state.bank > 100000) {
+      // Rich players: High risk/reward (C++ lines 1819-1837)
+      // Divisor: [2-21], amount: 4.76%-50% of bank
+      amount = Math.floor(state.bank / (2 + randomInt(20)));
+
+      // 67% chance to lose, 33% chance to gain
+      if (randomInt(20) % 3 !== 0) {
+        // Lose money
+        state.bank -= amount;
+        if (state.bank < 0) state.bank = 0;
+        isGain = false;
+        message = `你的银行账户遭遇黑客入侵，修改了数据库，你的存款减少了¥${amount.toLocaleString('zh-CN')}！`;
+      } else {
+        // Gain money
+        state.bank += amount;
+        isGain = true;
+        message = `你的黑客技术修改了银行数据库，你的存款增加了¥${amount.toLocaleString('zh-CN')}！`;
+      }
+    } else {
+      // Poor players: Always gain (C++ lines 1840-1847)
+      // Divisor: [1-15], amount: 6.67%-100% of bank
+      amount = Math.floor(state.bank / (1 + randomInt(15)));
+      state.bank += amount;
+      isGain = true;
+      message = `你的黑客技术修改了银行数据库，你的存款增加了¥${amount.toLocaleString('zh-CN')}！`;
+    }
+
+    return {
+      type: 'theft',
+      message,
+      data: { isHacker: true, isGain, amount }
+    };
   }
 
   /**
