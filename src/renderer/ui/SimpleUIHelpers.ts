@@ -63,10 +63,14 @@ export class SimpleSlider extends Container {
     this.maxValue = max;
     this.currentValue = initialValue;
 
+    // CRITICAL: Slider container must block events
+    this.eventMode = 'static';
+
     // Background track
     this.bg = new Graphics();
     this.bg.roundRect(0, 5, width, 10, 5);
     this.bg.fill(0x444444);
+    this.bg.eventMode = 'static'; // Block events on track
     this.addChild(this.bg);
 
     // Handle

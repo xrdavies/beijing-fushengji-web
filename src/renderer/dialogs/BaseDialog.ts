@@ -26,6 +26,9 @@ export abstract class BaseDialog extends Container {
     this.dialogWidth = width;
     this.dialogHeight = height;
 
+    // CRITICAL: Dialog container must block events
+    this.eventMode = 'static';
+
     this.visible = false;
     this.createDialog(title);
     this.setupKeyboardHandlers();
@@ -47,9 +50,27 @@ export abstract class BaseDialog extends Container {
    */
   protected createDialog(title: string): void {
     // Modal overlay background (semi-transparent black)
+    // CRITICAL: Must block all pointer events to prevent click-through
     this.background = new Graphics();
     this.background.rect(0, 0, 800, 600);
     this.background.fill({ color: 0x000000, alpha: 0.7 });
+    this.background.eventMode = 'static'; // Block all pointer events
+    this.background.cursor = 'default';
+
+    // Consume all pointer events to prevent propagation
+    this.background.on('pointerdown', (event) => {
+      event.stopPropagation();
+    });
+    this.background.on('pointerup', (event) => {
+      event.stopPropagation();
+    });
+    this.background.on('pointermove', (event) => {
+      event.stopPropagation();
+    });
+    this.background.on('pointerupoutside', (event) => {
+      event.stopPropagation();
+    });
+
     this.addChild(this.background);
 
     // Dialog panel
@@ -59,6 +80,7 @@ export abstract class BaseDialog extends Container {
     this.panel.roundRect(x, y, this.dialogWidth, this.dialogHeight, 10);
     this.panel.fill(0x2a2a2a);
     this.panel.stroke({ color: 0x4a7bc8, width: 2 });
+    this.panel.eventMode = 'static'; // Panel should also block events
     this.addChild(this.panel);
 
     // Title bar

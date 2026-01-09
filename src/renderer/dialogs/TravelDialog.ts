@@ -13,7 +13,7 @@ import { Container, Graphics, Text } from 'pixi.js';
 import { ScrollBox } from '@pixi/ui';
 import { BaseDialog } from './BaseDialog';
 import { gameStateManager } from '@state/GameStateManager';
-import { BEIJING_LOCATIONS, SHANGHAI_LOCATIONS, type Location } from '@engine/types';
+import { BEIJING_LOCATIONS, SHANGHAI_LOCATIONS, type Location, type GameEvent } from '@engine/types';
 import { createButton } from '../ui/SimpleUIHelpers';
 import { audioManager } from '@audio/AudioManager';
 
@@ -241,26 +241,15 @@ export class TravelDialog extends BaseDialog {
         return;
       }
 
-      // Play sounds and show messages for all events
+      // Show events one by one (matching original C++ game behavior)
+      // Original: Each CRijiDlg.DoModal() shows ONE event, then next event
       const newsDialog = this.parent?.children.find(
         (child) => child.constructor.name === 'NewsDialog'
       ) as any;
 
       if (newsDialog && newsDialog.showMessage) {
-        // Combine all event messages
-        const combinedMessage = events
-          .map((event) => {
-            // Play event sound if available
-            if (event.sound) {
-              // Convert "kill.wav" -> "kill"
-              const soundId = event.sound.replace('.wav', '') as any;
-              audioManager.play(soundId);
-            }
-            return event.message;
-          })
-          .join('\n\n---\n\n');
-
-        newsDialog.showMessage(combinedMessage, '消息');
+        // Show events sequentially, one dialog at a time
+        this.showEventsSequentially(events, newsDialog, 0);
       }
     }
 
@@ -289,6 +278,44 @@ export class TravelDialog extends BaseDialog {
     this.timeLeftText.text = `${state.timeLeft}天`;
 
     this.show();
+  }
+
+  /**
+   * Show events sequentially, one at a time
+   * Matches original C++ game behavior where each event triggers a separate modal dialog
+   */
+  private showEventsSequentially(events: GameEvent[], newsDialog: any, index: number): void {
+    if (index >= events.length) {
+      // All events shown
+      return;
+    }
+
+    const event = events[index];
+
+    // Play event sound if available
+    if (event.sound) {
+      const soundId = event.sound.replace('.wav', '') as any;
+      audioManager.play(soundId);
+    }
+
+    // Show this event's message
+    newsDialog.showMessage(event.message, '消息');
+
+    // Wait for dialog to close, then show next event
+    // We'll override the dialog's hide method temporarily
+    const originalHide = newsDialog.hide.bind(newsDialog);
+    newsDialog.hide = () => {
+      // Restore original hide method
+      newsDialog.hide = originalHide;
+
+      // Call original hide
+      originalHide();
+
+      // Show next event after a short delay (to allow dialog close animation)
+      setTimeout(() => {
+        this.showEventsSequentially(events, newsDialog, index + 1);
+      }, 300);
+    };
   }
 
   protected onOpen(): void {

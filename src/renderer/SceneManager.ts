@@ -76,6 +76,7 @@ export class SceneManager {
    * Open dialog
    */
   openDialog(dialog: Container): void {
+    this.disableGameLayer(); // Disable underlying game layer
     this.dialogLayer.removeChildren();
     this.dialogLayer.addChild(dialog);
     this.dialogLayer.visible = true;
@@ -87,6 +88,21 @@ export class SceneManager {
   closeDialog(): void {
     this.dialogLayer.visible = false;
     this.dialogLayer.removeChildren();
+    this.enableGameLayer();
+  }
+
+  /**
+   * Disable gameLayer interactivity (when dialog is open)
+   */
+  disableGameLayer(): void {
+    this.gameLayer.eventMode = 'none'; // Disable all pointer events
+  }
+
+  /**
+   * Enable gameLayer interactivity (when dialog is closed)
+   */
+  enableGameLayer(): void {
+    this.gameLayer.eventMode = 'auto'; // Re-enable pointer events
   }
 
   /**
