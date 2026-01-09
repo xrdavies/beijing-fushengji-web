@@ -134,12 +134,9 @@ export class HouseDialog extends BaseDialog {
     const result = gameStateManager.rentHouse();
 
     if (result.success) {
-      console.log(`Successfully rented house. New capacity: ${this.currentCapacity + GAME_CONSTANTS.HOUSE_CAPACITY_INCREASE}`);
-      // TODO Week 4: Play door sound
       this.hide();
     } else {
-      console.error(`Rental failed: ${result.error}`);
-      // TODO: Show error message in dialog
+      console.error(`House rental failed: ${result.error}`);
     }
   }
 

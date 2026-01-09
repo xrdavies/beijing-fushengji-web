@@ -195,12 +195,9 @@ export class HospitalDialog extends BaseDialog {
     const result = gameStateManager.visitHospital(this.healthPoints);
 
     if (result.success) {
-      console.log(`Successfully restored ${this.healthPoints} health points`);
-      // TODO Week 4: Play hospital sound
       this.hide();
     } else {
-      console.error(`Treatment failed: ${result.error}`);
-      // TODO: Show error message in dialog
+      console.error(`Hospital visit failed: ${result.error}`);
     }
   }
 

@@ -152,10 +152,9 @@ export class TopPlayersDialog extends BaseDialog {
 
   /**
    * Load scores from localStorage
+   * Currently returns placeholder data - will be implemented with real leaderboard system
    */
   private loadScores(): PlayerScore[] {
-    // TODO: Implement actual localStorage loading
-    // For now, return placeholder data
     return [
       { rank: 1, name: '富豪王', score: 5000000 },
       { rank: 2, name: '商业大亨', score: 3500000 },

@@ -240,12 +240,10 @@ export class SellDialog extends BaseDialog {
     const result = gameStateManager.sellDrug(this.drugId, this.currentQuantity);
 
     if (result.success) {
-      console.log(`Successfully sold ${this.currentQuantity} of ${DRUGS[this.drugId].name}`);
       audioManager.play('sell');
       this.hide();
     } else {
       console.error(`Sale failed: ${result.error}`);
-      // TODO: Show error message in dialog
     }
   }
 

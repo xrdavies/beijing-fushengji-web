@@ -10,12 +10,18 @@
     "assets": "assetpack",
     "assets:watch": "assetpack --watch"
   },
-  "keywords": ["game", "pixijs", "trading-simulation", "beijing"],
+  "keywords": [
+    "game",
+    "pixijs",
+    "trading-simulation",
+    "beijing"
+  ],
   "author": "Original: Guo Xianghao; Web Port: Contributors",
   "license": "GPL-2.0",
   "devDependencies": {
     "@assetpack/core": "^1.7.0",
     "@types/node": "^25.0.3",
+    "terser": "^5.44.1",
     "typescript": "^5.9.3",
     "vite": "^7.3.1"
   },

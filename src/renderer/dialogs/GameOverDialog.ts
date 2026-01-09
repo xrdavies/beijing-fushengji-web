@@ -148,7 +148,6 @@ export class GameOverDialog extends BaseDialog {
    * Handle play again button
    */
   private handlePlayAgain(): void {
-    // TODO: Save score to leaderboard if high enough
     // Note: resetGame() is called in onClose(), no need to call it here
     this.hide();
   }
@@ -157,8 +156,7 @@ export class GameOverDialog extends BaseDialog {
    * Handle view leaderboard button
    */
   private handleViewLeaderboard(): void {
-    // TODO: Open TopPlayersDialog
-    console.log('Opening leaderboard...');
+    console.log('Leaderboard feature not yet implemented');
     this.hide();
   }
 

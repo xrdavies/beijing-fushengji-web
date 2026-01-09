@@ -200,12 +200,10 @@ export class BuyDialog extends BaseDialog {
     const result = gameStateManager.buyDrug(this.drugId, this.currentQuantity);
 
     if (result.success) {
-      console.log(`Successfully bought ${this.currentQuantity} of ${DRUGS[this.drugId].name}`);
       audioManager.play('buy');
       this.hide();
     } else {
       console.error(`Purchase failed: ${result.error}`);
-      // TODO: Show error message in dialog
     }
   }
 

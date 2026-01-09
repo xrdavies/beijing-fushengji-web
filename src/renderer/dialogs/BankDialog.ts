@@ -199,21 +199,14 @@ export class BankDialog extends BaseDialog {
     let result;
     if (this.mode === 'deposit') {
       result = gameStateManager.depositBank(this.currentAmount);
-      if (result.success) {
-        console.log(`Successfully deposited ¥${this.currentAmount}`);
-      }
     } else {
       result = gameStateManager.withdrawBank(this.currentAmount);
-      if (result.success) {
-        console.log(`Successfully withdrew ¥${this.currentAmount}`);
-      }
     }
 
     if (result && result.success) {
       this.hide();
     } else if (result) {
-      console.error(`Operation failed: ${result.error}`);
-      // TODO: Show error message in dialog
+      console.error(`Bank transaction failed: ${result.error}`);
     }
   }
 
