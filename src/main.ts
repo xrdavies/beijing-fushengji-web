@@ -22,6 +22,18 @@ class Game {
   async init() {
     console.log('🚀 Beijing Fushengji - Initializing...');
 
+    // Load saved game if exists
+    if (gameStateManager.hasSavedGame()) {
+      const loaded = gameStateManager.loadGame();
+      if (loaded) {
+        console.log('💾 Loaded saved game');
+      } else {
+        console.log('⚠️ Failed to load saved game, starting new game');
+      }
+    } else {
+      console.log('🆕 Starting new game');
+    }
+
     // Create PixiJS application
     this.app = new Application();
 

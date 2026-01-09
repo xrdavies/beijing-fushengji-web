@@ -253,6 +253,12 @@ export class SellDialog extends BaseDialog {
    * Open dialog for specific drug
    */
   openForDrug(drugId: number): void {
+    // CRITICAL: Prevent selling if game is over
+    if (gameStateManager.isGameOver()) {
+      console.log('Game is over, cannot sell');
+      return;
+    }
+
     this.drugId = drugId;
 
     const state = gameStateManager.getState();

@@ -149,9 +149,8 @@ export class GameOverDialog extends BaseDialog {
    */
   private handlePlayAgain(): void {
     // TODO: Save score to leaderboard if high enough
-    gameStateManager.resetGame();
+    // Note: resetGame() is called in onClose(), no need to call it here
     this.hide();
-    console.log('Starting new game');
   }
 
   /**
@@ -211,6 +210,10 @@ export class GameOverDialog extends BaseDialog {
   }
 
   protected onClose(): void {
-    // Dialog closed
+    // Auto-restart game when dialog closes (Option A)
+    // This ensures player always returns to playable state
+    // Triggered by: X button, ESC key, or any dialog close
+    gameStateManager.resetGame();
+    console.log('Game over dialog closed - Starting new game');
   }
 }

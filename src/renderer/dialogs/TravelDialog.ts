@@ -196,6 +196,13 @@ export class TravelDialog extends BaseDialog {
   private handleLocationSelect(location: Location): void {
     const state = gameStateManager.getState();
 
+    // CRITICAL: Prevent travel if game is over
+    if (gameStateManager.isGameOver()) {
+      console.log('Game is over, cannot travel');
+      this.hide();
+      return;
+    }
+
     // Check if already at this location
     if (state.currentLocation?.id === location.id) {
       console.log('Already at this location');

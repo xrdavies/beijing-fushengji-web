@@ -171,7 +171,8 @@ export class GameEngine {
     state.timeLeft--;
 
     // 8. Check if game over (time ran out)
-    if (state.timeLeft === 0) {
+    // CRITICAL: Use <= 0 to catch negative values (in case of bugs)
+    if (state.timeLeft <= 0) {
       // Auto-liquidate all inventory at current market prices
       const cashBefore = state.cash;
       this.forceSellAllItems(state);
