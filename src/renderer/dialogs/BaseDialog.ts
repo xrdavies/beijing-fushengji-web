@@ -29,6 +29,11 @@ export abstract class BaseDialog extends Container {
     // CRITICAL: Dialog container must block events
     this.eventMode = 'static';
 
+    // Set pivot and position to center for proper scale animation
+    // This makes the dialog scale from the center, not from top-left
+    this.pivot.set(400, 300); // Center of 800x600 screen
+    this.position.set(400, 300); // Position at center
+
     this.visible = false;
     this.createDialog(title);
     this.setupKeyboardHandlers();

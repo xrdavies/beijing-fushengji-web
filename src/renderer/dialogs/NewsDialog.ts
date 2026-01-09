@@ -16,7 +16,8 @@ export class NewsDialog extends BaseDialog {
   private messageText!: Text;
 
   constructor() {
-    super(500, 350, '消息');
+    // Increased dialog size to accommodate longer messages
+    super(550, 400, '消息');
     this.createNewsDialogUI();
   }
 
@@ -27,9 +28,10 @@ export class NewsDialog extends BaseDialog {
     const panelX = (800 - this.dialogWidth) / 2;
     const panelY = (600 - this.dialogHeight) / 2;
     const contentX = panelX + 30;
-    let currentY = panelY + 100;
+    const contentWidth = this.dialogWidth - 60;
+    let currentY = panelY + 80;
 
-    // Message text (word wrapped)
+    // Message text (word wrapped, left-aligned for better Chinese text readability)
     this.messageText = new Text({
       text: '',
       style: {
@@ -37,17 +39,18 @@ export class NewsDialog extends BaseDialog {
         fontSize: 16,
         fill: 0xffffff,
         wordWrap: true,
-        wordWrapWidth: 420,
-        align: 'center',
-        lineHeight: 24,
+        wordWrapWidth: contentWidth, // Use full content width
+        breakWords: true, // CRITICAL: Allow breaking Chinese text at any character
+        align: 'left', // Left-align for better readability with wrapped Chinese text
+        lineHeight: 26, // Increased line height for better readability
       }
     });
-    this.messageText.x = contentX + 210;
+    this.messageText.x = contentX;
     this.messageText.y = currentY;
-    this.messageText.anchor.set(0.5, 0);
+    this.messageText.anchor.set(0, 0);
     this.addChild(this.messageText);
 
-    currentY += 150;
+    currentY += 250; // Increased space for text (was 150)
 
     // OK button
     const okButton = createButton('确定', 140, 40, 0x3a7bc8, () => this.hide());
