@@ -16,8 +16,8 @@ export interface DrugItem {
 export interface DrugInfo {
   id: number;
   name: string;         // Chinese name
-  minPrice: number;     // Minimum market price
-  maxPrice: number;     // Maximum market price
+  minPrice: number;     // Minimum market price (inclusive)
+  maxPrice: number;     // Maximum market price (exclusive upper bound - actual max is maxPrice-1)
 }
 
 // The 8 tradeable goods
@@ -198,8 +198,9 @@ export const GAME_CONSTANTS = {
 
   // Services
   HOSPITAL_COST_PER_HP: 3500,
-  HOUSE_RENT_MIN: 25000,
-  HOUSE_RENT_MAX: 30000,
+  HOUSE_RENT_MIN: 25000,          // Poor players (cash ≤ 30k): Fixed cost
+  HOUSE_RENT_MAX: 30000,          // Not used (kept for reference)
+  HOUSE_RENT_RICH_THRESHOLD: 30000, // Rich players (cash > 30k): Pay (cash/2 - 2000)
   HOUSE_CAPACITY_INCREASE: 10,
   WANGBA_ENTRY_COST: 15,
   WANGBA_REWARD_MIN: 1,

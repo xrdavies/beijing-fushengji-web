@@ -321,17 +321,27 @@ export class GameEngine {
 
   /**
    * Rent house to increase capacity
-   * Ported from: HouseDlg.cpp
+   * Ported from: SelectionDlg.cpp lines 2085-2093
+   *
+   * CRITICAL: Two-tier pricing system to balance game economy
+   * - Poor players (≤30k): Fixed 25,000 cost
+   * - Rich players (>30k): Variable cost = (cash/2 - 2,000)
+   * This prevents rich players from exploiting cheap housing
    */
   rentHouse(state: GameState): Result<number> {
     if (state.capacity >= GAME_CONSTANTS.MAX_CAPACITY) {
       return Err(`容量已达上限${GAME_CONSTANTS.MAX_CAPACITY}`);
     }
 
-    // Random cost: 25,000-30,000
-    const cost =
-      GAME_CONSTANTS.HOUSE_RENT_MIN +
-      Math.floor(Math.random() * (GAME_CONSTANTS.HOUSE_RENT_MAX - GAME_CONSTANTS.HOUSE_RENT_MIN));
+    // Two-tier pricing system (matches original C++ exactly)
+    let cost: number;
+    if (state.cash <= 30000) {
+      // Poor players: Fixed cost
+      cost = 25000;
+    } else {
+      // Rich players: Pay half their cash minus 2,000
+      cost = Math.floor(state.cash / 2) - 2000;
+    }
 
     if (state.cash < cost) {
       return Err(`现金不足！需要¥${cost.toLocaleString('zh-CN')}，你只有¥${state.cash.toLocaleString('zh-CN')}`);
