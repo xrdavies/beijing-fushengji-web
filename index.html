@@ -46,6 +46,26 @@
         font-size: 18px;
         color: #aaa;
       }
+
+      .social-links {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        gap: 15px;
+        z-index: 1000;
+      }
+
+      .social-links a {
+        color: #aaa;
+        text-decoration: none;
+        font-size: 14px;
+        transition: color 0.3s;
+      }
+
+      .social-links a:hover {
+        color: #fff;
+      }
     </style>
   </head>
   <body>
@@ -53,6 +73,10 @@
       <div>北京浮生记</div>
       <div class="loading-text">Beijing Fushengji</div>
       <div class="loading-text">Loading...</div>
+    </div>
+    <div class="social-links">
+      <a href="https://github.com/xrdavies/beijing-fushengji-web" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="https://x.com/xrdavies" target="_blank" rel="noopener noreferrer">Twitter/X</a>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
