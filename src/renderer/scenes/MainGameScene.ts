@@ -34,6 +34,7 @@ import { SettingsDialog } from '../dialogs/SettingsDialog';
 import { BossDialog } from '../dialogs/BossDialog';
 import { GameOverDialog } from '../dialogs/GameOverDialog';
 import { TravelDialog } from '../dialogs/TravelDialog';
+import { ConfirmDialog } from '../dialogs/ConfirmDialog';
 
 export class MainGameScene extends Container {
   private app: Application;
@@ -56,6 +57,7 @@ export class MainGameScene extends Container {
   private bossDialog!: BossDialog;
   private gameOverDialog!: GameOverDialog;
   private travelDialog!: TravelDialog;
+  private confirmDialog!: ConfirmDialog;
 
   constructor(app: Application) {
     super();
@@ -315,6 +317,10 @@ export class MainGameScene extends Container {
 
     this.travelDialog = new TravelDialog();
     this.addChild(this.travelDialog);
+
+    // Utility dialogs
+    this.confirmDialog = new ConfirmDialog();
+    this.addChild(this.confirmDialog);
   }
 
   /**

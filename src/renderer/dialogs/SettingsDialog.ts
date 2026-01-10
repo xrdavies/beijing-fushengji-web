@@ -111,11 +111,27 @@ export class SettingsDialog extends BaseDialog {
    * Handle new game button
    */
   private handleNewGame(): void {
-    // Confirm with user
-    if (confirm('确定要开始新游戏吗？当前进度将丢失！')) {
-      gameStateManager.resetGame();
-      console.log('New game started');
-      this.hide();
+    // Use custom confirm dialog
+    const confirmDialog = this.parent?.children.find(
+      (child) => child.constructor.name === 'ConfirmDialog'
+    ) as any;
+
+    if (confirmDialog && confirmDialog.showConfirm) {
+      confirmDialog.showConfirm(
+        '确定要开始新游戏吗？当前进度将丢失！',
+        () => {
+          gameStateManager.resetGame();
+          console.log('New game started');
+          this.hide();
+        }
+      );
+    } else {
+      // Fallback to native confirm if custom dialog not found
+      if (confirm('确定要开始新游戏吗？当前进度将丢失！')) {
+        gameStateManager.resetGame();
+        console.log('New game started');
+        this.hide();
+      }
     }
   }
 
