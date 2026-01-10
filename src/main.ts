@@ -91,13 +91,19 @@ class Game {
       const scaleY = height / 600;
       const scale = Math.min(scaleX, scaleY);
 
-      // Update renderer size
-      this.app.renderer.resize(width, height);
+      // Update renderer to match game size (not window size)
+      // This ensures proper hit detection on mobile
+      this.app.renderer.resize(800, 600);
 
-      // Scale and center the game scene
-      this.mainGameScene.scale.set(scale);
-      this.mainGameScene.x = (width - 800 * scale) / 2;
-      this.mainGameScene.y = (height - 600 * scale) / 2;
+      // Scale the canvas element itself for responsive display
+      const canvas = this.app.canvas as HTMLCanvasElement;
+      canvas.style.width = `${800 * scale}px`;
+      canvas.style.height = `${600 * scale}px`;
+
+      // Center the canvas in the viewport
+      canvas.style.position = 'absolute';
+      canvas.style.left = `${(width - 800 * scale) / 2}px`;
+      canvas.style.top = `${(height - 600 * scale) / 2}px`;
     };
 
     // Initial resize
@@ -105,6 +111,11 @@ class Game {
 
     // Listen for window resize
     window.addEventListener('resize', resizeHandler);
+
+    // Also handle orientation change on mobile
+    window.addEventListener('orientationchange', () => {
+      setTimeout(resizeHandler, 100);
+    });
   }
 
   /**

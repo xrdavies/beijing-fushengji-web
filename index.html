@@ -2,7 +2,10 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-fullscreen" />
     <title>北京浮生记 - Beijing Fushengji</title>
     <style>
       * {
@@ -15,10 +18,52 @@
         overflow: hidden;
         background-color: #000;
         font-family: 'Microsoft YaHei', 'Noto Sans SC', Arial, sans-serif;
+        /* Prevent pull-to-refresh and overscroll */
+        overscroll-behavior: none;
+        /* Prevent text selection on mobile */
+        -webkit-user-select: none;
+        user-select: none;
+        /* Prevent touch callouts on iOS */
+        -webkit-touch-callout: none;
+        /* Prevent tap highlight on mobile */
+        -webkit-tap-highlight-color: transparent;
       }
 
       canvas {
         display: block;
+        /* Prevent canvas from being selectable */
+        -webkit-user-select: none;
+        user-select: none;
+      }
+
+      /* Mobile-specific adjustments */
+      @media (max-width: 768px) {
+        .social-links {
+          bottom: 10px;
+          right: 10px;
+          gap: 10px;
+        }
+
+        .social-links a {
+          font-size: 12px;
+          padding: 8px;
+          background: rgba(0, 0, 0, 0.5);
+          border-radius: 4px;
+        }
+      }
+
+      /* Landscape mobile optimization */
+      @media (max-height: 500px) and (orientation: landscape) {
+        .social-links {
+          font-size: 10px;
+          bottom: 5px;
+          right: 5px;
+          gap: 5px;
+        }
+
+        .social-links a {
+          padding: 4px 8px;
+        }
       }
 
       #loading {

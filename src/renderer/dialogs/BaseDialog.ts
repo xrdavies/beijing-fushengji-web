@@ -114,9 +114,10 @@ export abstract class BaseDialog extends Container {
 
   /**
    * Create close button
+   * Size increased to 44x44 for better mobile touch targets
    */
   private createCloseButton(panelX: number, panelY: number): void {
-    const buttonSize = 30;
+    const buttonSize = 44;
     const buttonBg = new Graphics();
     buttonBg.roundRect(0, 0, buttonSize, buttonSize, 5);
     buttonBg.fill(0xff4444);
@@ -125,7 +126,7 @@ export abstract class BaseDialog extends Container {
       text: '✕',
       style: {
         fontFamily: 'Arial',
-        fontSize: 18,
+        fontSize: 22,
         fill: 0xffffff,
         fontWeight: 'bold',
       }
@@ -140,7 +141,7 @@ export abstract class BaseDialog extends Container {
     });
 
     this.closeButton.x = panelX + this.dialogWidth - buttonSize - 10;
-    this.closeButton.y = panelY + 10;
+    this.closeButton.y = panelY + 3;
     this.addChild(this.closeButton);
 
     this.closeButton.onPress.connect(() => this.hide());

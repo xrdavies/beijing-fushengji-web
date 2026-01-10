@@ -7,11 +7,12 @@ import { Container, Graphics, Text } from 'pixi.js';
 
 /**
  * Simple button with click handler
+ * Default height is 48px to meet mobile touch target guidelines
  */
 export function createButton(
   text: string,
   width: number,
-  height: number,
+  height: number = 48,
   color: number = 0x3a7bc8,
   onClick: () => void
 ): Container {
@@ -45,6 +46,7 @@ export function createButton(
 
 /**
  * Simple slider with value callback
+ * Handle size increased for better mobile touch targets
  */
 export class SimpleSlider extends Container {
   private bg: Graphics;
@@ -66,18 +68,18 @@ export class SimpleSlider extends Container {
     // CRITICAL: Slider container must block events
     this.eventMode = 'static';
 
-    // Background track
+    // Background track - made taller for easier touch
     this.bg = new Graphics();
-    this.bg.roundRect(0, 5, width, 10, 5);
+    this.bg.roundRect(0, 10, width, 16, 8);
     this.bg.fill(0x444444);
     this.bg.eventMode = 'static'; // Block events on track
     this.addChild(this.bg);
 
-    // Handle
+    // Handle - increased to 18px radius for better touch
     this.handle = new Graphics();
-    this.handle.circle(0, 0, 10);
+    this.handle.circle(0, 0, 18);
     this.handle.fill(0x3a7bc8);
-    this.handle.y = 10;
+    this.handle.y = 18;
     this.handle.eventMode = 'static';
     this.handle.cursor = 'pointer';
     this.addChild(this.handle);
@@ -135,6 +137,7 @@ export class SimpleSlider extends Container {
 
 /**
  * Simple checkbox with toggle callback
+ * Size increased to 40x40 for better mobile touch targets
  */
 export class SimpleCheckbox extends Container {
   private box: Graphics;
@@ -148,9 +151,9 @@ export class SimpleCheckbox extends Container {
     this.eventMode = 'static';
     this.cursor = 'pointer';
 
-    // Box background
+    // Box background - increased to 40x40 for better touch
     this.box = new Graphics();
-    this.box.roundRect(0, 0, 30, 30, 5);
+    this.box.roundRect(0, 0, 40, 40, 5);
     this.box.fill(this.isChecked ? 0x3a7bc8 : 0x444444);
     this.addChild(this.box);
 
@@ -159,13 +162,13 @@ export class SimpleCheckbox extends Container {
       text: '✓',
       style: {
         fontFamily: 'Arial',
-        fontSize: 20,
+        fontSize: 26,
         fill: 0xffffff,
         fontWeight: 'bold',
       }
     });
-    this.checkMark.x = 7;
-    this.checkMark.y = 2;
+    this.checkMark.x = 9;
+    this.checkMark.y = 3;
     this.checkMark.visible = this.isChecked;
     this.addChild(this.checkMark);
 
@@ -175,7 +178,7 @@ export class SimpleCheckbox extends Container {
   private toggle(): void {
     this.isChecked = !this.isChecked;
     this.box.clear();
-    this.box.roundRect(0, 0, 30, 30, 5);
+    this.box.roundRect(0, 0, 40, 40, 5);
     this.box.fill(this.isChecked ? 0x3a7bc8 : 0x444444);
     this.checkMark.visible = this.isChecked;
 

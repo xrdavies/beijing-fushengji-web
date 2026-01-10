@@ -115,24 +115,24 @@ export class MainGameScene extends Container {
     const settingsButtonContainer = new Container();
 
     const settingsButtonBg = new Graphics()
-      .roundRect(0, 0, 40, 40, 5)
+      .roundRect(0, 0, 44, 44, 5) // Increased from 40 to 44 for better mobile touch
       .fill(0x3a7bc8);
 
     const settingsText = new Text({
       text: '⚙',
       style: {
         fontFamily: 'Arial',
-        fontSize: 24,
+        fontSize: 26,
         fill: 0xffffff,
       }
     });
     settingsText.anchor.set(0.5);
-    settingsText.x = 20;
-    settingsText.y = 20;
+    settingsText.x = 22; // Adjusted from 20 to center in 44px button
+    settingsText.y = 22; // Adjusted from 20 to center in 44px button
 
     settingsButtonContainer.addChild(settingsButtonBg);
     settingsButtonContainer.addChild(settingsText);
-    settingsButtonContainer.x = 740;
+    settingsButtonContainer.x = 736; // Adjusted from 740 to keep aligned
     settingsButtonContainer.y = 10;
 
     const settingsButton = new Button(settingsButtonContainer);
@@ -206,9 +206,9 @@ export class MainGameScene extends Container {
   private createActionButtons(): void {
     const buttonNames = ['银行', '医院', '租房', '网吧', '旅行'];
     const buttonWidth = 80;
-    const buttonHeight = 35;
+    const buttonHeight = 44; // Increased from 35 to 44 for better mobile touch
     const startX = 20;
-    const startY = 470;
+    const startY = 465; // Adjusted from 470 to accommodate taller buttons
     const spacing = 10;
 
     for (let i = 0; i < buttonNames.length; i++) {
