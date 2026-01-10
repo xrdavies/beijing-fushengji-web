@@ -18,7 +18,7 @@ export class SettingsDialog extends BaseDialog {
   private hackingCheckbox!: SimpleCheckbox;
 
   constructor() {
-    super(500, 450, '设置');
+    super(500, 500, '设置');
     this.createSettingsDialogUI();
   }
 
@@ -101,10 +101,78 @@ export class SettingsDialog extends BaseDialog {
 
     currentY += 70;
 
-    const closeButton = createButton('关闭', 120, 40, 0x3a7bc8, () => this.hide());
-    closeButton.x = contentX + 160;
-    closeButton.y = currentY;
-    this.addChild(closeButton);
+    // About section divider
+    const aboutDivider = new Graphics();
+    aboutDivider.moveTo(contentX, currentY);
+    aboutDivider.lineTo(contentX + 420, currentY);
+    aboutDivider.stroke({ color: 0x444444, width: 1 });
+    this.addChild(aboutDivider);
+
+    currentY += 20;
+
+    // About section title
+    const aboutTitle = new Text({
+      text: '关于',
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 16, fill: 0xaaaaaa, fontWeight: 'bold' }
+    });
+    aboutTitle.x = contentX;
+    aboutTitle.y = currentY;
+    this.addChild(aboutTitle);
+
+    currentY += 30;
+
+    // Version info
+    const versionText = new Text({
+      text: '北京浮生记 Web版 v1.0.0',
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0x888888 }
+    });
+    versionText.x = contentX;
+    versionText.y = currentY;
+    this.addChild(versionText);
+
+    currentY += 25;
+
+    // GitHub link
+    const githubText = new Text({
+      text: 'https://github.com/xrdavies/beijing-fushengji-web',
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 12, fill: 0x4a9eff }
+    });
+    githubText.x = contentX;
+    githubText.y = currentY;
+    githubText.eventMode = 'static';
+    githubText.cursor = 'pointer';
+    githubText.on('pointerdown', () => {
+      window.open('https://github.com/xrdavies/beijing-fushengji-web', '_blank');
+    });
+    githubText.on('pointerover', () => {
+      githubText.style.fill = 0x6bb6ff;
+    });
+    githubText.on('pointerout', () => {
+      githubText.style.fill = 0x4a9eff;
+    });
+    this.addChild(githubText);
+
+    currentY += 25;
+
+    // Developer link
+    const developerText = new Text({
+      text: 'https://x.com/xrdavies',
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 12, fill: 0x4a9eff }
+    });
+    developerText.x = contentX;
+    developerText.y = currentY;
+    developerText.eventMode = 'static';
+    developerText.cursor = 'pointer';
+    developerText.on('pointerdown', () => {
+      window.open('https://x.com/xrdavies', '_blank');
+    });
+    developerText.on('pointerover', () => {
+      developerText.style.fill = 0x6bb6ff;
+    });
+    developerText.on('pointerout', () => {
+      developerText.style.fill = 0x4a9eff;
+    });
+    this.addChild(developerText);
   }
 
   /**
