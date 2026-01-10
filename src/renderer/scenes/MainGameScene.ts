@@ -43,6 +43,7 @@ export class MainGameScene extends Container {
   private inventoryList!: InventoryList;
   private newsTicker!: NewsTicker;
   private actionButtons: Map<string, Container> = new Map();
+  private gameOverShown: boolean = false; // Track if game over dialog has been shown
 
   // Dialogs
   private buyDialog!: BuyDialog;
@@ -330,5 +331,26 @@ export class MainGameScene extends Container {
     this.statsPanel.update(state);
     this.marketList.update(state);
     this.inventoryList.update(state);
+
+    // Reset game over flag when new game starts (day resets to 40 and health to 100)
+    if (state.timeLeft === 40 && state.health === 100 && this.gameOverShown) {
+      this.gameOverShown = false;
+    }
+
+    // CRITICAL: Auto-trigger game over dialog when game ends
+    // This is a safety net that catches both conditions:
+    // 1. Time ran out (timeLeft <= 0)
+    // 2. Player died (health <= 0)
+    if (gameStateManager.isGameOver() && !this.gameOverShown && !this.gameOverDialog.visible) {
+      this.gameOverShown = true;
+
+      // Delay to allow primary handlers (TravelDialog) to run first
+      // and to ensure all state updates are complete
+      setTimeout(() => {
+        if (!this.gameOverDialog.visible) {
+          this.gameOverDialog.open();
+        }
+      }, 1000);
+    }
   }
 }

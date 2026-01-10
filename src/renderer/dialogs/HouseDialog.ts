@@ -144,7 +144,7 @@ export class HouseDialog extends BaseDialog {
    * Open house dialog
    */
   open(): void {
-    // CRITICAL: Prevent opening if game is over
+    // CRITICAL: Prevent opening if game is over (time up OR player dead)
     if (gameStateManager.isGameOver()) {
       console.log('Game is over, cannot open house');
 

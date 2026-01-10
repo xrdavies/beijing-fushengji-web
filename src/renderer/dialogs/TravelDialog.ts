@@ -196,7 +196,7 @@ export class TravelDialog extends BaseDialog {
   private handleLocationSelect(location: Location): void {
     const state = gameStateManager.getState();
 
-    // CRITICAL: Prevent travel if game is over
+    // CRITICAL: Prevent travel if game is over (time up OR player dead)
     if (gameStateManager.isGameOver()) {
       console.log('Game is over, cannot travel');
       this.hide();
@@ -278,7 +278,7 @@ export class TravelDialog extends BaseDialog {
    * Open travel dialog
    */
   open(): void {
-    // CRITICAL: Prevent opening if game is over
+    // CRITICAL: Prevent opening if game is over (time up OR player dead)
     if (gameStateManager.isGameOver()) {
       console.log('Game is over, cannot open travel');
 

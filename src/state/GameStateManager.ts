@@ -411,10 +411,17 @@ export class GameStateManager {
   }
 
   /**
-   * Check if game has ended
+   * Check if time has run out
+   */
+  isTimeUp(): boolean {
+    return this.state.timeLeft <= 0;
+  }
+
+  /**
+   * Check if game has ended (either time ran out OR player died)
    */
   isGameOver(): boolean {
-    return this.state.timeLeft <= 0;
+    return this.isTimeUp() || this.isDead();
   }
 }
 

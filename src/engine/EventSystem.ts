@@ -309,20 +309,6 @@ export class EventSystem {
   }
 
   /**
-   * Check if player is dead (health <= 0)
-   */
-  checkDeath(state: GameState): boolean {
-    return state.health <= 0;
-  }
-
-  /**
-   * Check if game has ended (time <= 0)
-   */
-  checkGameEnd(state: GameState): boolean {
-    return state.timeLeft <= 0;
-  }
-
-  /**
    * Get end game warning message (day 39)
    */
   getEndGameWarning(state: GameState): string | null {

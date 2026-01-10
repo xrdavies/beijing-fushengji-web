@@ -205,7 +205,7 @@ export class HospitalDialog extends BaseDialog {
    * Open hospital dialog
    */
   open(): void {
-    // CRITICAL: Prevent opening if game is over
+    // CRITICAL: Prevent opening if game is over (time up OR player dead)
     if (gameStateManager.isGameOver()) {
       console.log('Game is over, cannot open hospital');
 

@@ -211,7 +211,7 @@ export class BuyDialog extends BaseDialog {
    * Open dialog for specific drug
    */
   openForDrug(drugId: number): void {
-    // CRITICAL: Prevent buying if game is over
+    // CRITICAL: Prevent buying if game is over (time up OR player dead)
     if (gameStateManager.isGameOver()) {
       console.log('Game is over, cannot buy');
 
