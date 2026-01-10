@@ -109,11 +109,11 @@ export class MainGameScene extends Container {
     this.addChild(title);
 
     // Settings button (gear icon - using text for now)
-    const settingsButton = new Button(
-      new Graphics()
-        .roundRect(0, 0, 40, 40, 5)
-        .fill(0x3a7bc8)
-    );
+    const settingsButtonContainer = new Container();
+
+    const settingsButtonBg = new Graphics()
+      .roundRect(0, 0, 40, 40, 5)
+      .fill(0x3a7bc8);
 
     const settingsText = new Text({
       text: '⚙',
@@ -127,10 +127,14 @@ export class MainGameScene extends Container {
     settingsText.x = 20;
     settingsText.y = 20;
 
+    settingsButtonContainer.addChild(settingsButtonBg);
+    settingsButtonContainer.addChild(settingsText);
+    settingsButtonContainer.x = 740;
+    settingsButtonContainer.y = 10;
+
+    const settingsButton = new Button(settingsButtonContainer);
+
     if (settingsButton.view) {
-      settingsButton.view.addChild(settingsText);
-      settingsButton.view.x = 740;
-      settingsButton.view.y = 10;
       this.addChild(settingsButton.view);
     }
 
@@ -207,11 +211,9 @@ export class MainGameScene extends Container {
     for (let i = 0; i < buttonNames.length; i++) {
       const buttonContainer = new Container();
 
-      const button = new Button(
-        new Graphics()
-          .roundRect(0, 0, buttonWidth, buttonHeight, 5)
-          .fill(0x3a7bc8)
-      );
+      const buttonBg = new Graphics()
+        .roundRect(0, 0, buttonWidth, buttonHeight, 5)
+        .fill(0x3a7bc8);
 
       const buttonText = new Text({
         text: buttonNames[i],
@@ -224,8 +226,14 @@ export class MainGameScene extends Container {
       buttonText.anchor.set(0.5);
       buttonText.x = buttonWidth / 2;
       buttonText.y = buttonHeight / 2;
+
+      const buttonView = new Container();
+      buttonView.addChild(buttonBg);
+      buttonView.addChild(buttonText);
+
+      const button = new Button(buttonView);
+
       if (button.view) {
-        button.view.addChild(buttonText);
         buttonContainer.addChild(button.view);
       }
       buttonContainer.x = startX + i * (buttonWidth + spacing);

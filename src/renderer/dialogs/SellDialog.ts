@@ -254,6 +254,15 @@ export class SellDialog extends BaseDialog {
     // CRITICAL: Prevent selling if game is over
     if (gameStateManager.isGameOver()) {
       console.log('Game is over, cannot sell');
+
+      // Show game over dialog
+      const gameOverDialog = this.parent?.children.find(
+        (child) => child.constructor.name === 'GameOverDialog'
+      ) as any;
+
+      if (gameOverDialog && gameOverDialog.open) {
+        gameOverDialog.open();
+      }
       return;
     }
 
