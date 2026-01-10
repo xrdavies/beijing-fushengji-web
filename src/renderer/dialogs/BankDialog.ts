@@ -214,6 +214,21 @@ export class BankDialog extends BaseDialog {
    * Open bank dialog
    */
   open(): void {
+    // CRITICAL: Prevent opening if game is over
+    if (gameStateManager.isGameOver()) {
+      console.log('Game is over, cannot open bank');
+
+      // Show game over dialog
+      const gameOverDialog = this.parent?.children.find(
+        (child) => child.constructor.name === 'GameOverDialog'
+      ) as any;
+
+      if (gameOverDialog && gameOverDialog.open) {
+        gameOverDialog.open();
+      }
+      return;
+    }
+
     const state = gameStateManager.getState();
     this.cashText.text = `¥${state.cash.toLocaleString('zh-CN')}`;
     this.bankText.text = `¥${state.bank.toLocaleString('zh-CN')}`;

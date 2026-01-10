@@ -205,6 +205,21 @@ export class HospitalDialog extends BaseDialog {
    * Open hospital dialog
    */
   open(): void {
+    // CRITICAL: Prevent opening if game is over
+    if (gameStateManager.isGameOver()) {
+      console.log('Game is over, cannot open hospital');
+
+      // Show game over dialog
+      const gameOverDialog = this.parent?.children.find(
+        (child) => child.constructor.name === 'GameOverDialog'
+      ) as any;
+
+      if (gameOverDialog && gameOverDialog.open) {
+        gameOverDialog.open();
+      }
+      return;
+    }
+
     const state = gameStateManager.getState();
     this.currentHealth = state.health;
 
