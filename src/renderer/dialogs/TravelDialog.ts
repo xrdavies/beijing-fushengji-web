@@ -21,6 +21,7 @@ export class TravelDialog extends BaseDialog {
   private beijingScrollBox!: ScrollBox;
   private shanghaiScrollBox!: ScrollBox;
   private currentCityText!: Text;
+  private currentLocationText!: Text;
   private timeLeftText!: Text;
 
   constructor() {
@@ -79,9 +80,25 @@ export class TravelDialog extends BaseDialog {
     this.timeLeftText.y = 0;
     statusContainer.addChild(this.timeLeftText);
 
+    const currentLocationLabel = new Text({
+      text: '当前地点:',
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0xaaaaaa }
+    });
+    currentLocationLabel.x = 0;
+    currentLocationLabel.y = 22;
+    statusContainer.addChild(currentLocationLabel);
+
+    this.currentLocationText = new Text({
+      text: '未知',
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0xffffff, fontWeight: 'bold' }
+    });
+    this.currentLocationText.x = 90;
+    this.currentLocationText.y = 22;
+    statusContainer.addChild(this.currentLocationText);
+
     this.addChild(statusContainer);
 
-    currentY += 40;
+    currentY += 60;
 
     // Beijing section
     const beijingTitle = new Text({
@@ -305,6 +322,7 @@ export class TravelDialog extends BaseDialog {
 
     // Update UI
     this.currentCityText.text = state.city === 'beijing' ? '北京' : '上海';
+    this.currentLocationText.text = state.currentLocation?.name ?? '未知';
     this.timeLeftText.text = `${state.timeLeft}天`;
 
     this.show();
