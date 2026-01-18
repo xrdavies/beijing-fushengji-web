@@ -11,7 +11,7 @@
  * - Location menu (center)
  */
 
-import { Container, Graphics, Text, Application } from 'pixi.js';
+import { Container, Graphics, Text, Application, FillGradient } from 'pixi.js';
 import { Button } from '@pixi/ui';
 import { StatsPanel } from '../ui/StatsPanel';
 import { MarketList } from '../ui/MarketList';
@@ -93,30 +93,62 @@ export class MainGameScene extends Container {
    */
   private createBackground(): void {
     const background = new Graphics();
+    const bgGradient = new FillGradient({
+      type: 'linear',
+      start: { x: 0, y: 0 },
+      end: { x: 0, y: 1 },
+      colorStops: [
+        { offset: 0, color: 0x0f141a },
+        { offset: 1, color: 0x0a0d12 },
+      ],
+      textureSpace: 'local',
+    });
     background.rect(0, 0, 800, 600);
-    background.fill(0x0a0a0a);
+    background.fill(bgGradient);
     this.addChild(background);
+
+    const headerGlow = new Graphics();
+    headerGlow.rect(0, 0, 800, 70);
+    headerGlow.fill({ color: 0x142033, alpha: 0.35 });
+    this.addChild(headerGlow);
+
+    const topRule = new Graphics();
+    topRule.moveTo(20, 50);
+    topRule.lineTo(780, 50);
+    topRule.stroke({ color: 0x1f2a3a, width: 1 });
+    this.addChild(topRule);
 
     // Title
     const title = new Text({
       text: '北京浮生记',
       style: {
         fontFamily: 'Microsoft YaHei, Arial',
-        fontSize: 24,
-        fill: 0xffffff,
+        fontSize: 26,
+        fill: 0xf8fafc,
         fontWeight: 'bold',
+        letterSpacing: 1,
       }
     });
-    title.x = 20;
-    title.y = 10;
+    title.x = 24;
+    title.y = 12;
     this.addChild(title);
+
+    const titleAccent = new Graphics();
+    titleAccent.roundRect(title.x, title.y + 32, 60, 3, 2);
+    titleAccent.fill(0x3a7bc8);
+    this.addChild(titleAccent);
 
     // Settings button (gear icon - using text for now)
     const settingsButtonContainer = new Container();
 
-    const settingsButtonBg = new Graphics()
-      .roundRect(0, 0, 44, 44, 5) // Increased from 40 to 44 for better mobile touch
-      .fill(0x3a7bc8);
+    const settingsButtonBg = new Graphics();
+    settingsButtonBg.roundRect(0, 0, 44, 44, 10);
+    settingsButtonBg.fill(0x2f6fce);
+    settingsButtonBg.stroke({ width: 1, color: 0x1e3355 });
+
+    const settingsShine = new Graphics();
+    settingsShine.roundRect(2, 2, 40, 20, 8);
+    settingsShine.fill({ color: 0xffffff, alpha: 0.08 });
 
     const settingsText = new Text({
       text: '⚙',
@@ -131,6 +163,7 @@ export class MainGameScene extends Container {
     settingsText.y = 22; // Adjusted from 20 to center in 44px button
 
     settingsButtonContainer.addChild(settingsButtonBg);
+    settingsButtonContainer.addChild(settingsShine);
     settingsButtonContainer.addChild(settingsText);
     settingsButtonContainer.x = 736; // Adjusted from 740 to keep aligned
     settingsButtonContainer.y = 10;
@@ -205,25 +238,32 @@ export class MainGameScene extends Container {
    */
   private createActionButtons(): void {
     const buttonNames = ['银行', '医院', '租房', '网吧', '旅行'];
-    const buttonWidth = 80;
+    const buttonWidth = 86;
     const buttonHeight = 44; // Increased from 35 to 44 for better mobile touch
-    const startX = 20;
-    const startY = 465; // Adjusted from 470 to accommodate taller buttons
-    const spacing = 10;
+    const spacing = 12;
+    const totalWidth = buttonNames.length * buttonWidth + (buttonNames.length - 1) * spacing;
+    const startX = Math.round((800 - totalWidth) / 2);
+    const startY = 468; // Balanced spacing above the ticker
 
     for (let i = 0; i < buttonNames.length; i++) {
       const buttonContainer = new Container();
 
-      const buttonBg = new Graphics()
-        .roundRect(0, 0, buttonWidth, buttonHeight, 5)
-        .fill(0x3a7bc8);
+      const buttonBg = new Graphics();
+      buttonBg.roundRect(0, 0, buttonWidth, buttonHeight, 10);
+      buttonBg.fill(0x2f6fce);
+      buttonBg.stroke({ width: 1, color: 0x1e3355, alpha: 0.9 });
+
+      const buttonHighlight = new Graphics();
+      buttonHighlight.roundRect(1, 1, buttonWidth - 2, Math.round(buttonHeight * 0.45), 9);
+      buttonHighlight.fill({ color: 0xffffff, alpha: 0.08 });
 
       const buttonText = new Text({
         text: buttonNames[i],
         style: {
           fontFamily: 'Microsoft YaHei, Arial',
-          fontSize: 14,
+          fontSize: 15,
           fill: 0xffffff,
+          fontWeight: 'bold',
         }
       });
       buttonText.anchor.set(0.5);
@@ -232,6 +272,7 @@ export class MainGameScene extends Container {
 
       const buttonView = new Container();
       buttonView.addChild(buttonBg);
+      buttonView.addChild(buttonHighlight);
       buttonView.addChild(buttonText);
 
       const button = new Button(buttonView);

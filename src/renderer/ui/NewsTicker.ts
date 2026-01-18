@@ -8,7 +8,7 @@
  * - Configurable scroll speed
  */
 
-import { Container, Text, Graphics } from 'pixi.js';
+import { Container, Text, Graphics, FillGradient } from 'pixi.js';
 
 export class NewsTicker extends Container {
   private tickerText: Text;
@@ -25,9 +25,25 @@ export class NewsTicker extends Container {
 
     // Background
     const background = new Graphics();
-    background.rect(0, 0, width, height);
-    background.fill(0x1a1a1a);
+    const tickerGradient = new FillGradient({
+      type: 'linear',
+      start: { x: 0, y: 0 },
+      end: { x: 1, y: 0 },
+      colorStops: [
+        { offset: 0, color: 0x1c232b },
+        { offset: 1, color: 0x151a21 },
+      ],
+      textureSpace: 'local',
+    });
+    background.roundRect(0, 0, width, height, 8);
+    background.fill(tickerGradient);
+    background.stroke({ width: 1, color: 0x2b3440 });
     this.addChild(background);
+
+    const accent = new Graphics();
+    accent.roundRect(8, 6, 4, height - 12, 2);
+    accent.fill(0x3a7bc8);
+    this.addChild(accent);
 
     // Create mask for text overflow
     this.maskGraphics = new Graphics();
@@ -40,8 +56,8 @@ export class NewsTicker extends Container {
       text: '',
       style: {
         fontFamily: 'Microsoft YaHei, Arial',
-        fontSize: 14,
-        fill: 0xffdd00,
+        fontSize: 13,
+        fill: 0xf5c451,
       }
     });
     this.tickerText.y = (height - this.tickerText.height) / 2;

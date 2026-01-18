@@ -11,7 +11,7 @@
  * - Capacity (current/max)
  */
 
-import { Container, Graphics, Text } from 'pixi.js';
+import { Container, Graphics, Text, FillGradient } from 'pixi.js';
 import type { GameState } from '@engine/types';
 
 export class StatsPanel extends Container {
@@ -28,61 +28,77 @@ export class StatsPanel extends Container {
 
     // Background
     const background = new Graphics();
-    background.roundRect(0, 0, width, height, 10);
-    background.fill(0x2c2c2c);
-    background.stroke({ width: 2, color: 0x444444 });
+    const panelGradient = new FillGradient({
+      type: 'linear',
+      start: { x: 0, y: 0 },
+      end: { x: 0, y: 1 },
+      colorStops: [
+        { offset: 0, color: 0x262d36 },
+        { offset: 1, color: 0x1d232b },
+      ],
+      textureSpace: 'local',
+    });
+    background.roundRect(0, 0, width, height, 12);
+    background.fill(panelGradient);
+    background.stroke({ width: 1, color: 0x2f3842 });
     this.addChild(background);
+
+    const headerRule = new Graphics();
+    headerRule.moveTo(12, 42);
+    headerRule.lineTo(width - 12, 42);
+    headerRule.stroke({ width: 1, color: 0x2f3842 });
+    this.addChild(headerRule);
 
     // Title
     const title = new Text({
       text: '玩家状态',
       style: {
         fontFamily: 'Microsoft YaHei, Arial',
-        fontSize: 18,
-        fill: 0xffffff,
+        fontSize: 17,
+        fill: 0xf8fafc,
         fontWeight: 'bold',
       }
     });
-    title.x = 10;
+    title.x = 12;
     title.y = 10;
     this.addChild(title);
 
     // Create stat labels and values
-    let yPos = 50;
-    const lineHeight = 35;
+    let yPos = 54;
+    const lineHeight = 30;
 
     // Health
-    this.healthText = this.createStatText('健康:', '100', 0x00ff00, 10, yPos);
+    this.healthText = this.createStatText('健康:', '100', 0x00ff00, 12, yPos);
     this.addChild(this.healthText);
     yPos += lineHeight;
 
     // Cash
-    this.cashText = this.createStatText('现金:', '¥2,000', 0xffdd00, 10, yPos);
+    this.cashText = this.createStatText('现金:', '¥2,000', 0xffdd00, 12, yPos);
     this.addChild(this.cashText);
     yPos += lineHeight;
 
     // Debt (red)
-    this.debtText = this.createStatText('债务:', '¥5,000', 0xff4444, 10, yPos);
+    this.debtText = this.createStatText('债务:', '¥5,000', 0xff4444, 12, yPos);
     this.addChild(this.debtText);
     yPos += lineHeight;
 
     // Bank
-    this.bankText = this.createStatText('存款:', '¥0', 0x44ff44, 10, yPos);
+    this.bankText = this.createStatText('存款:', '¥0', 0x44ff44, 12, yPos);
     this.addChild(this.bankText);
     yPos += lineHeight;
 
     // Fame
-    this.fameText = this.createStatText('声望:', '100', 0xaaaaaa, 10, yPos);
+    this.fameText = this.createStatText('声望:', '100', 0xaaaaaa, 12, yPos);
     this.addChild(this.fameText);
     yPos += lineHeight;
 
     // Time
-    this.timeText = this.createStatText('时间:', '40/40天', 0xffffff, 10, yPos);
+    this.timeText = this.createStatText('时间:', '40/40天', 0xffffff, 12, yPos);
     this.addChild(this.timeText);
     yPos += lineHeight;
 
     // Capacity
-    this.capacityText = this.createStatText('容量:', '0/100', 0xaaaaaa, 10, yPos);
+    this.capacityText = this.createStatText('容量:', '0/100', 0xaaaaaa, 12, yPos);
     this.addChild(this.capacityText);
   }
 
@@ -93,7 +109,7 @@ export class StatsPanel extends Container {
     const text = new Text({
       text: `${label} ${value}`,
       style: {
-        fontFamily: 'Microsoft YaHei, Consolas, Arial',
+        fontFamily: 'Microsoft YaHei, Arial',
         fontSize: 14,
         fill: color,
       }
