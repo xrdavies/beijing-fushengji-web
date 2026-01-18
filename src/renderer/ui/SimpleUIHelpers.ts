@@ -89,26 +89,38 @@ export class SimpleSlider extends Container {
   }
 
   private setupInteraction(): void {
-    this.handle.on('pointerdown', () => {
-      this.isDragging = true;
-    });
-
-    window.addEventListener('pointerup', () => {
-      this.isDragging = false;
-    });
-
-    window.addEventListener('pointermove', (e) => {
-      if (this.isDragging && this.handle.parent) {
-        const localX = e.clientX - this.handle.parent.worldTransform.tx;
-        const clampedX = Math.max(0, Math.min(localX, this.sliderWidth));
-        const ratio = clampedX / this.sliderWidth;
-        this.currentValue = this.minValue + ratio * (this.maxValue - this.minValue);
-        this.updateHandlePosition();
-        if (this.onChange) {
-          this.onChange(this.currentValue);
-        }
+    const updateFromGlobal = (globalX: number) => {
+      const clampedX = Math.max(0, Math.min(globalX, this.sliderWidth));
+      const ratio = clampedX / this.sliderWidth;
+      this.currentValue = this.minValue + ratio * (this.maxValue - this.minValue);
+      this.updateHandlePosition();
+      if (this.onChange) {
+        this.onChange(this.currentValue);
       }
+    };
+
+    const onDragMove = (event: { global: { x: number; y: number } }) => {
+      if (!this.isDragging) {
+        return;
+      }
+
+      const local = this.toLocal(event.global);
+      updateFromGlobal(local.x);
+    };
+
+    const stopDrag = () => {
+      this.isDragging = false;
+    };
+
+    this.handle.on('pointerdown', (event) => {
+      this.isDragging = true;
+      const local = this.toLocal(event.global);
+      updateFromGlobal(local.x);
     });
+
+    this.handle.on('pointerup', stopDrag);
+    this.handle.on('pointerupoutside', stopDrag);
+    this.handle.on('globalpointermove', onDragMove);
   }
 
   private updateHandlePosition(): void {

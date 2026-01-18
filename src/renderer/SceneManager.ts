@@ -9,10 +9,11 @@
  * - OverlayLayer: Boss screen, splash screens
  */
 
-import { Application, Container } from 'pixi.js';
+import { Application, Container, Text } from 'pixi.js';
 
 export class SceneManager {
   private app: Application;
+  private textResolution = 1;
 
   // Layer containers
   public backgroundLayer: Container;
@@ -80,6 +81,7 @@ export class SceneManager {
     this.dialogLayer.removeChildren();
     this.dialogLayer.addChild(dialog);
     this.dialogLayer.visible = true;
+    this.applyTextResolution(dialog, this.textResolution);
   }
 
   /**
@@ -119,6 +121,15 @@ export class SceneManager {
     this.overlayLayer.visible = false;
   }
 
+  setTextResolution(resolution: number): void {
+    if (this.textResolution === resolution) {
+      return;
+    }
+
+    this.textResolution = resolution;
+    this.applyTextResolution(this.app.stage, resolution);
+  }
+
   /**
    * Clear all layers
    */
@@ -136,5 +147,18 @@ export class SceneManager {
   resize(_width: number, _height: number): void {
     // TODO: Implement responsive scaling
     // For now, assume fixed 800x600 resolution
+  }
+
+  private applyTextResolution(container: Container, resolution: number): void {
+    for (const child of container.children) {
+      if (child instanceof Text) {
+        child.resolution = resolution;
+        child.roundPixels = true;
+      }
+
+      if (child instanceof Container && child.children.length > 0) {
+        this.applyTextResolution(child, resolution);
+      }
+    }
   }
 }
