@@ -52,7 +52,7 @@ export class SettingsDialog extends BaseDialog {
       console.log(`Sound ${checked ? 'enabled' : 'disabled'}`);
     });
 
-    currentY += 60;
+    currentY += 50;
 
     // Hacking setting
     const hackingLabel = new Text({
@@ -82,7 +82,7 @@ export class SettingsDialog extends BaseDialog {
       console.log(`Hacking mode ${checked ? 'enabled' : 'disabled'}`);
     });
 
-    currentY += 100;
+    currentY += 80;
 
     // Divider line
     const divider = new Graphics();
@@ -91,7 +91,7 @@ export class SettingsDialog extends BaseDialog {
     divider.stroke({ color: 0x444444, width: 1 });
     this.addChild(divider);
 
-    currentY += 30;
+    currentY += 20;
 
     // Buttons
     const newGameButton = createButton('开始新游戏', 160, 40, 0xff4444, () => this.handleNewGame());
@@ -99,7 +99,7 @@ export class SettingsDialog extends BaseDialog {
     newGameButton.y = currentY;
     this.addChild(newGameButton);
 
-    currentY += 70;
+    currentY += 55;
 
     // About section divider
     const aboutDivider = new Graphics();
@@ -108,7 +108,7 @@ export class SettingsDialog extends BaseDialog {
     aboutDivider.stroke({ color: 0x444444, width: 1 });
     this.addChild(aboutDivider);
 
-    currentY += 20;
+    currentY += 16;
 
     // About section title
     const aboutTitle = new Text({
@@ -119,7 +119,7 @@ export class SettingsDialog extends BaseDialog {
     aboutTitle.y = currentY;
     this.addChild(aboutTitle);
 
-    currentY += 30;
+    currentY += 22;
 
     // Version info
     const versionText = new Text({
@@ -130,7 +130,7 @@ export class SettingsDialog extends BaseDialog {
     versionText.y = currentY;
     this.addChild(versionText);
 
-    currentY += 25;
+    currentY += 18;
 
     // Credits
     const originalAuthorText = new Text({
@@ -141,7 +141,7 @@ export class SettingsDialog extends BaseDialog {
     originalAuthorText.y = currentY;
     this.addChild(originalAuthorText);
 
-    currentY += 20;
+    currentY += 16;
 
     const webAuthorText = new Text({
       text: 'Web版: Frozen (2026)',
@@ -151,7 +151,7 @@ export class SettingsDialog extends BaseDialog {
     webAuthorText.y = currentY;
     this.addChild(webAuthorText);
 
-    currentY += 25;
+    currentY += 18;
 
     // GitHub link
     const githubText = new Text({
@@ -173,7 +173,7 @@ export class SettingsDialog extends BaseDialog {
     });
     this.addChild(githubText);
 
-    currentY += 25;
+    currentY += 20;
 
     // Developer link
     const developerText = new Text({
