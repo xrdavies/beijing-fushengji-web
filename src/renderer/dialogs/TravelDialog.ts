@@ -21,6 +21,7 @@ export class TravelDialog extends BaseDialog {
   private beijingScrollBox!: ScrollBox;
   private shanghaiScrollBox!: ScrollBox;
   private currentCityText!: Text;
+  private currentLocationText!: Text;
   private timeLeftText!: Text;
 
   constructor() {
@@ -36,6 +37,11 @@ export class TravelDialog extends BaseDialog {
     const panelY = (600 - this.dialogHeight) / 2;
     const contentX = panelX + 30;
     let currentY = panelY + 80;
+
+    const listWidth = 250;
+    const listHeight = 250;
+    const listPadding = 10;
+    const itemWidth = listWidth - listPadding * 2;
 
     // Current status
     const statusContainer = new Container();
@@ -74,9 +80,25 @@ export class TravelDialog extends BaseDialog {
     this.timeLeftText.y = 0;
     statusContainer.addChild(this.timeLeftText);
 
+    const currentLocationLabel = new Text({
+      text: '当前地点:',
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0xaaaaaa }
+    });
+    currentLocationLabel.x = 0;
+    currentLocationLabel.y = 22;
+    statusContainer.addChild(currentLocationLabel);
+
+    this.currentLocationText = new Text({
+      text: '未知',
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0xffffff, fontWeight: 'bold' }
+    });
+    this.currentLocationText.x = 90;
+    this.currentLocationText.y = 22;
+    statusContainer.addChild(this.currentLocationText);
+
     this.addChild(statusContainer);
 
-    currentY += 40;
+    currentY += 60;
 
     // Beijing section
     const beijingTitle = new Text({
@@ -91,17 +113,20 @@ export class TravelDialog extends BaseDialog {
 
     // Beijing locations ScrollBox
     this.beijingScrollBox = new ScrollBox({
-      width: 250,
-      height: 250,
+      width: listWidth,
+      height: listHeight,
       background: 0x1a1a1a,
       radius: 5,
+      type: 'vertical',
+      padding: listPadding,
+      elementsMargin: 8,
     });
     this.beijingScrollBox.x = contentX;
     this.beijingScrollBox.y = currentY;
     this.addChild(this.beijingScrollBox);
 
     // Populate Beijing locations
-    this.populateLocations(this.beijingScrollBox, BEIJING_LOCATIONS);
+    this.populateLocations(this.beijingScrollBox, BEIJING_LOCATIONS, itemWidth);
 
     // Shanghai section
     const shanghaiTitle = new Text({
@@ -114,17 +139,20 @@ export class TravelDialog extends BaseDialog {
 
     // Shanghai locations ScrollBox
     this.shanghaiScrollBox = new ScrollBox({
-      width: 250,
-      height: 250,
+      width: listWidth,
+      height: listHeight,
       background: 0x1a1a1a,
       radius: 5,
+      type: 'vertical',
+      padding: listPadding,
+      elementsMargin: 8,
     });
     this.shanghaiScrollBox.x = contentX + 280;
     this.shanghaiScrollBox.y = currentY;
     this.addChild(this.shanghaiScrollBox);
 
     // Populate Shanghai locations
-    this.populateLocations(this.shanghaiScrollBox, SHANGHAI_LOCATIONS);
+    this.populateLocations(this.shanghaiScrollBox, SHANGHAI_LOCATIONS, itemWidth);
 
     currentY += 270;
 
@@ -138,8 +166,8 @@ export class TravelDialog extends BaseDialog {
   /**
    * Populate locations in a scrollbox
    */
-  private populateLocations(scrollBox: ScrollBox, locations: Location[]): void {
-    let yOffset = 10;
+  private populateLocations(scrollBox: ScrollBox, locations: Location[], itemWidth: number): void {
+    const itemHeight = 36;
 
     for (const location of locations) {
       const itemContainer = new Container();
@@ -148,8 +176,12 @@ export class TravelDialog extends BaseDialog {
 
       // Background
       const background = new Graphics();
-      background.roundRect(5, 0, 230, 35, 5);
-      background.fill(0x2a2a2a);
+      const renderBackground = (color: number) => {
+        background.clear();
+        background.roundRect(0, 0, itemWidth, itemHeight, 6);
+        background.fill(color);
+      };
+      renderBackground(0x2a2a2a);
       itemContainer.addChild(background);
 
       // Location name
@@ -161,8 +193,8 @@ export class TravelDialog extends BaseDialog {
           fill: 0xffffff,
         }
       });
-      nameText.x = 15;
-      nameText.y = 10;
+      nameText.x = 12;
+      nameText.y = Math.round((itemHeight - nameText.height) / 2);
       itemContainer.addChild(nameText);
 
       // Click handler
@@ -172,21 +204,14 @@ export class TravelDialog extends BaseDialog {
 
       // Hover effect
       itemContainer.on('pointerover', () => {
-        background.clear();
-        background.roundRect(5, 0, 230, 35, 5);
-        background.fill(0x3a7bc8);
+        renderBackground(0x3a7bc8);
       });
 
       itemContainer.on('pointerout', () => {
-        background.clear();
-        background.roundRect(5, 0, 230, 35, 5);
-        background.fill(0x2a2a2a);
+        renderBackground(0x2a2a2a);
       });
 
-      itemContainer.y = yOffset;
       scrollBox.addItem(itemContainer);
-
-      yOffset += 40;
     }
   }
 
@@ -297,6 +322,7 @@ export class TravelDialog extends BaseDialog {
 
     // Update UI
     this.currentCityText.text = state.city === 'beijing' ? '北京' : '上海';
+    this.currentLocationText.text = state.currentLocation?.name ?? '未知';
     this.timeLeftText.text = `${state.timeLeft}天`;
 
     this.show();

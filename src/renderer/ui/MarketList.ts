@@ -8,7 +8,7 @@
  * - Click to buy
  */
 
-import { Container, Graphics, Text } from 'pixi.js';
+import { Container, Graphics, Text, FillGradient } from 'pixi.js';
 import { ScrollBox } from '@pixi/ui';
 import type { GameState } from '@engine/types';
 import { DRUGS } from '@engine/types';
@@ -21,34 +21,63 @@ export class MarketList extends Container {
   constructor(width: number = 300, height: number = 400) {
     super();
 
+    const panel = new Graphics();
+    const panelGradient = new FillGradient({
+      type: 'linear',
+      start: { x: 0, y: 0 },
+      end: { x: 0, y: 1 },
+      colorStops: [
+        { offset: 0, color: 0x242b34 },
+        { offset: 1, color: 0x1c222a },
+      ],
+      textureSpace: 'local',
+    });
+    panel.roundRect(0, 0, width, height, 12);
+    panel.fill(panelGradient);
+    panel.stroke({ width: 1, color: 0x2b3440 });
+    this.addChild(panel);
+
     // Title
     const title = new Text({
       text: '市场',
       style: {
         fontFamily: 'Microsoft YaHei, Arial',
         fontSize: 18,
-        fill: 0xffffff,
+        fill: 0xf8fafc,
         fontWeight: 'bold',
       }
     });
-    title.x = 5;
-    title.y = 0;
+    title.x = 12;
+    title.y = 8;
     this.addChild(title);
+
+    const titleAccent = new Graphics();
+    titleAccent.roundRect(12, 30, 28, 3, 2);
+    titleAccent.fill(0x3a7bc8);
+    this.addChild(titleAccent);
+
+    const listWidth = width - 16;
+    const listHeight = height - 52;
+    const listPadding = 8;
+    const itemWidth = listWidth - listPadding * 2;
 
     // Create ScrollBox
     this.scrollBox = new ScrollBox({
-      width,
-      height: height - 30,
-      background: 0x1a1a1a,
-      radius: 5,
+      width: listWidth,
+      height: listHeight,
+      background: 0x1d232a,
+      radius: 8,
+      type: 'vertical',
+      padding: listPadding,
+      elementsMargin: 6,
     });
-    this.scrollBox.y = 30;
+    this.scrollBox.x = 8;
+    this.scrollBox.y = 40;
     this.addChild(this.scrollBox);
 
     // Create 8 item slots
     for (let i = 0; i < 8; i++) {
-      const itemContainer = this.createItemContainer(i, width);
-      itemContainer.y = i * 50;
+      const itemContainer = this.createItemContainer(i, itemWidth);
       this.scrollBox.addItem(itemContainer); // Use addItem for ScrollBox
       this.itemContainers.push(itemContainer);
     }
@@ -64,8 +93,13 @@ export class MarketList extends Container {
 
     // Background (hover effect)
     const background = new Graphics();
-    background.roundRect(5, 0, width - 15, 45, 5);
-    background.fill(0x2a2a2a);
+    const itemHeight = 36;
+    const renderBackground = (color: number) => {
+      background.clear();
+      background.roundRect(0, 0, width, itemHeight, 6);
+      background.fill(color);
+    };
+    renderBackground(0x252c35);
     container.addChild(background);
 
     // Drug name
@@ -77,8 +111,8 @@ export class MarketList extends Container {
         fill: 0xffffff,
       }
     });
-    nameText.x = 15;
-    nameText.y = 5;
+    nameText.x = 12;
+    nameText.y = 4;
     container.addChild(nameText);
 
     // Price (will be updated)
@@ -86,22 +120,22 @@ export class MarketList extends Container {
       text: '无货',
       style: {
         fontFamily: 'Consolas, Arial',
-        fontSize: 13,
-        fill: 0xaaaaaa,
+        fontSize: 12,
+        fill: 0x9aa4b2,
       }
     });
-    priceText.x = 15;
-    priceText.y = 25;
+    priceText.x = 12;
+    priceText.y = 20;
     container.addChild(priceText);
     (container as any).priceText = priceText; // Store reference
 
     // Hover effect
     container.on('pointerover', () => {
-      background.tint = 0xcccccc;
+      renderBackground(0x334155);
     });
 
     container.on('pointerout', () => {
-      background.tint = 0xffffff;
+      renderBackground(0x252c35);
     });
 
     // Click handler
@@ -125,13 +159,13 @@ export class MarketList extends Container {
 
       if (price === 0) {
         priceText.text = '无货';
-        priceText.style.fill = 0x666666;
+        priceText.style.fill = 0x6b7280;
         container.interactive = false;
         container.cursor = 'default';
         container.alpha = 0.5;
       } else {
         priceText.text = `¥${price.toLocaleString('zh-CN')}`;
-        priceText.style.fill = 0x00ff00;
+        priceText.style.fill = 0x22c55e;
         container.interactive = true;
         container.cursor = 'pointer';
         container.alpha = 1.0;
