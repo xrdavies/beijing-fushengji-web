@@ -1,5 +1,7 @@
 # 北京浮生记 Web版 (Beijing Fushengji Web)
 
+https://beijingfushengji.xyz/
+
 现代化的北京浮生记 Web 游戏版本，使用 PixiJS v8 构建。
 
 Modern web version of the classic Beijing Fushengji trading game, built with PixiJS v8.
@@ -51,10 +53,13 @@ TypeScript • PixiJS v8 • @pixi/ui • @pixi/sound • Vite
 
 [GPL-2.0](LICENSE) - 继承自原版游戏
 
-**原作者**: 郭象昊 (2000-2012)
-**Web版**: xrdavies (2026-)
+**Web版**: Frozen (2026)  
+
+**原作者**: Guo xianghao (2012)  
+
+See `NOTICE` for attribution details.
 
 ## 链接 (Links)
 
 - [问题反馈 Issues](https://github.com/xrdavies/beijing-fushengji-web/issues)
-- [原版 C++ 游戏](https://github.com/xrdavies/beijing_fushengji)
+- [原版 C++ 游戏](https://github.com/chrisguo/beijing_fushengji)

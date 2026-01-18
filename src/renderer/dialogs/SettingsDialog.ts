@@ -132,6 +132,27 @@ export class SettingsDialog extends BaseDialog {
 
     currentY += 25;
 
+    // Credits
+    const originalAuthorText = new Text({
+      text: '原作者: Guo xianghao (2012)',
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 12, fill: 0x888888 }
+    });
+    originalAuthorText.x = contentX;
+    originalAuthorText.y = currentY;
+    this.addChild(originalAuthorText);
+
+    currentY += 20;
+
+    const webAuthorText = new Text({
+      text: 'Web版: Frozen (2026)',
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 12, fill: 0x888888 }
+    });
+    webAuthorText.x = contentX;
+    webAuthorText.y = currentY;
+    this.addChild(webAuthorText);
+
+    currentY += 25;
+
     // GitHub link
     const githubText = new Text({
       text: 'https://github.com/xrdavies/beijing-fushengji-web',
