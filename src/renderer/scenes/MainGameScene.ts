@@ -142,31 +142,31 @@ export class MainGameScene extends Container {
     const settingsButtonContainer = new Container();
 
     const settingsButtonBg = new Graphics();
-    settingsButtonBg.roundRect(0, 0, 44, 44, 10);
+    settingsButtonBg.roundRect(0, 0, 36, 36, 9);
     settingsButtonBg.fill(0x2f6fce);
     settingsButtonBg.stroke({ width: 1, color: 0x1e3355 });
 
     const settingsShine = new Graphics();
-    settingsShine.roundRect(2, 2, 40, 20, 8);
+    settingsShine.roundRect(2, 2, 32, 16, 7);
     settingsShine.fill({ color: 0xffffff, alpha: 0.08 });
 
     const settingsText = new Text({
       text: '⚙',
       style: {
         fontFamily: 'Arial',
-        fontSize: 26,
+        fontSize: 22,
         fill: 0xffffff,
       }
     });
     settingsText.anchor.set(0.5);
-    settingsText.x = 22; // Adjusted from 20 to center in 44px button
-    settingsText.y = 22; // Adjusted from 20 to center in 44px button
+    settingsText.x = 18;
+    settingsText.y = 18;
 
     settingsButtonContainer.addChild(settingsButtonBg);
     settingsButtonContainer.addChild(settingsShine);
     settingsButtonContainer.addChild(settingsText);
-    settingsButtonContainer.x = 736; // Adjusted from 740 to keep aligned
-    settingsButtonContainer.y = 10;
+    settingsButtonContainer.x = 748;
+    settingsButtonContainer.y = 12;
 
     const settingsButton = new Button(settingsButtonContainer);
 
