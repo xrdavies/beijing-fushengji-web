@@ -14,6 +14,10 @@ import { gameStateManager } from '@state/GameStateManager';
 import { assetLoader } from '@assets/AssetLoader';
 import { audioManager } from '@audio/AudioManager';
 
+const GAME_WIDTH = 800;
+const GAME_HEIGHT = 600;
+const MAX_TEXT_RESOLUTION = 3;
+
 class Game {
   private app!: Application;
   private sceneManager!: SceneManager;
@@ -38,10 +42,11 @@ class Game {
     this.app = new Application();
 
     await this.app.init({
-      width: 800,
-      height: 600,
+      width: GAME_WIDTH,
+      height: GAME_HEIGHT,
       backgroundColor: 0x0a0a0a,
       resolution: window.devicePixelRatio || 1,
+      roundPixels: true,
       autoDensity: true,
     });
 
@@ -86,24 +91,21 @@ class Game {
       const width = window.innerWidth;
       const height = window.innerHeight;
 
-      // Calculate scale to fit 800x600 game
-      const scaleX = width / 800;
-      const scaleY = height / 600;
-      const scale = Math.min(scaleX, scaleY);
+      // Render at the display size to avoid CSS scaling blur.
+      const scale = Math.min(width / GAME_WIDTH, height / GAME_HEIGHT);
+      const devicePixelRatio = window.devicePixelRatio || 1;
+      const textResolution = Math.min(
+        devicePixelRatio * Math.max(1, scale),
+        MAX_TEXT_RESOLUTION,
+      );
 
-      // Update renderer to match game size (not window size)
-      // This ensures proper hit detection on mobile
-      this.app.renderer.resize(800, 600);
-
-      // Scale the canvas element itself for responsive display
-      const canvas = this.app.canvas as HTMLCanvasElement;
-      canvas.style.width = `${800 * scale}px`;
-      canvas.style.height = `${600 * scale}px`;
-
-      // Center the canvas in the viewport
-      canvas.style.position = 'absolute';
-      canvas.style.left = `${(width - 800 * scale) / 2}px`;
-      canvas.style.top = `${(height - 600 * scale) / 2}px`;
+      this.app.renderer.resize(width, height, devicePixelRatio);
+      this.app.stage.scale.set(scale);
+      this.app.stage.position.set(
+        Math.round((width - GAME_WIDTH * scale) / 2),
+        Math.round((height - GAME_HEIGHT * scale) / 2),
+      );
+      this.sceneManager.setTextResolution(textResolution);
     };
 
     // Initial resize
