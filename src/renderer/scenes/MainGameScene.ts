@@ -241,8 +241,7 @@ export class MainGameScene extends Container {
     const buttonWidth = 86;
     const buttonHeight = 44; // Increased from 35 to 44 for better mobile touch
     const spacing = 12;
-    const totalWidth = buttonNames.length * buttonWidth + (buttonNames.length - 1) * spacing;
-    const startX = Math.round((800 - totalWidth) / 2);
+    const startX = 24;
     const startY = 468; // Balanced spacing above the ticker
 
     for (let i = 0; i < buttonNames.length; i++) {
