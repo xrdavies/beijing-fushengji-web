@@ -43,7 +43,7 @@ export class MarketList extends Container {
 
     // Title
     const title = new Text({
-      text: '地铁口的黑市',
+      text: '地铁门口的黑市',
       style: {
         fontFamily: 'Microsoft YaHei, Arial',
         fontSize: 18,

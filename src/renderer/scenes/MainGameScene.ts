@@ -111,13 +111,13 @@ export class MainGameScene extends Container {
     this.addChild(background);
 
     const headerGlow = new Graphics();
-    headerGlow.rect(0, 0, 800, 70);
+    headerGlow.rect(0, 0, 800, 80);
     headerGlow.fill({ color: 0x142033, alpha: 0.35 });
     this.addChild(headerGlow);
 
     const topRule = new Graphics();
-    topRule.moveTo(20, 50);
-    topRule.lineTo(780, 50);
+    topRule.moveTo(20, 60);
+    topRule.lineTo(780, 60);
     topRule.stroke({ color: 0x1f2a3a, width: 1 });
     this.addChild(topRule);
 
@@ -188,7 +188,7 @@ export class MainGameScene extends Container {
   private createStatsPanel(): void {
     this.statsPanel = new StatsPanel(200, 300);
     this.statsPanel.x = 580;
-    this.statsPanel.y = 50;
+    this.statsPanel.y = 72;
     this.addChild(this.statsPanel);
   }
 
@@ -198,7 +198,7 @@ export class MainGameScene extends Container {
   private createMarketList(): void {
     this.marketList = new MarketList(270, 400);
     this.marketList.x = 20;
-    this.marketList.y = 50;
+    this.marketList.y = 72;
     this.addChild(this.marketList);
 
     // Set click handler - Open BuyDialog
@@ -213,7 +213,7 @@ export class MainGameScene extends Container {
   private createInventoryList(): void {
     this.inventoryList = new InventoryList(270, 400);
     this.inventoryList.x = 300;
-    this.inventoryList.y = 50;
+    this.inventoryList.y = 72;
     this.addChild(this.inventoryList);
 
     // Set click handler - Open SellDialog
@@ -233,7 +233,8 @@ export class MainGameScene extends Container {
 
     // Load news from asset loader
     const newsItems = assetLoader.getNewsItems();
-    this.newsTicker.setNewsItems(newsItems);
+    const tipsItems = assetLoader.getTipsItems();
+    this.newsTicker.setNewsItems([...newsItems, ...tipsItems]);
   }
 
   /**
@@ -251,7 +252,7 @@ export class MainGameScene extends Container {
     const buttonHeight = 44; // Increased from 35 to 44 for better mobile touch
     const spacing = 12;
     const startX = 24;
-    const startY = 468; // Balanced spacing above the ticker
+    const startY = 482; // Balanced spacing above the ticker
 
     for (let i = 0; i < buttons.length; i++) {
       const { id, label } = buttons[i];
