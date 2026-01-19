@@ -24,7 +24,7 @@ export class WangbaDialog extends BaseDialog {
   private reward: number = 0;
 
   constructor() {
-    super(500, 400, '网吧');
+    super(500, 400, '黑网吧');
     this.createWangbaDialogUI();
   }
 
@@ -39,7 +39,7 @@ export class WangbaDialog extends BaseDialog {
 
     // Description
     const description = new Text({
-      text: '欢迎来到网吧！试试运气看能不能赚点钱...',
+      text: '欢迎来到全国最大的黑网吧！试试运气看能不能赚点钱...',
       style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0xaaaaaa }
     });
     description.x = contentX;

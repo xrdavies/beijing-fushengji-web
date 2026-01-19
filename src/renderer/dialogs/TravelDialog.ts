@@ -39,7 +39,7 @@ export class TravelDialog extends BaseDialog {
   private eventQueue: EventQueue;
 
   constructor(eventQueue: EventQueue) {
-    super(600, 500, '旅行');
+    super(600, 500, '旅行社');
     this.eventQueue = eventQueue;
     this.createTravelDialogUI();
   }

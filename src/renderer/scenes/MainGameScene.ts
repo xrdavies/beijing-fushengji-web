@@ -240,14 +240,21 @@ export class MainGameScene extends Container {
    * Create action buttons (bottom center)
    */
   private createActionButtons(): void {
-    const buttonNames = ['银行', '医院', '租房', '网吧', '旅行'];
+    const buttons = [
+      { id: 'bank', label: '银行' },
+      { id: 'clinic', label: '小诊所' },
+      { id: 'house', label: '假中介' },
+      { id: 'wangba', label: '黑网吧' },
+      { id: 'travel', label: '旅行社' },
+    ];
     const buttonWidth = 86;
     const buttonHeight = 44; // Increased from 35 to 44 for better mobile touch
     const spacing = 12;
     const startX = 24;
     const startY = 468; // Balanced spacing above the ticker
 
-    for (let i = 0; i < buttonNames.length; i++) {
+    for (let i = 0; i < buttons.length; i++) {
+      const { id, label } = buttons[i];
       const buttonContainer = new Container();
 
       const buttonBg = new Graphics();
@@ -260,7 +267,7 @@ export class MainGameScene extends Container {
       buttonHighlight.fill({ color: 0xffffff, alpha: 0.08 });
 
       const buttonText = new Text({
-        text: buttonNames[i],
+        text: label,
         style: {
           fontFamily: 'Microsoft YaHei, Arial',
           fontSize: 15,
@@ -287,32 +294,32 @@ export class MainGameScene extends Container {
 
       // Wire button to corresponding dialog
       button.onPress.connect(() => {
-        this.handleActionButton(buttonNames[i]);
+        this.handleActionButton(id);
       });
 
       this.addChild(buttonContainer);
-      this.actionButtons.set(buttonNames[i], buttonContainer);
+      this.actionButtons.set(id, buttonContainer);
     }
   }
 
   /**
    * Handle action button clicks
    */
-  private handleActionButton(buttonName: string): void {
-    switch (buttonName) {
-      case '银行':
+  private handleActionButton(buttonId: string): void {
+    switch (buttonId) {
+      case 'bank':
         this.bankDialog.open();
         break;
-      case '医院':
+      case 'clinic':
         this.hospitalDialog.open();
         break;
-      case '租房':
+      case 'house':
         this.houseDialog.open();
         break;
-      case '网吧':
+      case 'wangba':
         this.wangbaDialog.open();
         break;
-      case '旅行':
+      case 'travel':
         this.travelDialog.open();
         break;
     }

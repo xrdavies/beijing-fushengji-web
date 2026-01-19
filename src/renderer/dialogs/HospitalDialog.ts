@@ -29,7 +29,7 @@ export class HospitalDialog extends BaseDialog {
   private currentHealth: number = 0;
 
   constructor() {
-    super(500, 450, '医院');
+    super(500, 450, '小诊所');
     this.createHospitalDialogUI();
   }
 

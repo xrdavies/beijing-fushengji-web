@@ -23,7 +23,7 @@ export class HouseDialog extends BaseDialog {
   private upgradeCost: number = 0;
 
   constructor() {
-    super(500, 400, '房屋中介');
+    super(500, 400, '假中介');
     this.createHouseDialogUI();
   }
 
