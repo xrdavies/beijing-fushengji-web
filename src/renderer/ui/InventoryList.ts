@@ -14,9 +14,14 @@ import { ScrollBox } from '@pixi/ui';
 import type { GameState } from '@engine/types';
 import { DRUGS } from '@engine/types';
 
+const GAME_WIDTH = 800;
+const GAME_HEIGHT = 600;
+const MAX_TEXT_RESOLUTION = 3;
+
 export class InventoryList extends Container {
   private scrollBox: ScrollBox;
   private itemContainers: Container[] = [];
+  private idCardContainer: Container;
   private onItemClick?: (drugId: number) => void;
 
   constructor(width: number = 300, height: number = 400) {
@@ -76,10 +81,11 @@ export class InventoryList extends Container {
     this.scrollBox.y = 40;
     this.addChild(this.scrollBox);
 
+    this.idCardContainer = this.createIdCardContainer(itemWidth);
+
     // Create 8 item slots
     for (let i = 0; i < 8; i++) {
       const itemContainer = this.createItemContainer(i, itemWidth);
-      this.scrollBox.addItem(itemContainer); // Use addItem for ScrollBox
       this.itemContainers.push(itemContainer);
     }
   }
@@ -146,6 +152,48 @@ export class InventoryList extends Container {
       }
     });
 
+    this.applyTextResolution(container, this.getTextResolution());
+
+    return container;
+  }
+
+  private createIdCardContainer(width: number): Container {
+    const container = new Container();
+    container.eventMode = 'none';
+    container.cursor = 'default';
+
+    const background = new Graphics();
+    const itemHeight = 36;
+    background.roundRect(0, 0, width, itemHeight, 6);
+    background.fill(0x252c35);
+    container.addChild(background);
+
+    const nameText = new Text({
+      text: '身份证（非卖品）',
+      style: {
+        fontFamily: 'Microsoft YaHei, Arial',
+        fontSize: 14,
+        fill: 0xd1d5db,
+      }
+    });
+    nameText.x = 12;
+    nameText.y = 4;
+    container.addChild(nameText);
+
+    const infoText = new Text({
+      text: '不可出售',
+      style: {
+        fontFamily: 'Consolas, Arial',
+        fontSize: 12,
+        fill: 0x6b7280,
+      }
+    });
+    infoText.x = 12;
+    infoText.y = 20;
+    container.addChild(infoText);
+
+    this.applyTextResolution(container, this.getTextResolution());
+
     return container;
   }
 
@@ -153,6 +201,9 @@ export class InventoryList extends Container {
    * Update list with current inventory
    */
   update(state: GameState): void {
+    this.scrollBox.removeItems();
+    const textResolution = this.getTextResolution();
+
     for (let i = 0; i < 8; i++) {
       const container = this.itemContainers[i];
       const infoText = (container as any).infoText as Text;
@@ -164,6 +215,7 @@ export class InventoryList extends Container {
         container.interactive = false;
         container.cursor = 'default';
         container.alpha = 0.5;
+        continue;
       } else {
         // Show quantity and average price
         const avgPriceStr = item.avgPrice > 0
@@ -175,6 +227,20 @@ export class InventoryList extends Container {
         container.cursor = 'pointer';
         container.alpha = 1.0;
       }
+
+      this.applyTextResolution(container, textResolution);
+      this.scrollBox.addItem(container);
+    }
+
+    this.applyTextResolution(this.idCardContainer, textResolution);
+    this.scrollBox.addItem(this.idCardContainer);
+
+    const list = this.scrollBox.list;
+    if (list) {
+      for (const child of list.children) {
+        child.x = Math.round(child.x);
+        child.y = Math.round(child.y);
+      }
     }
   }
 
@@ -183,5 +249,27 @@ export class InventoryList extends Container {
    */
   setOnItemClick(callback: (drugId: number) => void): void {
     this.onItemClick = callback;
+  }
+
+  private getTextResolution(): number {
+    const scale = Math.min(window.innerWidth / GAME_WIDTH, window.innerHeight / GAME_HEIGHT);
+    const devicePixelRatio = window.devicePixelRatio || 1;
+    return Math.min(
+      devicePixelRatio * Math.max(1, scale),
+      MAX_TEXT_RESOLUTION,
+    );
+  }
+
+  private applyTextResolution(container: Container, resolution: number): void {
+    for (const child of container.children) {
+      if (child instanceof Text) {
+        child.resolution = resolution;
+        child.roundPixels = true;
+      }
+
+      if (child instanceof Container && child.children.length > 0) {
+        this.applyTextResolution(child, resolution);
+      }
+    }
   }
 }
