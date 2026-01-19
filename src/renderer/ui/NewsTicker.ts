@@ -40,11 +40,6 @@ export class NewsTicker extends Container {
     background.stroke({ width: 1, color: 0x2b3440 });
     this.addChild(background);
 
-    const accent = new Graphics();
-    accent.roundRect(8, 6, 4, height - 12, 2);
-    accent.fill(0x3a7bc8);
-    this.addChild(accent);
-
     // Create mask for text overflow
     this.maskGraphics = new Graphics();
     this.maskGraphics.rect(0, 0, width, height);

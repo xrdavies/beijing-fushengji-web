@@ -346,8 +346,12 @@ export class GameStateManager {
   /**
    * Visit wangba
    */
-  visitWangba() {
-    const result = gameEngine.visitWangba(this.state);
+  visitWangba(minReward?: number, maxReward?: number) {
+    const rewardRange =
+      typeof minReward === 'number' && typeof maxReward === 'number'
+        ? { min: minReward, max: maxReward }
+        : undefined;
+    const result = gameEngine.visitWangba(this.state, rewardRange);
     if (result.success) {
       this.notifyListeners();
       this.autoSave();
