@@ -10,7 +10,7 @@
  * - Auto-save on state changes
  */
 
-import type { GameState, Location } from '@engine/types';
+import type { GameEvent, GameState, Location } from '@engine/types';
 import { BEIJING_LOCATIONS, DRUGS, GAME_CONSTANTS } from '@engine/types';
 import { gameEngine } from '@engine/GameEngine';
 import { audioManager } from '@audio/AudioManager';
@@ -310,7 +310,7 @@ export class GameStateManager {
   /**
    * Change location (triggers main game loop)
    */
-  changeLocation(location: Location) {
+  changeLocation(location: Location): GameEvent[] {
     const isLocalTravel = location.city === this.state.city;
     const subwayCost = this.state.city === 'beijing'
       ? GAME_CONSTANTS.SUBWAY_TRAVEL_COST_BEIJING
@@ -321,13 +321,14 @@ export class GameStateManager {
 
     if (this.state.cash < travelCost) {
       const travelLabel = isLocalTravel ? '地铁' : '机票';
-      return [
+      const events: GameEvent[] = [
         {
           type: 'commercial',
           message: `现金不足，${travelLabel}需要¥${travelCost.toLocaleString('zh-CN')}。`,
           data: { travelBlocked: true }
         }
       ];
+      return events;
     }
 
     // Deduct travel cost
