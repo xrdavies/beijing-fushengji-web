@@ -149,9 +149,10 @@ export class SimpleSlider extends Container {
 
 /**
  * Simple checkbox with toggle callback
- * Size increased to 40x40 for better mobile touch targets
+ * Compact size for dialogs
  */
 export class SimpleCheckbox extends Container {
+  private static readonly BOX_SIZE = 28;
   private box: Graphics;
   private checkMark: Text;
   private isChecked: boolean = false;
@@ -163,9 +164,11 @@ export class SimpleCheckbox extends Container {
     this.eventMode = 'static';
     this.cursor = 'pointer';
 
-    // Box background - increased to 40x40 for better touch
+    const boxSize = SimpleCheckbox.BOX_SIZE;
+
+    // Box background
     this.box = new Graphics();
-    this.box.roundRect(0, 0, 40, 40, 5);
+    this.box.roundRect(0, 0, boxSize, boxSize, 4);
     this.box.fill(this.isChecked ? 0x3a7bc8 : 0x444444);
     this.addChild(this.box);
 
@@ -174,13 +177,14 @@ export class SimpleCheckbox extends Container {
       text: '✓',
       style: {
         fontFamily: 'Arial',
-        fontSize: 26,
+        fontSize: 18,
         fill: 0xffffff,
         fontWeight: 'bold',
       }
     });
-    this.checkMark.x = 9;
-    this.checkMark.y = 3;
+    this.checkMark.anchor.set(0.5);
+    this.checkMark.x = boxSize / 2;
+    this.checkMark.y = boxSize / 2 + 1;
     this.checkMark.visible = this.isChecked;
     this.addChild(this.checkMark);
 
@@ -190,7 +194,7 @@ export class SimpleCheckbox extends Container {
   private toggle(): void {
     this.isChecked = !this.isChecked;
     this.box.clear();
-    this.box.roundRect(0, 0, 40, 40, 5);
+    this.box.roundRect(0, 0, SimpleCheckbox.BOX_SIZE, SimpleCheckbox.BOX_SIZE, 4);
     this.box.fill(this.isChecked ? 0x3a7bc8 : 0x444444);
     this.checkMark.visible = this.isChecked;
 
