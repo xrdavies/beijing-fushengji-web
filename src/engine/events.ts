@@ -28,7 +28,7 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
   // Event 1 - C++ line 124: {139, msg, 3, 3, 0, 0}
   {
     freq: 139,
-    msg: '卫生局官员说，今后将严查假酒，劣质假酒价格看涨!',
+    msg: '卫生局官员说，今后将严查假酒，假酒供应量暴跌，市场劣质假酒价格看涨!',
     drug: 3,  // 劣质假酒
     plus: 3,
     minus: 0,
@@ -37,7 +37,7 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
   // Event 2 - C++ line 125: {100, msg, 4, 5, 0, 0} (FIXED)
   {
     freq: 100,
-    msg: '医院专家警惕：上海特色小食很有可能含有致癌物质!',
+    msg: '医院专家警惕：上海特色小食很有可能含有壮阳效果!',
     drug: 4,  // 上海特色小食
     plus: 5,
     minus: 0,
@@ -73,7 +73,7 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
   // Event 6 - C++ line 129: {37, msg, 4, 8, 0, 0} (FIXED)
   {
     freq: 37,
-    msg: '8858.com网站最近发布了很多上海特色小食的消息，引起了一片哗然!',
+    msg: 'Twitter网站最近发布了很多上海特色小食的消息，引起了一片哗然!',
     drug: 4,  // 上海特色小食
     plus: 8,
     minus: 0,
@@ -82,7 +82,7 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
   // Event 7 - C++ line 130: {15, msg, 7, 7, 0, 0} (FIXED)
   {
     freq: 15,
-    msg: '谢霆锋最近出席活动说，我一定要使用印度神油!最终印度神油供不应求!',
+    msg: '谢霆锋最近出席活动说，我一定要使用印度神油! 最终印度神油供不应求!',
     drug: 7,  // 印度神油
     plus: 7,
     minus: 0,
@@ -93,8 +93,8 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
     freq: 40,
     msg: '地下作坊大量生产劣质假酒，影响到价格!',
     drug: 3,  // 劣质假酒
-    plus: 7,
-    minus: 0,
+    plus: 0,
+    minus: 6,
     add: 0
   },
   // Event 9 - C++ line 132: {29, msg, 6, 7, 0, 0} (FIXED)
@@ -157,7 +157,7 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
     msg: '工商局扫黄后，发现黑暗势力发布的大批失窃的古董瓷器!',
     drug: 0,  // 古董瓷器
     plus: 0,
-    minus: 0,
+    minus: 5,
     add: 6
   },
   // Event 16 - C++ line 139: {35, msg, 3, 0, 0, 4} (FIXED)
