@@ -37,8 +37,8 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
   // Event 2 - C++ line 125: {100, msg, 4, 5, 0, 0} (FIXED)
   {
     freq: 100,
-    msg: '医院专家警惕：上海特色小食很有可能含有壮阳效果!',
-    drug: 4,  // 上海特色小食
+    msg: '医院专家警惕：上海小宝贝很有可能含有壮阳效果!',
+    drug: 4,  // 上海小宝贝
     plus: 5,
     minus: 0,
     add: 0
@@ -73,8 +73,8 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
   // Event 6 - C++ line 129: {37, msg, 4, 8, 0, 0} (FIXED)
   {
     freq: 37,
-    msg: 'Twitter网站最近发布了很多上海特色小食的消息，引起了一片哗然!',
-    drug: 4,  // 上海特色小食
+    msg: 'Twitter网站最近发布了很多上海小宝贝的消息，引起了一片哗然!',
+    drug: 4,  // 上海小宝贝
     plus: 8,
     minus: 0,
     add: 0
