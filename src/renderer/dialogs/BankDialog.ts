@@ -9,7 +9,7 @@
  * - Confirm/Cancel buttons
  */
 
-import { Container, Graphics, Text } from 'pixi.js';
+import { Container, Graphics, Text, type TextStyleOptions } from 'pixi.js';
 import { BaseDialog } from './BaseDialog';
 import { gameStateManager } from '@state/GameStateManager';
 import { GAME_CONSTANTS } from '@engine/types';
@@ -150,7 +150,7 @@ export class BankDialog extends BaseDialog {
     const tabWidth = 150;
     const tabHeight = 40;
     const tabRadius = 6;
-    const textStyle = {
+    const textStyle: TextStyleOptions = {
       fontFamily: 'Microsoft YaHei, Arial',
       fontSize: 16,
       fill: 0xffffff,
