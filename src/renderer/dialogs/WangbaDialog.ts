@@ -10,6 +10,7 @@
 
 import { Text } from 'pixi.js';
 import { BaseDialog } from './BaseDialog';
+import { GAME_CONSTANTS } from '@engine/types';
 import { gameStateManager } from '@state/GameStateManager';
 import { randomInt } from '@utils/random';
 import { createButton } from '../ui/SimpleUIHelpers';
@@ -45,7 +46,17 @@ export class WangbaDialog extends BaseDialog {
     description.y = currentY;
     this.addChild(description);
 
-    currentY += 50;
+    currentY += 32;
+
+    const costText = new Text({
+      text: `上网费用: ¥${GAME_CONSTANTS.WANGBA_ENTRY_COST.toLocaleString('zh-CN')} / 次 (最多${GAME_CONSTANTS.MAX_WANGBA_VISITS}次)`,
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 12, fill: 0x888888 }
+    });
+    costText.x = contentX;
+    costText.y = currentY;
+    this.addChild(costText);
+
+    currentY += 28;
 
     // Visits counter
     const visitsLabel = new Text({
@@ -103,8 +114,8 @@ export class WangbaDialog extends BaseDialog {
     currentY += 60;
 
     // Buttons
-    const playButton = createButton('开始上网', 140, 40, 0x3a7bc8, () => this.handlePlay());
-    playButton.x = contentX + 90;
+    const playButton = createButton(`开始上网 (¥${GAME_CONSTANTS.WANGBA_ENTRY_COST.toLocaleString('zh-CN')})`, 170, 40, 0x3a7bc8, () => this.handlePlay());
+    playButton.x = contentX + 75;
     playButton.y = currentY;
     this.addChild(playButton);
 
