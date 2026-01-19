@@ -40,7 +40,7 @@ export class InventoryList extends Container {
 
     // Title
     const title = new Text({
-      text: '库存',
+      text: '破出租屋',
       style: {
         fontFamily: 'Microsoft YaHei, Arial',
         fontSize: 18,
