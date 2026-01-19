@@ -357,7 +357,7 @@ export class GameEngine {
    * Visit internet cafe (wangba)
    * Ported from: Wangba.cpp
    */
-  visitWangba(state: GameState): Result<number> {
+  visitWangba(state: GameState, rewardRange?: { min: number; max: number }): Result<number> {
     if (state.wangbaVisits >= GAME_CONSTANTS.MAX_WANGBA_VISITS) {
       return Err(`你已经访问了${GAME_CONSTANTS.MAX_WANGBA_VISITS}次网吧，不能再去了`);
     }
@@ -370,10 +370,16 @@ export class GameEngine {
     state.cash -= GAME_CONSTANTS.WANGBA_ENTRY_COST;
     state.wangbaVisits++;
 
-    // Random reward: 1-10 yuan
-    const reward =
-      GAME_CONSTANTS.WANGBA_REWARD_MIN +
-      Math.floor(Math.random() * (GAME_CONSTANTS.WANGBA_REWARD_MAX - GAME_CONSTANTS.WANGBA_REWARD_MIN + 1));
+    const minReward = rewardRange?.min ?? GAME_CONSTANTS.WANGBA_REWARD_MIN;
+    const maxReward = rewardRange?.max ?? GAME_CONSTANTS.WANGBA_REWARD_MAX;
+
+    // Random reward within range
+    let reward =
+      minReward + Math.floor(Math.random() * (maxReward - minReward + 1));
+
+    if (state.hackingEnabled) {
+      reward = Math.floor(reward * GAME_CONSTANTS.WANGBA_HACKING_MULTIPLIER);
+    }
 
     state.cash += reward;
 

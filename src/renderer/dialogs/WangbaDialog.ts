@@ -11,7 +11,7 @@
 import { Text } from 'pixi.js';
 import { BaseDialog } from './BaseDialog';
 import { gameStateManager } from '@state/GameStateManager';
-import { randomInt, randomRange } from '@utils/random';
+import { randomInt } from '@utils/random';
 import { createButton } from '../ui/SimpleUIHelpers';
 
 export class WangbaDialog extends BaseDialog {
@@ -119,7 +119,6 @@ export class WangbaDialog extends BaseDialog {
    */
   private handlePlay(): void {
     const state = gameStateManager.getState();
-    const hackingEnabled = state.hackingEnabled;
 
     // Random activities
     const activities = [
@@ -133,26 +132,19 @@ export class WangbaDialog extends BaseDialog {
     // Select random activity
     const activity = activities[randomInt(activities.length)];
 
-    // Calculate reward (boosted if hacking enabled)
-    let baseReward = randomRange(activity.minReward, activity.maxReward);
-    if (hackingEnabled) {
-      baseReward = Math.floor(baseReward * 1.5); // 50% boost with hacking
-    }
-
-    this.reward = baseReward;
-
-    // Update state
-    const result = gameStateManager.visitWangba();
+    // Update state with selected reward range
+    const result = gameStateManager.visitWangba(activity.minReward, activity.maxReward);
 
     if (result.success) {
       this.visits++;
       this.visitsText.text = this.visits.toString();
       this.resultText.text = activity.text;
+      this.reward = result.value;
       this.rewardText.text = `+¥${this.reward.toLocaleString('zh-CN')}`;
 
       console.log(`Wangba visit #${this.visits}: gained ¥${this.reward}`);
     } else {
-      this.resultText.text = '出错了...';
+      this.resultText.text = result.error;
       this.rewardText.text = '';
     }
   }
