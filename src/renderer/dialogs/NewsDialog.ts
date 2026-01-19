@@ -16,8 +16,8 @@ export class NewsDialog extends BaseDialog {
   private messageText!: Text;
 
   constructor() {
-    // Increased dialog size to accommodate longer messages
-    super(550, 400, '消息');
+    // Compact dialog size (60% of original)
+    super(330, 240, '消息');
     this.createNewsDialogUI();
   }
 
@@ -27,35 +27,36 @@ export class NewsDialog extends BaseDialog {
   private createNewsDialogUI(): void {
     const panelX = (800 - this.dialogWidth) / 2;
     const panelY = (600 - this.dialogHeight) / 2;
-    const contentX = panelX + 30;
-    const contentWidth = this.dialogWidth - 60;
-    let currentY = panelY + 80;
+    const contentX = panelX + 20;
+    const contentWidth = this.dialogWidth - 40;
+    const contentTop = panelY + 68;
+    const buttonWidth = 120;
+    const buttonHeight = 34;
+    const buttonY = panelY + this.dialogHeight - 18 - buttonHeight;
 
     // Message text (word wrapped, left-aligned for better Chinese text readability)
     this.messageText = new Text({
       text: '',
       style: {
         fontFamily: 'Microsoft YaHei, Arial',
-        fontSize: 16,
+        fontSize: 13,
         fill: 0xffffff,
         wordWrap: true,
         wordWrapWidth: contentWidth, // Use full content width
         breakWords: true, // CRITICAL: Allow breaking Chinese text at any character
         align: 'left', // Left-align for better readability with wrapped Chinese text
-        lineHeight: 26, // Increased line height for better readability
+        lineHeight: 22,
       }
     });
     this.messageText.x = contentX;
-    this.messageText.y = currentY;
+    this.messageText.y = contentTop;
     this.messageText.anchor.set(0, 0);
     this.addChild(this.messageText);
 
-    currentY += 250; // Increased space for text (was 150)
-
     // OK button
-    const okButton = createButton('确定', 140, 40, 0x3a7bc8, () => this.hide());
-    okButton.x = contentX + 160;
-    okButton.y = currentY;
+    const okButton = createButton('确定', buttonWidth, buttonHeight, 0x3a7bc8, () => this.hide());
+    okButton.x = panelX + (this.dialogWidth - buttonWidth) / 2;
+    okButton.y = buttonY;
     this.addChild(okButton);
   }
 
