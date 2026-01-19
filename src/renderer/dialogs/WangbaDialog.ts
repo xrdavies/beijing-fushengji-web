@@ -129,8 +129,6 @@ export class WangbaDialog extends BaseDialog {
    * Handle play button - simulate internet activity
    */
   private handlePlay(): void {
-    const state = gameStateManager.getState();
-
     // Random activities
     const activities = [
       { text: '你浏览了一些网页，偶然发现了一个红包！', minReward: 50, maxReward: 200 },
