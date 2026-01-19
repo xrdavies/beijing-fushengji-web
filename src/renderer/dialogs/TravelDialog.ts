@@ -22,7 +22,9 @@ import { audioManager } from '@audio/AudioManager';
 export class TravelDialog extends BaseDialog {
   private beijingScrollBox!: ScrollBox;
   private shanghaiScrollBox!: ScrollBox;
+  private locationLabelText!: Text;
   private currentCityText!: Text;
+  private locationSeparatorText!: Text;
   private currentLocationText!: Text;
   private timeLeftText!: Text;
   private eventQueue: EventQueue;
@@ -52,21 +54,34 @@ export class TravelDialog extends BaseDialog {
     statusContainer.x = contentX;
     statusContainer.y = currentY;
 
-    const currentCityLabel = new Text({
-      text: '当前城市:',
+    this.locationLabelText = new Text({
+      text: '当前位置:',
       style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0xaaaaaa }
     });
-    currentCityLabel.x = 0;
-    currentCityLabel.y = 0;
-    statusContainer.addChild(currentCityLabel);
+    this.locationLabelText.x = 0;
+    this.locationLabelText.y = 0;
+    statusContainer.addChild(this.locationLabelText);
 
     this.currentCityText = new Text({
       text: '北京',
       style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0xffaa00, fontWeight: 'bold' }
     });
-    this.currentCityText.x = 90;
     this.currentCityText.y = 0;
     statusContainer.addChild(this.currentCityText);
+
+    this.locationSeparatorText = new Text({
+      text: '*',
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0xffffff, fontWeight: 'bold' }
+    });
+    this.locationSeparatorText.y = 0;
+    statusContainer.addChild(this.locationSeparatorText);
+
+    this.currentLocationText = new Text({
+      text: '未知',
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0xffffff, fontWeight: 'bold' }
+    });
+    this.currentLocationText.y = 0;
+    statusContainer.addChild(this.currentLocationText);
 
     const timeLeftLabel = new Text({
       text: '剩余时间:',
@@ -84,21 +99,7 @@ export class TravelDialog extends BaseDialog {
     this.timeLeftText.y = 0;
     statusContainer.addChild(this.timeLeftText);
 
-    const currentLocationLabel = new Text({
-      text: '当前地点:',
-      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0xaaaaaa }
-    });
-    currentLocationLabel.x = 0;
-    currentLocationLabel.y = 22;
-    statusContainer.addChild(currentLocationLabel);
-
-    this.currentLocationText = new Text({
-      text: '未知',
-      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0xffffff, fontWeight: 'bold' }
-    });
-    this.currentLocationText.x = 90;
-    this.currentLocationText.y = 22;
-    statusContainer.addChild(this.currentLocationText);
+    this.layoutLocationDisplay();
 
     this.addChild(statusContainer);
 
@@ -270,6 +271,7 @@ export class TravelDialog extends BaseDialog {
     // Update UI
     this.currentCityText.text = state.city === 'beijing' ? '北京' : '上海';
     this.currentLocationText.text = state.currentLocation?.name ?? '未知';
+    this.layoutLocationDisplay();
     this.timeLeftText.text = `${state.timeLeft}天`;
 
     this.show();
@@ -281,5 +283,16 @@ export class TravelDialog extends BaseDialog {
 
   protected onClose(): void {
     // Dialog closed
+  }
+
+  private layoutLocationDisplay(): void {
+    const labelGap = 8;
+    const separatorGap = 6;
+    const labelRight = this.locationLabelText.x + this.locationLabelText.width;
+
+    this.currentCityText.x = labelRight + labelGap;
+    this.locationSeparatorText.x = this.currentCityText.x + this.currentCityText.width + separatorGap;
+    this.currentLocationText.x =
+      this.locationSeparatorText.x + this.locationSeparatorText.width + separatorGap;
   }
 }
