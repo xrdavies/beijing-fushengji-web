@@ -27,6 +27,7 @@ export class TravelDialog extends BaseDialog {
   private locationSeparatorText!: Text;
   private currentLocationText!: Text;
   private timeLeftText!: Text;
+  private locationItemUpdateFns: Map<number, (hovered?: boolean) => void> = new Map();
   private eventQueue: EventQueue;
 
   constructor(eventQueue: EventQueue) {
@@ -46,7 +47,7 @@ export class TravelDialog extends BaseDialog {
 
     const listWidth = 250;
     const listHeight = 250;
-    const listPadding = 10;
+    const listPadding = 6;
     const itemWidth = listWidth - listPadding * 2;
 
     // Current status
@@ -124,7 +125,7 @@ export class TravelDialog extends BaseDialog {
       radius: 5,
       type: 'vertical',
       padding: listPadding,
-      elementsMargin: 8,
+      elementsMargin: 4,
     });
     this.beijingScrollBox.x = contentX;
     this.beijingScrollBox.y = currentY;
@@ -150,7 +151,7 @@ export class TravelDialog extends BaseDialog {
       radius: 5,
       type: 'vertical',
       padding: listPadding,
-      elementsMargin: 8,
+      elementsMargin: 4,
     });
     this.shanghaiScrollBox.x = contentX + 280;
     this.shanghaiScrollBox.y = currentY;
@@ -172,7 +173,10 @@ export class TravelDialog extends BaseDialog {
    * Populate locations in a scrollbox
    */
   private populateLocations(scrollBox: ScrollBox, locations: Location[], itemWidth: number): void {
-    const itemHeight = 36;
+    const itemHeight = 20;
+    const baseColor = 0x2a2a2a;
+    const hoverColor = 0x3a7bc8;
+    const highlightColor = 0x3a4a66;
 
     for (const location of locations) {
       const itemContainer = new Container();
@@ -186,7 +190,7 @@ export class TravelDialog extends BaseDialog {
         background.roundRect(0, 0, itemWidth, itemHeight, 6);
         background.fill(color);
       };
-      renderBackground(0x2a2a2a);
+      renderBackground(baseColor);
       itemContainer.addChild(background);
 
       // Location name
@@ -194,13 +198,25 @@ export class TravelDialog extends BaseDialog {
         text: location.name,
         style: {
           fontFamily: 'Microsoft YaHei, Arial',
-          fontSize: 14,
+          fontSize: 12,
           fill: 0xffffff,
         }
       });
       nameText.x = 12;
       nameText.y = Math.round((itemHeight - nameText.height) / 2);
       itemContainer.addChild(nameText);
+
+      const updateItemState = (hovered: boolean = false) => {
+        const currentId = gameStateManager.getState().currentLocation?.id;
+        const isCurrent = currentId === location.id;
+        if (hovered) {
+          renderBackground(hoverColor);
+          return;
+        }
+        renderBackground(isCurrent ? highlightColor : baseColor);
+      };
+      this.locationItemUpdateFns.set(location.id, updateItemState);
+      updateItemState();
 
       // Click handler
       itemContainer.on('pointerdown', () => {
@@ -209,11 +225,11 @@ export class TravelDialog extends BaseDialog {
 
       // Hover effect
       itemContainer.on('pointerover', () => {
-        renderBackground(0x3a7bc8);
+        updateItemState(true);
       });
 
       itemContainer.on('pointerout', () => {
-        renderBackground(0x2a2a2a);
+        updateItemState(false);
       });
 
       scrollBox.addItem(itemContainer);
@@ -273,6 +289,7 @@ export class TravelDialog extends BaseDialog {
     this.currentLocationText.text = state.currentLocation?.name ?? '未知';
     this.layoutLocationDisplay();
     this.timeLeftText.text = `${state.timeLeft}天`;
+    this.refreshLocationHighlights();
 
     this.show();
   }
@@ -294,5 +311,9 @@ export class TravelDialog extends BaseDialog {
     this.locationSeparatorText.x = this.currentCityText.x + this.currentCityText.width + separatorGap;
     this.currentLocationText.x =
       this.locationSeparatorText.x + this.locationSeparatorText.width + separatorGap;
+  }
+
+  private refreshLocationHighlights(): void {
+    this.locationItemUpdateFns.forEach((updateItem) => updateItem(false));
   }
 }
