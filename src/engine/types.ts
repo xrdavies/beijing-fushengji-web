@@ -24,13 +24,13 @@ export interface DrugInfo {
 // Drug names from original C++ game
 export const DRUGS: DrugInfo[] = [
   { id: 0, name: '古董瓷器', minPrice: 100, maxPrice: 450 },
-  { id: 1, name: '古旧手机', minPrice: 15000, maxPrice: 30000 },
-  { id: 2, name: '盗版VCD游戏', minPrice: 5, maxPrice: 55 },
-  { id: 3, name: '白酒，茅台等', minPrice: 1000, maxPrice: 3500 },  // FIXED: was 紫砂茶具、古董茶
-  { id: 4, name: '新鲜和小吃（新鲜产品）', minPrice: 5000, maxPrice: 14000 },  // FIXED: was 新泻特产、特色小食品
-  { id: 5, name: '丝绸衣服', minPrice: 250, maxPrice: 850 },
-  { id: 6, name: '水晶手镯', minPrice: 750, maxPrice: 1500 },
-  { id: 7, name: '仿制化妆品', minPrice: 65, maxPrice: 245 },  // FIXED: was α街画报纸品
+  { id: 1, name: '走私电器', minPrice: 15000, maxPrice: 30000 },
+  { id: 2, name: '盗版A片', minPrice: 5, maxPrice: 55 },
+  { id: 3, name: '劣质假酒', minPrice: 1000, maxPrice: 3500 },  // FIXED: was 紫砂茶具、古董茶
+  { id: 4, name: '上海特色小食', minPrice: 5000, maxPrice: 14000 },  // FIXED: was 新泻特产、特色小食品
+  { id: 5, name: '仿爱马仕', minPrice: 250, maxPrice: 850 },
+  { id: 6, name: '越南翡翠手镯', minPrice: 750, maxPrice: 1500 },
+  { id: 7, name: '印度神油', minPrice: 65, maxPrice: 245 },  // FIXED: was α街画报纸品
 ];
 
 // ============================================================================
@@ -61,8 +61,8 @@ export const BEIJING_LOCATIONS: Location[] = [
 
 // Shanghai locations (10)
 export const SHANGHAI_LOCATIONS: Location[] = [
-  { id: 10, name: '上海明珠', city: 'shanghai' },
-  { id: 11, name: '浦东开发', city: 'shanghai' },
+  { id: 10, name: '东方明珠', city: 'shanghai' },
+  { id: 11, name: '浦东新区', city: 'shanghai' },
   { id: 12, name: '外滩', city: 'shanghai' },
   { id: 13, name: '南京路', city: 'shanghai' },
   { id: 14, name: '人民广场', city: 'shanghai' },

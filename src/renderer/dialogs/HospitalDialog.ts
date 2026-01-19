@@ -10,7 +10,7 @@
  * - Confirm/Cancel buttons
  */
 
-import { Text } from 'pixi.js';
+import { Container, Text } from 'pixi.js';
 import { BaseDialog } from './BaseDialog';
 import { gameStateManager } from '@state/GameStateManager';
 import { GAME_CONSTANTS } from '@engine/types';
@@ -23,13 +23,14 @@ export class HospitalDialog extends BaseDialog {
   private costPerPointText!: Text;
   private totalCostText!: Text;
   private slider!: SimpleSlider;
+  private confirmButton!: Container;
 
   private healthPoints: number = 0;
   private maxHealthPoints: number = 0;
   private currentHealth: number = 0;
 
   constructor() {
-    super(500, 450, '医院');
+    super(500, 450, '小诊所');
     this.createHospitalDialogUI();
   }
 
@@ -151,10 +152,10 @@ export class HospitalDialog extends BaseDialog {
     currentY += 60;
 
     // Buttons
-    const confirmButton = createButton('接受治疗', 120, 40, 0x00aa00, () => this.handleConfirm());
-    confirmButton.x = contentX + 80;
-    confirmButton.y = currentY;
-    this.addChild(confirmButton);
+    this.confirmButton = createButton('接受治疗', 120, 40, 0x00aa00, () => this.handleConfirm());
+    this.confirmButton.x = contentX + 80;
+    this.confirmButton.y = currentY;
+    this.addChild(this.confirmButton);
 
     const cancelButton = createButton('取消', 120, 40, 0x666666, () => this.hide());
     cancelButton.x = contentX + 230;
@@ -247,6 +248,7 @@ export class HospitalDialog extends BaseDialog {
     this.slider.setValue(0);
     this.healthPoints = 0;
     this.updateHealthDisplay();
+    this.updateConfirmButtonState(this.maxHealthPoints > 0);
 
     this.show();
   }
@@ -257,5 +259,11 @@ export class HospitalDialog extends BaseDialog {
 
   protected onClose(): void {
     // Dialog closed
+  }
+
+  private updateConfirmButtonState(enabled: boolean): void {
+    this.confirmButton.alpha = enabled ? 1 : 0.5;
+    this.confirmButton.eventMode = enabled ? 'static' : 'none';
+    this.confirmButton.cursor = enabled ? 'pointer' : 'default';
   }
 }

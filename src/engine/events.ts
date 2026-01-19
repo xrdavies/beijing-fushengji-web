@@ -19,8 +19,8 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
   // Event 0 - C++ line 123: {170, msg, 5, 2, 0, 0}
   {
     freq: 170,
-    msg: '专家预测明年大学生对手机的需求将会激增!',
-    drug: 5,  // 丝绸衣服
+    msg: '专家预测明年大学生对仿爱马仕的需求将会激增!',
+    drug: 5,  // 仿爱马仕
     plus: 2,
     minus: 0,
     add: 0
@@ -28,8 +28,8 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
   // Event 1 - C++ line 124: {139, msg, 3, 3, 0, 0}
   {
     freq: 139,
-    msg: '卫生局官员说，今后工商部局将严查假冒伪劣，加紧打假!',
-    drug: 3,  // 紫砂茶具、古董茶
+    msg: '卫生局官员说，今后将严查假酒，假酒供应量暴跌，市场劣质假酒价格看涨!',
+    drug: 3,  // 劣质假酒
     plus: 3,
     minus: 0,
     add: 0
@@ -37,8 +37,8 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
   // Event 2 - C++ line 125: {100, msg, 4, 5, 0, 0} (FIXED)
   {
     freq: 100,
-    msg: '医院专家警惕：劣质新鲜和小吃很有可能含有致癌物质!',
-    drug: 4,  // 新泻特产、特色小食品
+    msg: '医院专家警惕：上海特色小食很有可能含有壮阳效果!',
+    drug: 4,  // 上海特色小食
     plus: 5,
     minus: 0,
     add: 0
@@ -46,8 +46,8 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
   // Event 3 - C++ line 126: {41, msg, 2, 4, 0, 0} (FIXED)
   {
     freq: 41,
-    msg: '盖茨说，以后2000年诺基亚手机将会停产，限量版VCD游戏片热卖!',
-    drug: 2,  // 盗版VCD游戏
+    msg: '网络上盗版A片热卖，供不应求!',
+    drug: 2,  // 盗版A片
     plus: 4,
     minus: 0,
     add: 0
@@ -55,8 +55,8 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
   // Event 4 - C++ line 127: {37, msg, 1, 3, 0, 0} (FIXED)
   {
     freq: 37,
-    msg: '北京市场上旧手机热销，许多人私下进货想趁机赚一笔!',
-    drug: 1,  // 古旧手机
+    msg: '北京市场上走私电器热销，许多人私下进货想趁机赚一笔!',
+    drug: 1,  // 走私电器
     plus: 3,
     minus: 0,
     add: 0
@@ -64,8 +64,8 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
   // Event 5 - C++ line 128: {23, msg, 7, 4, 0, 0} (FIXED)
   {
     freq: 23,
-    msg: '最新报告表明，多数人都喜欢画报纸品，影响到现实中对这种假冒伪劣产品的欢迎!',
-    drug: 7,  // α街画报纸品
+    msg: '最新报告表明，多数人都喜欢印度神油，影响到现实中对这种假冒伪劣产品的欢迎!',
+    drug: 7,  // 印度神油
     plus: 4,
     minus: 0,
     add: 0
@@ -73,8 +73,8 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
   // Event 6 - C++ line 129: {37, msg, 4, 8, 0, 0} (FIXED)
   {
     freq: 37,
-    msg: '8858.com网站最近发布了很多新鲜和小吃的消息，引起了一片哗然!',
-    drug: 4,  // 新泻特产、特色小食品
+    msg: 'Twitter网站最近发布了很多上海特色小食的消息，引起了一片哗然!',
+    drug: 4,  // 上海特色小食
     plus: 8,
     minus: 0,
     add: 0
@@ -82,8 +82,8 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
   // Event 7 - C++ line 130: {15, msg, 7, 7, 0, 0} (FIXED)
   {
     freq: 15,
-    msg: '谢霆锋最近出席活动说，我一定要使用假冒伪劣产品!最终假冒伪劣产品供不应求!',
-    drug: 7,  // α街画报纸品
+    msg: '谢霆锋最近出席活动说，我一定要使用印度神油! 最终印度神油供不应求!',
+    drug: 7,  // 印度神油
     plus: 7,
     minus: 0,
     add: 0
@@ -91,17 +91,17 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
   // Event 8 - C++ line 131: {40, msg, 3, 7, 0, 0} (FIXED)
   {
     freq: 40,
-    msg: '最近有人开发山西陈年老酒，影响到价格!',
-    drug: 3,  // 紫砂茶具、古董茶
-    plus: 7,
-    minus: 0,
+    msg: '地下作坊大量生产劣质假酒，影响到价格!',
+    drug: 3,  // 劣质假酒
+    plus: 0,
+    minus: 6,
     add: 0
   },
   // Event 9 - C++ line 132: {29, msg, 6, 7, 0, 0} (FIXED)
   {
     freq: 29,
-    msg: '北京的大学生们开始寻找水晶手镯，很受欢迎!',
-    drug: 6,  // 水晶手镯
+    msg: '北京的大学生们开始寻找越南翡翠手镯，很受欢迎!',
+    drug: 6,  // 越南翡翠手镯
     plus: 7,
     minus: 0,
     add: 0
@@ -109,8 +109,8 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
   // Event 10 - C++ line 133: {35, msg, 1, 8, 0, 0} (FIXED)
   {
     freq: 35,
-    msg: '随着个人风潮的来临，旧手机价格暴涨!',
-    drug: 1,  // 古旧手机
+    msg: '随着个人风潮的来临，走私电器价格暴涨!',
+    drug: 1,  // 走私电器
     plus: 8,
     minus: 0,
     add: 0
@@ -118,7 +118,7 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
   // Event 11 - C++ line 134: {17, msg, 0, 0, 8, 0} (FIXED)
   {
     freq: 17,
-    msg: '市场上出现了假冒古董瓷器!',
+    msg: '市场上出现了古董瓷器!',
     drug: 0,  // 古董瓷器
     plus: 0,
     minus: 8,
@@ -127,8 +127,8 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
   // Event 12 - C++ line 135: {24, msg, 5, 0, 5, 0} (FIXED)
   {
     freq: 24,
-    msg: '北京的孩子们忙着学习，没有时间买丝绸!',
-    drug: 5,  // 丝绸衣服
+    msg: '北京的孩子们忙着学习，没有时间买仿爱马仕!',
+    drug: 5,  // 仿爱马仕
     plus: 0,
     minus: 5,
     add: 0
@@ -136,8 +136,8 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
   // Event 13 - C++ line 136: {18, msg, 2, 0, 8, 0} (FIXED)
   {
     freq: 18,
-    msg: '政府打击十元盗版，很多人都在清仓处理，盗版VCD游戏大甩卖!',
-    drug: 2,  // 盗版VCD游戏
+    msg: '政府打击十元盗版，很多人都在清仓处理，盗版A片大甩卖!',
+    drug: 2,  // 盗版A片
     plus: 0,
     minus: 8,
     add: 0
@@ -145,8 +145,8 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
   // Event 14 - C++ line 137: {160, msg, 1, 0, 0, 2} (FIXED)
   {
     freq: 160,
-    msg: '你老家的同学送给你几部旧手机，你接受了!',
-    drug: 1,  // 古旧手机
+    msg: '你老家的同学送给你几件走私电器，你接受了!',
+    drug: 1,  // 走私电器
     plus: 0,
     minus: 0,
     add: 2
@@ -157,14 +157,14 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
     msg: '工商局扫黄后，发现黑暗势力发布的大批失窃的古董瓷器!',
     drug: 0,  // 古董瓷器
     plus: 0,
-    minus: 0,
+    minus: 5,
     add: 6
   },
   // Event 16 - C++ line 139: {35, msg, 3, 0, 0, 4} (FIXED)
   {
     freq: 35,
-    msg: '你买年货回家前有一些山西陈年老酒，茅台等好酒!',
-    drug: 3,  // 紫砂茶具、古董茶
+    msg: '你买年货回家前弄到一批劣质假酒!',
+    drug: 3,  // 劣质假酒
     plus: 0,
     minus: 0,
     add: 4
@@ -173,8 +173,8 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
   // Special event: adds 2500 to debt (handled in EventSystem)
   {
     freq: 140,
-    msg: '媒体报道，最近有日本制造的中国仿品被出口! 据说日本制造商被查后，拒绝赔偿损失，还说是消息不实，所以八卦报纸公司送了你一个水晶手镯作为标识硬抵押，还欠你2500元!',
-    drug: 6,  // 水晶手镯
+    msg: '媒体报道，最近有日本制造的中国仿品被出口! 据说日本制造商被查后，拒绝赔偿损失，还说是消息不实，所以八卦报纸公司送了你一个越南翡翠手镯作为标识硬抵押，还欠你2500元!',
+    drug: 6,  // 越南翡翠手镯
     plus: 0,
     minus: 0,
     add: 1
