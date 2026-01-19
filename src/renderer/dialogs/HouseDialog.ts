@@ -8,7 +8,7 @@
  * - Confirm/Cancel buttons
  */
 
-import { Text } from 'pixi.js';
+import { Container, Text } from 'pixi.js';
 import { BaseDialog } from './BaseDialog';
 import { gameStateManager } from '@state/GameStateManager';
 import { GAME_CONSTANTS } from '@engine/types';
@@ -18,6 +18,7 @@ export class HouseDialog extends BaseDialog {
   private currentCapacityText!: Text;
   private newCapacityText!: Text;
   private costText!: Text;
+  private confirmButton!: Container;
 
   private currentCapacity: number = 0;
   private upgradeCost: number = 0;
@@ -47,25 +48,6 @@ export class HouseDialog extends BaseDialog {
 
     currentY += 50;
 
-    // Current capacity
-    const currentCapacityLabel = new Text({
-      text: '当前容量:',
-      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 16, fill: 0xaaaaaa }
-    });
-    currentCapacityLabel.x = contentX;
-    currentCapacityLabel.y = currentY;
-    this.addChild(currentCapacityLabel);
-
-    this.currentCapacityText = new Text({
-      text: '100',
-      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 16, fill: 0xffffff, fontWeight: 'bold' }
-    });
-    this.currentCapacityText.x = contentX + 120;
-    this.currentCapacityText.y = currentY;
-    this.addChild(this.currentCapacityText);
-
-    currentY += 40;
-
     // New capacity
     const newCapacityLabel = new Text({
       text: '升级后:',
@@ -85,13 +67,32 @@ export class HouseDialog extends BaseDialog {
 
     currentY += 40;
 
+    // Current capacity
+    const currentCapacityLabel = new Text({
+      text: '当前容量:',
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 16, fill: 0xaaaaaa }
+    });
+    currentCapacityLabel.x = contentX;
+    currentCapacityLabel.y = currentY;
+    this.addChild(currentCapacityLabel);
+
+    this.currentCapacityText = new Text({
+      text: '100',
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 16, fill: 0xffffff, fontWeight: 'bold' }
+    });
+    this.currentCapacityText.x = contentX + 120;
+    this.currentCapacityText.y = currentY;
+    this.addChild(this.currentCapacityText);
+
     // Arrow showing increase
     const increaseText = new Text({
-      text: '↑ +50',
+      text: `↑ +${GAME_CONSTANTS.HOUSE_CAPACITY_INCREASE}`,
       style: { fontFamily: 'Arial', fontSize: 18, fill: 0x00ff00, fontWeight: 'bold' }
     });
     increaseText.x = contentX + 220;
-    increaseText.y = currentY - 60;
+    increaseText.y = Math.round(
+      (this.newCapacityText.y + this.currentCapacityText.y - increaseText.height) / 2
+    );
     this.addChild(increaseText);
 
     currentY += 50;
@@ -116,10 +117,10 @@ export class HouseDialog extends BaseDialog {
     currentY += 70;
 
     // Buttons
-    const confirmButton = createButton('租用房屋', 120, 40, 0x00aa00, () => this.handleConfirm());
-    confirmButton.x = contentX + 80;
-    confirmButton.y = currentY;
-    this.addChild(confirmButton);
+    this.confirmButton = createButton('租用房屋', 120, 40, 0x00aa00, () => this.handleConfirm());
+    this.confirmButton.x = contentX + 80;
+    this.confirmButton.y = currentY;
+    this.addChild(this.confirmButton);
 
     const cancelButton = createButton('取消', 120, 40, 0x666666, () => this.hide());
     cancelButton.x = contentX + 230;
@@ -161,12 +162,24 @@ export class HouseDialog extends BaseDialog {
 
     const state = gameStateManager.getState();
     this.currentCapacity = state.capacity;
-    this.upgradeCost = GAME_CONSTANTS.HOUSE_RENT_MIN;
+    this.upgradeCost = this.calculateUpgradeCost(state.cash);
+    const isMaxCapacity = state.capacity >= GAME_CONSTANTS.MAX_CAPACITY;
+    const canAfford = state.cash >= this.upgradeCost;
 
     // Update UI
     this.currentCapacityText.text = this.currentCapacity.toString();
-    this.newCapacityText.text = (this.currentCapacity + GAME_CONSTANTS.HOUSE_CAPACITY_INCREASE).toString();
-    this.costText.text = `¥${this.upgradeCost.toLocaleString('zh-CN')}`;
+    this.newCapacityText.text = Math.min(
+      this.currentCapacity + GAME_CONSTANTS.HOUSE_CAPACITY_INCREASE,
+      GAME_CONSTANTS.MAX_CAPACITY
+    ).toString();
+    if (isMaxCapacity) {
+      this.costText.text = '已达上限';
+      this.costText.style.fill = 0x888888;
+    } else {
+      this.costText.text = `¥${this.upgradeCost.toLocaleString('zh-CN')}`;
+      this.costText.style.fill = canAfford ? 0x00ff00 : 0xff4444;
+    }
+    this.updateConfirmButtonState(!isMaxCapacity && canAfford);
 
     this.show();
   }
@@ -177,5 +190,18 @@ export class HouseDialog extends BaseDialog {
 
   protected onClose(): void {
     // Dialog closed
+  }
+
+  private calculateUpgradeCost(cash: number): number {
+    if (cash <= GAME_CONSTANTS.HOUSE_RENT_RICH_THRESHOLD) {
+      return GAME_CONSTANTS.HOUSE_RENT_MIN;
+    }
+    return Math.floor(cash / 2) - 2000;
+  }
+
+  private updateConfirmButtonState(enabled: boolean): void {
+    this.confirmButton.alpha = enabled ? 1 : 0.5;
+    this.confirmButton.eventMode = enabled ? 'static' : 'none';
+    this.confirmButton.cursor = enabled ? 'pointer' : 'default';
   }
 }
