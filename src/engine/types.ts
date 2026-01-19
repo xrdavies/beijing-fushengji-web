@@ -111,6 +111,8 @@ export interface TheftEvent {
   freq: number;         // Frequency weight
   msg: string;          // Theft message (Chinese)
   ratio: number;        // Percentage of cash/bank lost (5-40%)
+  fixedLoss?: number;   // Fixed cash loss (optional)
+  sound?: string;       // Optional sound effect filename
 }
 
 /**

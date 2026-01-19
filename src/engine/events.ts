@@ -4,8 +4,8 @@
  *
  * Three types of random events:
  * 1. Commercial Events (18) - Market price changes, free items
- * 2. Health Events (12) - Player health damage
- * 3. Theft Events (7) - Money loss
+ * 2. Health Events (11) - Player health damage
+ * 3. Theft Events (8) - Money loss
  */
 
 import type { CommercialEvent, HealthEvent, TheftEvent } from './types';
@@ -259,14 +259,7 @@ export const HEALTH_EVENTS: HealthEvent[] = [
     hunt: 1,
     sound: 'level.wav'
   },
-  // Event 10 - SelectionDlg.cpp line 155 (FIXED)
-  {
-    freq: 48,
-    msg: '被小偷偷走了40元!',
-    hunt: 1,
-    sound: 'lan.wav'
-  },
-  // Event 11 - SelectionDlg.cpp line 156 (FIXED)
+  // Event 10 - SelectionDlg.cpp line 156 (FIXED)
   {
     freq: 33,
     msg: '在大街上被流氓骚扰，吓出了一身冷汗!',
@@ -276,7 +269,7 @@ export const HEALTH_EVENTS: HealthEvent[] = [
 ];
 
 // ============================================================================
-// THEFT EVENTS (7 total)
+// THEFT EVENTS (8 total)
 // Ported from: StealEvent random_steal_event[STEAL_EVENT_NUM] in SelectionDlg.cpp
 // ============================================================================
 
@@ -325,6 +318,14 @@ export const THEFT_EVENTS: TheftEvent[] = [
     msg: '你在大街上被人讹诈，去医院看病花了一笔钱...',
     ratio: 5
   },
+  // Event 7 - Ported from health event (fixed cash loss)
+  {
+    freq: 48,
+    msg: '被小偷偷走了40元!',
+    ratio: 0,
+    fixedLoss: 40,
+    sound: 'lan.wav'
+  },
 ];
 
 // ============================================================================
@@ -362,6 +363,9 @@ export function validateEvents(): boolean {
 
   // Check theft events
   for (const event of THEFT_EVENTS) {
+    if (event.fixedLoss && event.fixedLoss > 0) {
+      continue;
+    }
     if (event.ratio <= 0 || event.ratio > 100) {
       console.error(`Invalid theft ratio in theft event: ${event.ratio}`);
       return false;

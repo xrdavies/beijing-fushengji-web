@@ -179,6 +179,7 @@ export class EventSystem {
         events.push({
           type: 'theft',
           message: event.msg,
+          sound: event.sound,
           data: { ratio: event.ratio, lossAmount }
         });
 
@@ -203,6 +204,12 @@ export class EventSystem {
    * Ported from: SelectionDlg.cpp lines 1791-1807
    */
   private applyTheftEvent(state: GameState, event: TheftEvent): number {
+    if (event.fixedLoss && event.fixedLoss > 0) {
+      const loss = Math.min(state.cash, event.fixedLoss);
+      state.cash -= loss;
+      return loss;
+    }
+
     // Events 4 and 5 affect bank, others affect cash (C++ line 1791)
     const eventIndex = THEFT_EVENTS.indexOf(event);
     const affectsBank = (eventIndex === 4 || eventIndex === 5);
