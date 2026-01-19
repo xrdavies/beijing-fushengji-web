@@ -95,7 +95,8 @@ export class AudioManager {
   ];
 
   private constructor() {
-    // Singleton pattern
+    // Keep audio playing when the browser window loses focus.
+    sound.disableAutoPause = true;
   }
 
   static getInstance(): AudioManager {

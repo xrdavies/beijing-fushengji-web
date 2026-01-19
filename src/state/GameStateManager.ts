@@ -10,8 +10,8 @@
  * - Auto-save on state changes
  */
 
-import type { GameState, Location } from '@engine/types';
-import { DRUGS, GAME_CONSTANTS } from '@engine/types';
+import type { GameEvent, GameState, Location } from '@engine/types';
+import { BEIJING_LOCATIONS, DRUGS, GAME_CONSTANTS } from '@engine/types';
 import { gameEngine } from '@engine/GameEngine';
 import { audioManager } from '@audio/AudioManager';
 import { priceGenerator } from '@engine/PriceGenerator';
@@ -41,6 +41,9 @@ export class GameStateManager {
    * Ported from: CSelectionDlg constructor and OnInitDialog() in SelectionDlg.cpp
    */
   private createInitialState(): GameState {
+    const startingLocation =
+      BEIJING_LOCATIONS[Math.floor(Math.random() * BEIJING_LOCATIONS.length)];
+
     return {
       // Financial
       cash: GAME_CONSTANTS.STARTING_CASH,
@@ -62,8 +65,8 @@ export class GameStateManager {
       capacity: GAME_CONSTANTS.STARTING_CAPACITY,
 
       // World
-      currentLocation: null,
-      city: 'beijing',
+      currentLocation: startingLocation,
+      city: startingLocation.city,
       timeLeft: GAME_CONSTANTS.STARTING_TIME,
 
       // Market (generate initial prices - normal leaveout of 3)
@@ -307,7 +310,30 @@ export class GameStateManager {
   /**
    * Change location (triggers main game loop)
    */
-  changeLocation(location: Location) {
+  changeLocation(location: Location): GameEvent[] {
+    const isLocalTravel = location.city === this.state.city;
+    const subwayCost = this.state.city === 'beijing'
+      ? GAME_CONSTANTS.SUBWAY_TRAVEL_COST_BEIJING
+      : GAME_CONSTANTS.SUBWAY_TRAVEL_COST_SHANGHAI;
+    const travelCost = isLocalTravel
+      ? subwayCost
+      : GAME_CONSTANTS.FLIGHT_TRAVEL_COST;
+
+    if (this.state.cash < travelCost) {
+      const travelLabel = isLocalTravel ? '地铁' : '机票';
+      const events: GameEvent[] = [
+        {
+          type: 'commercial',
+          message: `现金不足，${travelLabel}需要¥${travelCost.toLocaleString('zh-CN')}。`,
+          data: { travelBlocked: true }
+        }
+      ];
+      return events;
+    }
+
+    // Deduct travel cost
+    this.state.cash -= travelCost;
+
     // Play door close sound on location change
     audioManager.play('door_close');
 
@@ -317,6 +343,8 @@ export class GameStateManager {
       location_id: location.id,
       location_name: location.name,
       city: location.city,
+      travel_cost: travelCost,
+      travel_type: isLocalTravel ? 'subway' : 'flight',
       events_count: eventCount,
       time_left: this.state.timeLeft,
     });

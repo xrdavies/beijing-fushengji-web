@@ -18,7 +18,7 @@ export class SettingsDialog extends BaseDialog {
   private hackingCheckbox!: SimpleCheckbox;
 
   constructor() {
-    super(500, 500, '设置');
+    super(350, 320, '设置');
     this.createSettingsDialogUI();
   }
 
@@ -28,23 +28,22 @@ export class SettingsDialog extends BaseDialog {
   private createSettingsDialogUI(): void {
     const panelX = (800 - this.dialogWidth) / 2;
     const panelY = (600 - this.dialogHeight) / 2;
-    const contentX = panelX + 30;
-    let currentY = panelY + 100;
+    const contentX = panelX + 20;
+    const contentWidth = this.dialogWidth - 40;
+    const checkboxGap = 8;
+    let currentY = panelY + 70;
 
     // Sound setting
     const soundLabel = new Text({
       text: '音效:',
-      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 16, fill: 0xaaaaaa }
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0xaaaaaa }
     });
-    soundLabel.x = contentX;
-    soundLabel.y = currentY;
     this.addChild(soundLabel);
 
     // Sound checkbox using SimpleCheckbox
     const state = gameStateManager.getState();
     this.soundCheckbox = new SimpleCheckbox(state.soundEnabled);
-    this.soundCheckbox.x = contentX + 200;
-    this.soundCheckbox.y = currentY;
+    this.soundCheckbox.x = contentX;
     this.addChild(this.soundCheckbox);
 
     this.soundCheckbox.onValueChange((checked: boolean) => {
@@ -52,29 +51,22 @@ export class SettingsDialog extends BaseDialog {
       console.log(`Sound ${checked ? 'enabled' : 'disabled'}`);
     });
 
-    currentY += 50;
+    const soundRowHeight = Math.max(soundLabel.height, this.soundCheckbox.height);
+    const soundRowWidth = this.soundCheckbox.width + checkboxGap + soundLabel.width;
+    soundLabel.y = currentY + (soundRowHeight - soundLabel.height) / 2;
+    this.soundCheckbox.y = currentY + (soundRowHeight - this.soundCheckbox.height) / 2;
+    currentY += soundRowHeight + 12;
 
     // Hacking setting
     const hackingLabel = new Text({
-      text: '黑客模式:',
-      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 16, fill: 0xaaaaaa }
+      text: '黑客模式(增加网吧收益50%):',
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0xaaaaaa }
     });
-    hackingLabel.x = contentX;
-    hackingLabel.y = currentY;
     this.addChild(hackingLabel);
-
-    const hackingDesc = new Text({
-      text: '(增加网吧收益50%)',
-      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 12, fill: 0x666666 }
-    });
-    hackingDesc.x = contentX;
-    hackingDesc.y = currentY + 25;
-    this.addChild(hackingDesc);
 
     // Hacking checkbox using SimpleCheckbox
     this.hackingCheckbox = new SimpleCheckbox(state.hackingEnabled);
-    this.hackingCheckbox.x = contentX + 200;
-    this.hackingCheckbox.y = currentY;
+    this.hackingCheckbox.x = contentX;
     this.addChild(this.hackingCheckbox);
 
     this.hackingCheckbox.onValueChange((checked: boolean) => {
@@ -82,82 +74,93 @@ export class SettingsDialog extends BaseDialog {
       console.log(`Hacking mode ${checked ? 'enabled' : 'disabled'}`);
     });
 
-    currentY += 80;
+    const hackingRowHeight = Math.max(hackingLabel.height, this.hackingCheckbox.height);
+    const hackingRowWidth = this.hackingCheckbox.width + checkboxGap + hackingLabel.width;
+    const groupWidth = Math.max(soundRowWidth, hackingRowWidth);
+    const groupX = panelX + (this.dialogWidth - groupWidth) / 2;
+    this.soundCheckbox.x = groupX;
+    soundLabel.x = this.soundCheckbox.x + this.soundCheckbox.width + checkboxGap;
+    this.hackingCheckbox.x = groupX;
+    hackingLabel.x = this.hackingCheckbox.x + this.hackingCheckbox.width + checkboxGap;
+    hackingLabel.y = currentY + (hackingRowHeight - hackingLabel.height) / 2;
+    this.hackingCheckbox.y =
+      currentY + (hackingRowHeight - this.hackingCheckbox.height) / 2;
+    currentY += hackingRowHeight + 14;
 
     // Divider line
     const divider = new Graphics();
     divider.moveTo(contentX, currentY);
-    divider.lineTo(contentX + 420, currentY);
+    divider.lineTo(contentX + contentWidth, currentY);
     divider.stroke({ color: 0x444444, width: 1 });
     this.addChild(divider);
 
-    currentY += 20;
+    currentY += 14;
 
     // Buttons
-    const newGameButton = createButton('开始新游戏', 160, 40, 0xff4444, () => this.handleNewGame());
-    newGameButton.x = contentX + 140;
+    const newGameButton = createButton('开始新游戏', 120, 32, 0xff4444, () => this.handleNewGame());
+    newGameButton.x = panelX + (this.dialogWidth - 120) / 2;
     newGameButton.y = currentY;
     this.addChild(newGameButton);
 
-    currentY += 55;
+    currentY += 38;
 
     // About section divider
     const aboutDivider = new Graphics();
     aboutDivider.moveTo(contentX, currentY);
-    aboutDivider.lineTo(contentX + 420, currentY);
+    aboutDivider.lineTo(contentX + contentWidth, currentY);
     aboutDivider.stroke({ color: 0x444444, width: 1 });
     this.addChild(aboutDivider);
 
-    currentY += 16;
+    currentY += 11;
 
     // About section title
     const aboutTitle = new Text({
       text: '关于',
-      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 16, fill: 0xaaaaaa, fontWeight: 'bold' }
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 12, fill: 0xaaaaaa, fontWeight: 'bold' }
     });
     aboutTitle.x = contentX;
     aboutTitle.y = currentY;
     this.addChild(aboutTitle);
 
-    currentY += 22;
+    currentY += 16;
 
     // Version info
     const versionText = new Text({
       text: '北京浮生记 Web版 v1.0.0',
-      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0x888888 }
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 11, fill: 0x888888 }
     });
     versionText.x = contentX;
     versionText.y = currentY;
     this.addChild(versionText);
 
-    currentY += 18;
+    currentY += 13;
 
     // Credits
     const webAuthorText = new Text({
       text: 'Web版: Frozen (2026)',
-      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 12, fill: 0x888888 }
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 10, fill: 0x888888 }
       
     });
     webAuthorText.x = contentX;
     webAuthorText.y = currentY;
     this.addChild(webAuthorText);
 
-    currentY += 16;
+    currentY += 11;
 
     const originalAuthorText = new Text({
       text: '原作者: Guo xianghao (2012)',
-      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 12, fill: 0x888888 }
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 10, fill: 0x888888 }
     });
     originalAuthorText.x = contentX;
     originalAuthorText.y = currentY;
     this.addChild(originalAuthorText);
 
-    currentY += 18;
+    currentY += 13;
 
     // GitHub link
     const githubText = new Text({
       text: 'https://github.com/xrdavies/beijing-fushengji-web',
-      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 12, fill: 0x4a9eff }
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 10, fill: 0x4a9eff }
     });
     githubText.x = contentX;
     githubText.y = currentY;
@@ -174,12 +177,12 @@ export class SettingsDialog extends BaseDialog {
     });
     this.addChild(githubText);
 
-    currentY += 20;
+    currentY += 14;
 
     // Developer link
     const developerText = new Text({
       text: 'https://x.com/xrdavies',
-      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 12, fill: 0x4a9eff }
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 10, fill: 0x4a9eff }
     });
     developerText.x = contentX;
     developerText.y = currentY;

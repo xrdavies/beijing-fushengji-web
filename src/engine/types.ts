@@ -111,6 +111,8 @@ export interface TheftEvent {
   freq: number;         // Frequency weight
   msg: string;          // Theft message (Chinese)
   ratio: number;        // Percentage of cash/bank lost (5-40%)
+  fixedLoss?: number;   // Fixed cash loss (optional)
+  sound?: string;       // Optional sound effect filename
 }
 
 /**
@@ -206,6 +208,9 @@ export const GAME_CONSTANTS = {
   WANGBA_REWARD_MIN: 1,
   WANGBA_REWARD_MAX: 10,
   WANGBA_HACKING_MULTIPLIER: 1.5,
+  SUBWAY_TRAVEL_COST_BEIJING: 2,
+  SUBWAY_TRAVEL_COST_SHANGHAI: 5,
+  FLIGHT_TRAVEL_COST: 500,
 
   // Auto-hospitalization
   AUTO_HOSPITAL_HEALTH_THRESHOLD: 85,
