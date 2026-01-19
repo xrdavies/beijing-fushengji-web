@@ -34,6 +34,7 @@ export class TravelDialog extends BaseDialog {
   private tabButtons: Array<{ city: City; background: Graphics; label: Text }> = [];
   private tabWidth: number = 120;
   private tabHeight: number = 30;
+  private unsubscribeState: (() => void) | null = null;
   private eventQueue: EventQueue;
 
   constructor(eventQueue: EventQueue) {
@@ -147,8 +148,8 @@ export class TravelDialog extends BaseDialog {
       tabContainer.addChild(tab);
     };
 
-    createTab('beijing', '北京 (本地旅行)', 0);
-    createTab('shanghai', '上海 (需要机票)', 1);
+    createTab('beijing', '北京（本地旅行）', 0);
+    createTab('shanghai', '上海（需要机票）', 1);
     this.addChild(tabContainer);
 
     currentY += tabHeight + 12;
@@ -320,17 +321,21 @@ export class TravelDialog extends BaseDialog {
     this.currentLocationText.text = state.currentLocation?.name ?? '未知';
     this.timeLeftText.text = `${state.timeLeft}天`;
     this.layoutStatusDisplay();
+    this.updateTabLabels(state.city);
     this.switchCityTab(state.city);
 
     this.show();
   }
 
   protected onOpen(): void {
-    // Dialog opened
+    this.bindLiveUpdates();
   }
 
   protected onClose(): void {
-    // Dialog closed
+    if (this.unsubscribeState) {
+      this.unsubscribeState();
+      this.unsubscribeState = null;
+    }
   }
 
   private layoutLocationDisplay(): void {
@@ -356,6 +361,33 @@ export class TravelDialog extends BaseDialog {
 
   private refreshLocationHighlights(): void {
     this.locationItemUpdateFns.forEach((updateItem) => updateItem(false));
+  }
+
+  private bindLiveUpdates(): void {
+    if (this.unsubscribeState) {
+      return;
+    }
+
+    this.unsubscribeState = gameStateManager.subscribe((state) => {
+      if (!this.visible) {
+        return;
+      }
+
+      this.currentCityText.text = state.city === 'beijing' ? '北京' : '上海';
+      this.currentLocationText.text = state.currentLocation?.name ?? '未知';
+      this.timeLeftText.text = `${state.timeLeft}天`;
+      this.layoutStatusDisplay();
+      this.updateTabLabels(state.city);
+      this.refreshLocationHighlights();
+    });
+  }
+
+  private updateTabLabels(currentCity: City): void {
+    this.tabButtons.forEach((tab) => {
+      const isLocal = tab.city === currentCity;
+      const cityLabel = tab.city === 'beijing' ? '北京' : '上海';
+      tab.label.text = `${cityLabel}（${isLocal ? '本地旅行' : '需要机票'}）`;
+    });
   }
 
   private switchCityTab(city: City): void {
