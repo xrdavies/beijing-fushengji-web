@@ -124,7 +124,8 @@ export class SimpleSlider extends Container {
   }
 
   private updateHandlePosition(): void {
-    const ratio = (this.currentValue - this.minValue) / (this.maxValue - this.minValue);
+    const range = this.maxValue - this.minValue;
+    const ratio = range <= 0 ? 0 : (this.currentValue - this.minValue) / range;
     this.handle.x = ratio * this.sliderWidth;
   }
 
