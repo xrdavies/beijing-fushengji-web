@@ -16,15 +16,21 @@ import { GAME_CONSTANTS } from '@engine/types';
 import { createButton, SimpleSlider } from '../ui/SimpleUIHelpers';
 
 export class BankDialog extends BaseDialog {
-  private mode: 'deposit' | 'withdraw' = 'deposit';
+  private mode: 'deposit' | 'withdraw' | 'repay' = 'deposit';
+
+  private tabWidth: number = 120;
+  private tabHeight: number = 40;
 
   private depositTabBg!: Graphics;
   private withdrawTabBg!: Graphics;
+  private repayTabBg!: Graphics;
   private depositTabText!: Text;
   private withdrawTabText!: Text;
+  private repayTabText!: Text;
 
   private cashText!: Text;
   private bankText!: Text;
+  private debtText!: Text;
   private amountText!: Text;
   private slider!: SimpleSlider;
 
@@ -86,7 +92,26 @@ export class BankDialog extends BaseDialog {
     this.bankText.y = currentY;
     this.addChild(this.bankText);
 
-    currentY += 50;
+    currentY += 30;
+
+    // Debt balance
+    const debtLabel = new Text({
+      text: '债务:',
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 16, fill: 0xaaaaaa }
+    });
+    debtLabel.x = contentX;
+    debtLabel.y = currentY;
+    this.addChild(debtLabel);
+
+    this.debtText = new Text({
+      text: '¥0',
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 16, fill: 0xff6666 }
+    });
+    this.debtText.x = contentX + 80;
+    this.debtText.y = currentY;
+    this.addChild(this.debtText);
+
+    currentY += 35;
 
     // Interest rate info
     const interestInfo = new Text({
@@ -147,20 +172,26 @@ export class BankDialog extends BaseDialog {
    * Create tab buttons for deposit/withdraw
    */
   private createTabButtons(x: number, y: number): void {
-    const tabWidth = 150;
-    const tabHeight = 40;
+    const tabWidth = this.tabWidth;
+    const tabHeight = this.tabHeight;
     const tabRadius = 6;
+    const tabGap = 12;
     const textStyle: TextStyleOptions = {
       fontFamily: 'Microsoft YaHei, Arial',
       fontSize: 16,
       fill: 0xffffff,
       fontWeight: 'bold',
     };
+    const totalWidth = tabWidth * 3 + tabGap * 2;
+    const availableWidth = this.dialogWidth - 60;
+    const startX = x + Math.max(0, Math.round((availableWidth - totalWidth) / 2));
 
-    const createTab = (label: string, onClick: () => void) => {
+    const createTab = (label: string, onClick: () => void, index: number) => {
       const container = new Container();
       container.eventMode = 'static';
       container.cursor = 'pointer';
+      container.x = startX + index * (tabWidth + tabGap);
+      container.y = y;
 
       const bg = new Graphics();
       bg.roundRect(0, 0, tabWidth, tabHeight, tabRadius);
@@ -177,19 +208,20 @@ export class BankDialog extends BaseDialog {
       return { container, bg, text };
     };
 
-    const depositTab = createTab('存款', () => this.switchMode('deposit'));
-    depositTab.container.x = x + 50;
-    depositTab.container.y = y;
+    const depositTab = createTab('存款', () => this.switchMode('deposit'), 0);
     this.addChild(depositTab.container);
     this.depositTabBg = depositTab.bg;
     this.depositTabText = depositTab.text;
 
-    const withdrawTab = createTab('取款', () => this.switchMode('withdraw'));
-    withdrawTab.container.x = x + 220;
-    withdrawTab.container.y = y;
+    const withdrawTab = createTab('取款', () => this.switchMode('withdraw'), 1);
     this.addChild(withdrawTab.container);
     this.withdrawTabBg = withdrawTab.bg;
     this.withdrawTabText = withdrawTab.text;
+
+    const repayTab = createTab('还债', () => this.switchMode('repay'), 2);
+    this.addChild(repayTab.container);
+    this.repayTabBg = repayTab.bg;
+    this.repayTabText = repayTab.text;
 
     this.updateTabStyles();
   }
@@ -197,7 +229,7 @@ export class BankDialog extends BaseDialog {
   /**
    * Switch between deposit and withdraw modes
    */
-  private switchMode(mode: 'deposit' | 'withdraw'): void {
+  private switchMode(mode: 'deposit' | 'withdraw' | 'repay'): void {
     this.mode = mode;
     this.updateTabStyles();
     this.updateMaxAmount();
@@ -215,8 +247,10 @@ export class BankDialog extends BaseDialog {
     const state = gameStateManager.getState();
     if (this.mode === 'deposit') {
       this.maxAmount = state.cash;
-    } else {
+    } else if (this.mode === 'withdraw') {
       this.maxAmount = state.bank;
+    } else {
+      this.maxAmount = Math.min(state.cash + state.bank, state.debt);
     }
     this.slider.setMax(this.maxAmount);
   }
@@ -241,8 +275,10 @@ export class BankDialog extends BaseDialog {
     let result;
     if (this.mode === 'deposit') {
       result = gameStateManager.depositBank(this.currentAmount);
-    } else {
+    } else if (this.mode === 'withdraw') {
       result = gameStateManager.withdrawBank(this.currentAmount);
+    } else {
+      result = gameStateManager.payDebt(this.currentAmount);
     }
 
     if (result && result.success) {
@@ -274,6 +310,7 @@ export class BankDialog extends BaseDialog {
     const state = gameStateManager.getState();
     this.cashText.text = `¥${state.cash.toLocaleString('zh-CN')}`;
     this.bankText.text = `¥${state.bank.toLocaleString('zh-CN')}`;
+    this.debtText.text = `¥${state.debt.toLocaleString('zh-CN')}`;
 
     this.mode = 'deposit';
     this.updateTabStyles();
@@ -298,19 +335,28 @@ export class BankDialog extends BaseDialog {
     const inactiveColor = 0x666666;
     const activeText = 0xffffff;
     const inactiveText = 0xdddddd;
+    const tabWidth = this.tabWidth;
+    const tabHeight = this.tabHeight;
 
     if (this.depositTabBg && this.depositTabText) {
       this.depositTabBg.clear();
-      this.depositTabBg.roundRect(0, 0, 150, 40, 6);
+      this.depositTabBg.roundRect(0, 0, tabWidth, tabHeight, 6);
       this.depositTabBg.fill(this.mode === 'deposit' ? activeColor : inactiveColor);
       this.depositTabText.style.fill = this.mode === 'deposit' ? activeText : inactiveText;
     }
 
     if (this.withdrawTabBg && this.withdrawTabText) {
       this.withdrawTabBg.clear();
-      this.withdrawTabBg.roundRect(0, 0, 150, 40, 6);
+      this.withdrawTabBg.roundRect(0, 0, tabWidth, tabHeight, 6);
       this.withdrawTabBg.fill(this.mode === 'withdraw' ? activeColor : inactiveColor);
       this.withdrawTabText.style.fill = this.mode === 'withdraw' ? activeText : inactiveText;
+    }
+
+    if (this.repayTabBg && this.repayTabText) {
+      this.repayTabBg.clear();
+      this.repayTabBg.roundRect(0, 0, tabWidth, tabHeight, 6);
+      this.repayTabBg.fill(this.mode === 'repay' ? activeColor : inactiveColor);
+      this.repayTabText.style.fill = this.mode === 'repay' ? activeText : inactiveText;
     }
   }
 }
