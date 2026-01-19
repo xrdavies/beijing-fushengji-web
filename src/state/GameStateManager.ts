@@ -11,10 +11,11 @@
  */
 
 import type { GameState, Location } from '@engine/types';
-import { GAME_CONSTANTS } from '@engine/types';
+import { DRUGS, GAME_CONSTANTS } from '@engine/types';
 import { gameEngine } from '@engine/GameEngine';
 import { audioManager } from '@audio/AudioManager';
 import { priceGenerator } from '@engine/PriceGenerator';
+import { trackEvent } from '@utils/analytics';
 
 type StateListener = (state: GameState) => void;
 
@@ -91,6 +92,11 @@ export class GameStateManager {
     // Sync audio manager with sound settings
     if ('soundEnabled' in updates) {
       audioManager.setSoundEnabled(updates.soundEnabled!);
+      trackEvent('toggle_sound', { enabled: updates.soundEnabled ? 1 : 0 });
+    }
+
+    if ('hackingEnabled' in updates) {
+      trackEvent('toggle_hacking', { enabled: updates.hackingEnabled ? 1 : 0 });
     }
 
     this.notifyListeners();
@@ -172,6 +178,7 @@ export class GameStateManager {
 
       this.state = saveData.state;
       this.notifyListeners();
+      trackEvent('load_game', { success: 1, save_version: saveData.version });
       return true;
     } catch (error) {
       console.error('Failed to load game:', error);
@@ -238,6 +245,7 @@ export class GameStateManager {
    */
   resetGame(): void {
     this.state = this.createInitialState();
+    trackEvent('new_game');
     this.notifyListeners();
     this.saveGame();
   }
@@ -250,8 +258,21 @@ export class GameStateManager {
    * Buy drug
    */
   buyDrug(drugId: number, quantity: number) {
+    const price = this.state.marketPrices[drugId];
+    const totalCost = price * quantity;
+    const drugName = DRUGS[drugId]?.name ?? `item_${drugId}`;
+
     const result = gameEngine.buyDrug(this.state, drugId, quantity);
     if (result.success) {
+      trackEvent('buy_item', {
+        item_id: drugId,
+        item_name: drugName,
+        quantity,
+        price,
+        value: totalCost,
+        currency: 'CNY',
+        city: this.state.city,
+      });
       this.notifyListeners();
       this.autoSave();
     }
@@ -262,8 +283,21 @@ export class GameStateManager {
    * Sell drug
    */
   sellDrug(drugId: number, quantity: number) {
+    const price = this.state.marketPrices[drugId];
+    const revenue = price * quantity;
+    const drugName = DRUGS[drugId]?.name ?? `item_${drugId}`;
+
     const result = gameEngine.sellDrug(this.state, drugId, quantity);
     if (result.success) {
+      trackEvent('sell_item', {
+        item_id: drugId,
+        item_name: drugName,
+        quantity,
+        price,
+        value: revenue,
+        currency: 'CNY',
+        city: this.state.city,
+      });
       this.notifyListeners();
       this.autoSave();
     }
@@ -278,6 +312,14 @@ export class GameStateManager {
     audioManager.play('door_close');
 
     const events = gameEngine.changeLocation(this.state, location);
+    const eventCount = Array.isArray(events) ? events.length : 0;
+    trackEvent('change_location', {
+      location_id: location.id,
+      location_name: location.name,
+      city: location.city,
+      events_count: eventCount,
+      time_left: this.state.timeLeft,
+    });
     this.notifyListeners();
     this.autoSave();
     return events;
@@ -289,6 +331,7 @@ export class GameStateManager {
   depositBank(amount: number) {
     const result = gameEngine.depositBank(this.state, amount);
     if (result.success) {
+      trackEvent('bank_deposit', { value: amount, currency: 'CNY' });
       this.notifyListeners();
       this.autoSave();
     }
@@ -301,6 +344,7 @@ export class GameStateManager {
   withdrawBank(amount: number) {
     const result = gameEngine.withdrawBank(this.state, amount);
     if (result.success) {
+      trackEvent('bank_withdraw', { value: amount, currency: 'CNY' });
       this.notifyListeners();
       this.autoSave();
     }
@@ -313,6 +357,7 @@ export class GameStateManager {
   payDebt(amount: number) {
     const result = gameEngine.payDebt(this.state, amount);
     if (result.success) {
+      trackEvent('pay_debt', { value: amount, currency: 'CNY' });
       this.notifyListeners();
       this.autoSave();
     }
@@ -323,8 +368,14 @@ export class GameStateManager {
    * Visit hospital
    */
   visitHospital(healthPoints: number) {
+    const totalCost = healthPoints * GAME_CONSTANTS.HOSPITAL_COST_PER_HP;
     const result = gameEngine.visitHospital(this.state, healthPoints);
     if (result.success) {
+      trackEvent('visit_hospital', {
+        health_points: healthPoints,
+        value: totalCost,
+        currency: 'CNY',
+      });
       this.notifyListeners();
       this.autoSave();
     }
@@ -337,6 +388,11 @@ export class GameStateManager {
   rentHouse() {
     const result = gameEngine.rentHouse(this.state);
     if (result.success) {
+      trackEvent('rent_house', {
+        value: result.value,
+        currency: 'CNY',
+        capacity: this.state.capacity,
+      });
       this.notifyListeners();
       this.autoSave();
     }
@@ -353,6 +409,14 @@ export class GameStateManager {
         : undefined;
     const result = gameEngine.visitWangba(this.state, rewardRange);
     if (result.success) {
+      trackEvent('visit_wangba', {
+        reward: result.value,
+        entry_cost: GAME_CONSTANTS.WANGBA_ENTRY_COST,
+        hacking_enabled: this.state.hackingEnabled ? 1 : 0,
+        min_reward: rewardRange?.min ?? GAME_CONSTANTS.WANGBA_REWARD_MIN,
+        max_reward: rewardRange?.max ?? GAME_CONSTANTS.WANGBA_REWARD_MAX,
+        visits: this.state.wangbaVisits,
+      });
       this.notifyListeners();
       this.autoSave();
     }
@@ -363,18 +427,14 @@ export class GameStateManager {
    * Toggle sound
    */
   toggleSound(): void {
-    this.state.soundEnabled = !this.state.soundEnabled;
-    this.notifyListeners();
-    this.autoSave();
+    this.setState({ soundEnabled: !this.state.soundEnabled });
   }
 
   /**
    * Toggle hacking mode
    */
   toggleHacking(): void {
-    this.state.hackingEnabled = !this.state.hackingEnabled;
-    this.notifyListeners();
-    this.autoSave();
+    this.setState({ hackingEnabled: !this.state.hackingEnabled });
   }
 
   /**
