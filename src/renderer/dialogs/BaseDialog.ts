@@ -118,6 +118,7 @@ export abstract class BaseDialog extends Container {
    */
   private createCloseButton(panelX: number, panelY: number): void {
     const buttonSize = 44;
+    const buttonView = new Container();
     const buttonBg = new Graphics();
     buttonBg.roundRect(0, 0, buttonSize, buttonSize, 5);
     buttonBg.fill(0xff4444);
@@ -134,10 +135,12 @@ export abstract class BaseDialog extends Container {
     buttonText.x = buttonSize / 2;
     buttonText.y = buttonSize / 2;
     buttonText.anchor.set(0.5);
-    buttonBg.addChild(buttonText);
+
+    buttonView.addChild(buttonBg);
+    buttonView.addChild(buttonText);
 
     this.closeButton = new FancyButton({
-      defaultView: buttonBg
+      defaultView: buttonView
     });
 
     this.closeButton.x = panelX + this.dialogWidth - buttonSize - 10;

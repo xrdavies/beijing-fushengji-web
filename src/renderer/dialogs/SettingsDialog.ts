@@ -133,6 +133,17 @@ export class SettingsDialog extends BaseDialog {
     currentY += 18;
 
     // Credits
+    const webAuthorText = new Text({
+      text: 'Web版: Frozen (2026)',
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 12, fill: 0x888888 }
+      
+    });
+    webAuthorText.x = contentX;
+    webAuthorText.y = currentY;
+    this.addChild(webAuthorText);
+
+    currentY += 16;
+
     const originalAuthorText = new Text({
       text: '原作者: Guo xianghao (2012)',
       style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 12, fill: 0x888888 }
@@ -140,16 +151,6 @@ export class SettingsDialog extends BaseDialog {
     originalAuthorText.x = contentX;
     originalAuthorText.y = currentY;
     this.addChild(originalAuthorText);
-
-    currentY += 16;
-
-    const webAuthorText = new Text({
-      text: 'Web版: Frozen (2026)',
-      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 12, fill: 0x888888 }
-    });
-    webAuthorText.x = contentX;
-    webAuthorText.y = currentY;
-    this.addChild(webAuthorText);
 
     currentY += 18;
 
