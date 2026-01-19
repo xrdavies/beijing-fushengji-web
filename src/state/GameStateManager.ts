@@ -11,7 +11,7 @@
  */
 
 import type { GameState, Location } from '@engine/types';
-import { DRUGS, GAME_CONSTANTS } from '@engine/types';
+import { BEIJING_LOCATIONS, DRUGS, GAME_CONSTANTS } from '@engine/types';
 import { gameEngine } from '@engine/GameEngine';
 import { audioManager } from '@audio/AudioManager';
 import { priceGenerator } from '@engine/PriceGenerator';
@@ -41,6 +41,9 @@ export class GameStateManager {
    * Ported from: CSelectionDlg constructor and OnInitDialog() in SelectionDlg.cpp
    */
   private createInitialState(): GameState {
+    const startingLocation =
+      BEIJING_LOCATIONS[Math.floor(Math.random() * BEIJING_LOCATIONS.length)];
+
     return {
       // Financial
       cash: GAME_CONSTANTS.STARTING_CASH,
@@ -62,8 +65,8 @@ export class GameStateManager {
       capacity: GAME_CONSTANTS.STARTING_CAPACITY,
 
       // World
-      currentLocation: null,
-      city: 'beijing',
+      currentLocation: startingLocation,
+      city: startingLocation.city,
       timeLeft: GAME_CONSTANTS.STARTING_TIME,
 
       // Market (generate initial prices - normal leaveout of 3)
