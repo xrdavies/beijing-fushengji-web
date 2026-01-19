@@ -13,8 +13,10 @@ import { Container, Graphics, Text } from 'pixi.js';
 import { ScrollBox } from '@pixi/ui';
 import { BaseDialog } from './BaseDialog';
 import { gameStateManager } from '@state/GameStateManager';
-import { BEIJING_LOCATIONS, SHANGHAI_LOCATIONS, type Location, type GameEvent } from '@engine/types';
+import { gameEngine } from '@engine/GameEngine';
+import { BEIJING_LOCATIONS, SHANGHAI_LOCATIONS, type Location } from '@engine/types';
 import { createButton } from '../ui/SimpleUIHelpers';
+import { EventQueue } from '../ui/EventQueue';
 import { audioManager } from '@audio/AudioManager';
 
 export class TravelDialog extends BaseDialog {
@@ -23,9 +25,11 @@ export class TravelDialog extends BaseDialog {
   private currentCityText!: Text;
   private currentLocationText!: Text;
   private timeLeftText!: Text;
+  private eventQueue: EventQueue;
 
-  constructor() {
+  constructor(eventQueue: EventQueue) {
     super(600, 500, '旅行');
+    this.eventQueue = eventQueue;
     this.createTravelDialogUI();
   }
 
@@ -225,6 +229,7 @@ export class TravelDialog extends BaseDialog {
     if (gameStateManager.isGameOver()) {
       console.log('Game is over, cannot travel');
       this.hide();
+      this.eventQueue.enqueue([gameEngine.getGameOverEvent(state)]);
       return;
     }
 
@@ -245,58 +250,7 @@ export class TravelDialog extends BaseDialog {
     // Close travel dialog
     this.hide();
 
-    // Show events if any
-    if (events.length > 0) {
-      // Check for game over event
-      const gameOverEvent = events.find((e) => e.type === 'game_over');
-      if (gameOverEvent) {
-        // Show liquidation message first
-        const newsDialog = this.parent?.children.find(
-          (child) => child.constructor.name === 'NewsDialog'
-        ) as any;
-
-        if (newsDialog && newsDialog.showMessage) {
-          newsDialog.showMessage(gameOverEvent.message, '游戏结束');
-        }
-
-        // Open game over dialog
-        const gameOverDialog = this.parent?.children.find(
-          (child) => child.constructor.name === 'GameOverDialog'
-        ) as any;
-
-        if (gameOverDialog && gameOverDialog.open) {
-          // Delay to allow user to read liquidation message
-          setTimeout(() => {
-            gameOverDialog.open();
-          }, 1000);
-        }
-        return;
-      }
-
-      // Show events one by one (matching original C++ game behavior)
-      // Original: Each CRijiDlg.DoModal() shows ONE event, then next event
-      const newsDialog = this.parent?.children.find(
-        (child) => child.constructor.name === 'NewsDialog'
-      ) as any;
-
-      if (newsDialog && newsDialog.showMessage) {
-        // Show events sequentially, one dialog at a time
-        this.showEventsSequentially(events, newsDialog, 0);
-      }
-    }
-
-    // Check for death
-    if (state.health <= 0) {
-      audioManager.play('death');
-      // Trigger game over
-      const gameOverDialog = this.parent?.children.find(
-        (child) => child.constructor.name === 'GameOverDialog'
-      ) as any;
-
-      if (gameOverDialog && gameOverDialog.open) {
-        gameOverDialog.open();
-      }
-    }
+    this.eventQueue.enqueue(events);
   }
 
   /**
@@ -306,15 +260,8 @@ export class TravelDialog extends BaseDialog {
     // CRITICAL: Prevent opening if game is over (time up OR player dead)
     if (gameStateManager.isGameOver()) {
       console.log('Game is over, cannot open travel');
-
-      // Show game over dialog
-      const gameOverDialog = this.parent?.children.find(
-        (child) => child.constructor.name === 'GameOverDialog'
-      ) as any;
-
-      if (gameOverDialog && gameOverDialog.open) {
-        gameOverDialog.open();
-      }
+      const state = gameStateManager.getState();
+      this.eventQueue.enqueue([gameEngine.getGameOverEvent(state)]);
       return;
     }
 
@@ -326,44 +273,6 @@ export class TravelDialog extends BaseDialog {
     this.timeLeftText.text = `${state.timeLeft}天`;
 
     this.show();
-  }
-
-  /**
-   * Show events sequentially, one at a time
-   * Matches original C++ game behavior where each event triggers a separate modal dialog
-   */
-  private showEventsSequentially(events: GameEvent[], newsDialog: any, index: number): void {
-    if (index >= events.length) {
-      // All events shown
-      return;
-    }
-
-    const event = events[index];
-
-    // Play event sound if available
-    if (event.sound) {
-      const soundId = event.sound.replace('.wav', '') as any;
-      audioManager.play(soundId);
-    }
-
-    // Show this event's message
-    newsDialog.showMessage(event.message, '消息');
-
-    // Wait for dialog to close, then show next event
-    // We'll override the dialog's hide method temporarily
-    const originalHide = newsDialog.hide.bind(newsDialog);
-    newsDialog.hide = () => {
-      // Restore original hide method
-      newsDialog.hide = originalHide;
-
-      // Call original hide
-      originalHide();
-
-      // Show next event after a short delay (to allow dialog close animation)
-      setTimeout(() => {
-        this.showEventsSequentially(events, newsDialog, index + 1);
-      }, 300);
-    };
   }
 
   protected onOpen(): void {

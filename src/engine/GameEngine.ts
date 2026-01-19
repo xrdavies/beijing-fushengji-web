@@ -130,8 +130,10 @@ export class GameEngine {
    * 4. Trigger health events
    * 5. Trigger theft events
    * 6. Check debt penalty
-   * 7. Decrement time
-   * 8. Check game end conditions
+   * 7. Update location and decrement time
+   * 8. Check game over (time ran out)
+   * 9. Check game over (health depleted)
+   * 10. Check end game warning (ensure it is shown first)
    */
   changeLocation(state: GameState, newLocation: Location): GameEvent[] {
     const events: GameEvent[] = [];
@@ -188,13 +190,26 @@ export class GameEngine {
       return events;
     }
 
-    // 9. Check end game warning
+    // 9. Check if game over (health depleted)
+    if (state.health <= 0) {
+      events.push({
+        type: 'game_over',
+        message: '你倒下了！游戏结束。',
+        sound: 'death.wav',
+        data: { finalScore: this.calculateScore(state), reason: 'health' },
+      });
+      return events;
+    }
+
+    // 10. Check end game warning (ensure it is shown first)
     const endGameWarning = eventSystem.getEndGameWarning(state);
     if (endGameWarning) {
-      events.push({
+      const warningEvent: GameEvent = {
         type: 'commercial',
         message: endGameWarning,
-      });
+        data: { isEndgameWarning: true },
+      };
+      return [warningEvent, ...events];
     }
 
     return events;
@@ -384,6 +399,31 @@ export class GameEngine {
     state.cash += reward;
 
     return Ok(reward);
+  }
+
+  getGameOverEvent(state: GameState): GameEvent {
+    if (state.timeLeft <= 0) {
+      return {
+        type: 'game_over',
+        message: '40天已到！游戏结束。',
+        data: { finalScore: this.calculateScore(state), reason: 'time' },
+      };
+    }
+
+    if (state.health <= 0) {
+      return {
+        type: 'game_over',
+        message: '你倒下了！游戏结束。',
+        sound: 'death.wav',
+        data: { finalScore: this.calculateScore(state), reason: 'health' },
+      };
+    }
+
+    return {
+      type: 'game_over',
+      message: '游戏结束。',
+      data: { finalScore: this.calculateScore(state) },
+    };
   }
 
   /**
