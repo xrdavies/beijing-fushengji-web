@@ -37,6 +37,7 @@ import { BossDialog } from '../dialogs/BossDialog';
 import { GameOverDialog } from '../dialogs/GameOverDialog';
 import { TravelDialog } from '../dialogs/TravelDialog';
 import { ConfirmDialog } from '../dialogs/ConfirmDialog';
+import { StartScreen } from './StartScreen';
 
 export class MainGameScene extends Container {
   private app: Application;
@@ -47,6 +48,7 @@ export class MainGameScene extends Container {
   private actionButtons: Map<string, Container> = new Map();
   private eventQueue!: EventQueue;
   private initialGameOverChecked: boolean = false;
+  private startScreen!: StartScreen;
 
   // Dialogs
   private buyDialog!: BuyDialog;
@@ -76,6 +78,7 @@ export class MainGameScene extends Container {
     this.createInventoryList();
     this.createNewsTicker();
     this.createActionButtons();
+    this.createStartScreen();
 
     // Create dialogs
     this.createDialogs();
@@ -375,6 +378,18 @@ export class MainGameScene extends Container {
     // Utility dialogs
     this.confirmDialog = new ConfirmDialog();
     this.addChild(this.confirmDialog);
+
+    this.startScreen.setLeaderboardHandler(() => {
+      this.topPlayersDialog.open();
+    });
+  }
+
+  /**
+   * Create start screen (entry page)
+   */
+  private createStartScreen(): void {
+    this.startScreen = new StartScreen();
+    this.addChild(this.startScreen);
   }
 
   /**
@@ -385,11 +400,26 @@ export class MainGameScene extends Container {
     this.marketList.update(state);
     this.inventoryList.update(state);
 
+    if (!state.playerName) {
+      if (!this.startScreen.visible) {
+        this.startScreen.setName('');
+        this.startScreen.show();
+      }
+    } else if (this.startScreen.visible) {
+      this.startScreen.hide();
+    }
+
     if (!this.initialGameOverChecked) {
       this.initialGameOverChecked = true;
       if (gameStateManager.isGameOver() && !this.eventQueue.isBusy()) {
         this.eventQueue.enqueue([gameEngine.getGameOverEvent(state)]);
       }
+    }
+  }
+
+  handleResize(): void {
+    if (this.startScreen) {
+      this.startScreen.updateLayout();
     }
   }
 }

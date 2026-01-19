@@ -138,6 +138,7 @@ export interface GameState {
   // Character
   health: number;       // Health points (m_nMyHealth) - max 100
   fame: number;         // Fame/reputation (m_MyFame)
+  playerName: string;   // Player name
 
   // Inventory
   inventory: DrugItem[]; // 8 items (m_nMyDrugs[8])

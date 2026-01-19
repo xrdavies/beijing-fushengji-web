@@ -22,6 +22,7 @@ export class StatsPanel extends Container {
   private fameText: Text;
   private timeText: Text;
   private capacityText: Text;
+  private playerNameText: Text;
 
   constructor(width: number = 200, height: number = 300) {
     super();
@@ -66,6 +67,20 @@ export class StatsPanel extends Container {
     // Create stat labels and values
     let yPos = 54;
     const lineHeight = 30;
+
+    // Player name
+    this.playerNameText = new Text({
+      text: '玩家: 无名小卒',
+      style: {
+        fontFamily: 'Microsoft YaHei, Arial, Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji',
+        fontSize: 14,
+        fill: 0xcbd5f5,
+      }
+    });
+    this.playerNameText.x = 12;
+    this.playerNameText.y = yPos;
+    this.addChild(this.playerNameText);
+    yPos += lineHeight;
 
     // Health
     this.healthText = this.createStatText('健康:', '100', 0x00ff00, 12, yPos);
@@ -152,5 +167,8 @@ export class StatsPanel extends Container {
     const capacityColor = currentItems >= state.capacity * 0.9 ? 0xff4444 : 0xaaaaaa;
     this.capacityText.text = `容量: ${currentItems}/${state.capacity}`;
     this.capacityText.style.fill = capacityColor;
+
+    // Player name
+    this.playerNameText.text = `玩家: ${state.playerName || '无名小卒'}`;
   }
 }

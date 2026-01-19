@@ -112,6 +112,7 @@ class Game {
         Math.round((height - GAME_HEIGHT * scale) / 2),
       );
       this.sceneManager.setTextResolution(textResolution);
+      this.mainGameScene?.handleResize();
     };
 
     // Initial resize
