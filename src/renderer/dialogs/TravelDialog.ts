@@ -305,17 +305,19 @@ export class TravelDialog extends BaseDialog {
       return;
     }
 
-    // Check if traveling across cities (requires airplane sound)
-    if (location.city !== state.city) {
-      audioManager.play('airport');
-    }
-
     // Trigger location change (this will generate events)
     const events = gameStateManager.changeLocation(location);
 
     if (events[0]?.data?.travelBlocked) {
+      // Close travel dialog so the error dialog is visible immediately.
+      this.hide();
       this.eventQueue.enqueue(events);
       return;
+    }
+
+    // Check if traveling across cities (requires airplane sound)
+    if (location.city !== state.city) {
+      audioManager.play('airport');
     }
 
     // Close travel dialog
