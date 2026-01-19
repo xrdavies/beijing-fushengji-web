@@ -9,7 +9,7 @@
  * - Confirm/Cancel buttons
  */
 
-import { Text } from 'pixi.js';
+import { Container, Graphics, Text } from 'pixi.js';
 import { BaseDialog } from './BaseDialog';
 import { gameStateManager } from '@state/GameStateManager';
 import { GAME_CONSTANTS } from '@engine/types';
@@ -17,6 +17,11 @@ import { createButton, SimpleSlider } from '../ui/SimpleUIHelpers';
 
 export class BankDialog extends BaseDialog {
   private mode: 'deposit' | 'withdraw' = 'deposit';
+
+  private depositTabBg!: Graphics;
+  private withdrawTabBg!: Graphics;
+  private depositTabText!: Text;
+  private withdrawTabText!: Text;
 
   private cashText!: Text;
   private bankText!: Text;
@@ -142,15 +147,51 @@ export class BankDialog extends BaseDialog {
    * Create tab buttons for deposit/withdraw
    */
   private createTabButtons(x: number, y: number): void {
-    const depositButton = createButton('存款', 150, 40, 0x3a7bc8, () => this.switchMode('deposit'));
-    depositButton.x = x + 50;
-    depositButton.y = y;
-    this.addChild(depositButton);
+    const tabWidth = 150;
+    const tabHeight = 40;
+    const tabRadius = 6;
+    const textStyle = {
+      fontFamily: 'Microsoft YaHei, Arial',
+      fontSize: 16,
+      fill: 0xffffff,
+      fontWeight: 'bold',
+    };
 
-    const withdrawButton = createButton('取款', 150, 40, 0x666666, () => this.switchMode('withdraw'));
-    withdrawButton.x = x + 220;
-    withdrawButton.y = y;
-    this.addChild(withdrawButton);
+    const createTab = (label: string, onClick: () => void) => {
+      const container = new Container();
+      container.eventMode = 'static';
+      container.cursor = 'pointer';
+
+      const bg = new Graphics();
+      bg.roundRect(0, 0, tabWidth, tabHeight, tabRadius);
+      container.addChild(bg);
+
+      const text = new Text({ text: label, style: textStyle });
+      text.anchor.set(0.5);
+      text.x = tabWidth / 2;
+      text.y = tabHeight / 2;
+      container.addChild(text);
+
+      container.on('pointerdown', onClick);
+
+      return { container, bg, text };
+    };
+
+    const depositTab = createTab('存款', () => this.switchMode('deposit'));
+    depositTab.container.x = x + 50;
+    depositTab.container.y = y;
+    this.addChild(depositTab.container);
+    this.depositTabBg = depositTab.bg;
+    this.depositTabText = depositTab.text;
+
+    const withdrawTab = createTab('取款', () => this.switchMode('withdraw'));
+    withdrawTab.container.x = x + 220;
+    withdrawTab.container.y = y;
+    this.addChild(withdrawTab.container);
+    this.withdrawTabBg = withdrawTab.bg;
+    this.withdrawTabText = withdrawTab.text;
+
+    this.updateTabStyles();
   }
 
   /**
@@ -158,6 +199,7 @@ export class BankDialog extends BaseDialog {
    */
   private switchMode(mode: 'deposit' | 'withdraw'): void {
     this.mode = mode;
+    this.updateTabStyles();
     this.updateMaxAmount();
     this.slider.setValue(0);
     this.currentAmount = 0;
@@ -234,6 +276,7 @@ export class BankDialog extends BaseDialog {
     this.bankText.text = `¥${state.bank.toLocaleString('zh-CN')}`;
 
     this.mode = 'deposit';
+    this.updateTabStyles();
     this.updateMaxAmount();
     this.slider.setValue(0);
     this.currentAmount = 0;
@@ -248,5 +291,26 @@ export class BankDialog extends BaseDialog {
 
   protected onClose(): void {
     // Dialog closed
+  }
+
+  private updateTabStyles(): void {
+    const activeColor = 0x3a7bc8;
+    const inactiveColor = 0x666666;
+    const activeText = 0xffffff;
+    const inactiveText = 0xdddddd;
+
+    if (this.depositTabBg && this.depositTabText) {
+      this.depositTabBg.clear();
+      this.depositTabBg.roundRect(0, 0, 150, 40, 6);
+      this.depositTabBg.fill(this.mode === 'deposit' ? activeColor : inactiveColor);
+      this.depositTabText.style.fill = this.mode === 'deposit' ? activeText : inactiveText;
+    }
+
+    if (this.withdrawTabBg && this.withdrawTabText) {
+      this.withdrawTabBg.clear();
+      this.withdrawTabBg.roundRect(0, 0, 150, 40, 6);
+      this.withdrawTabBg.fill(this.mode === 'withdraw' ? activeColor : inactiveColor);
+      this.withdrawTabText.style.fill = this.mode === 'withdraw' ? activeText : inactiveText;
+    }
   }
 }
