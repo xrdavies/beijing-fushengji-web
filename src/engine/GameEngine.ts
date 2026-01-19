@@ -106,13 +106,13 @@ export class GameEngine {
 
     // Fame penalty for selling certain items
     // Original C++ (lines 883-924): Checks by drug name
-    // - "白酒，茅台等" (alcohol) → fame -= 10 (Drug ID 3)
-    // - "新鲜和小吃（新鲜产品）" (suspect food) → fame -= 7 (Drug ID 4)
+    // - "劣质假酒" → fame -= 10 (Drug ID 3)
+    // - "上海特色小食" → fame -= 7 (Drug ID 4)
     if (drugId === 3) {
-      state.fame -= 10;  // Alcohol (白酒，茅台等)
+      state.fame -= 10;  // 劣质假酒
       if (state.fame < 0) state.fame = 0;
     } else if (drugId === 4) {
-      state.fame -= 7;  // Suspect food (新鲜和小吃)
+      state.fame -= 7;  // 上海特色小食
       if (state.fame < 0) state.fame = 0;
     }
 
