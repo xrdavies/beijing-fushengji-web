@@ -14,7 +14,7 @@ import { ScrollBox } from '@pixi/ui';
 import { BaseDialog } from './BaseDialog';
 import { gameStateManager } from '@state/GameStateManager';
 import { gameEngine } from '@engine/GameEngine';
-import { BEIJING_LOCATIONS, SHANGHAI_LOCATIONS, type City, type Location } from '@engine/types';
+import { BEIJING_LOCATIONS, GAME_CONSTANTS, SHANGHAI_LOCATIONS, type City, type Location } from '@engine/types';
 import { createButton } from '../ui/SimpleUIHelpers';
 import { EventQueue } from '../ui/EventQueue';
 import { audioManager } from '@audio/AudioManager';
@@ -22,6 +22,7 @@ import { audioManager } from '@audio/AudioManager';
 export class TravelDialog extends BaseDialog {
   private locationScrollBox!: ScrollBox;
   private activeCity: City = 'beijing';
+  private lastKnownCity: City | null = null;
   private locationItemWidth: number = 0;
   private locationLabelText!: Text;
   private currentCityText!: Text;
@@ -164,10 +165,6 @@ export class TravelDialog extends BaseDialog {
       padding: listPadding,
       elementsMargin: 12,
     });
-    this.locationScrollBox.roundPixels = true;
-    if (this.locationScrollBox.list) {
-      this.locationScrollBox.list.roundPixels = true;
-    }
     this.locationScrollBox.x = contentX;
     this.locationScrollBox.y = currentY;
     this.addChild(this.locationScrollBox);
@@ -191,6 +188,10 @@ export class TravelDialog extends BaseDialog {
     this.locationItemUpdateFns.clear();
 
     const textResolution = this.currentCityText?.resolution || window.devicePixelRatio || 1;
+    const currentCity = gameStateManager.getState().city;
+    const subwayCost = currentCity === 'beijing'
+      ? GAME_CONSTANTS.SUBWAY_TRAVEL_COST_BEIJING
+      : GAME_CONSTANTS.SUBWAY_TRAVEL_COST_SHANGHAI;
     const itemHeight = 34;
     const columnGap = 16;
     const baseColor = 0x2a2a2a;
@@ -199,7 +200,6 @@ export class TravelDialog extends BaseDialog {
 
     for (let i = 0; i < locations.length; i += 2) {
       const rowContainer = new Container();
-      rowContainer.roundPixels = true;
 
       const rowLocations = locations.slice(i, i + 2);
 
@@ -208,7 +208,6 @@ export class TravelDialog extends BaseDialog {
       itemContainer.interactive = true;
       itemContainer.cursor = 'pointer';
       itemContainer.x = columnIndex * (itemWidth + columnGap);
-      itemContainer.roundPixels = true;
 
       // Background
       const background = new Graphics();
@@ -234,6 +233,24 @@ export class TravelDialog extends BaseDialog {
       nameText.x = 12;
       nameText.y = Math.round((itemHeight - nameText.height) / 2);
       itemContainer.addChild(nameText);
+
+      const isLocal = location.city === currentCity;
+      const costValue = isLocal ? subwayCost : GAME_CONSTANTS.FLIGHT_TRAVEL_COST;
+      const costText = isLocal ? `地铁 ¥${costValue}` : `机票 ¥${costValue}`;
+      const costLabel = new Text({
+        text: costText,
+        style: {
+          fontFamily: 'Microsoft YaHei, Arial',
+          fontSize: 13,
+          fill: isLocal ? 0x9aa4b2 : 0xffc97a,
+        }
+      });
+      costLabel.resolution = textResolution;
+      costLabel.roundPixels = true;
+      costLabel.anchor.set(1, 0);
+      costLabel.x = itemWidth - 12;
+      costLabel.y = Math.round((itemHeight - costLabel.height) / 2);
+      itemContainer.addChild(costLabel);
 
       const updateItemState = (hovered: boolean = false) => {
         const currentId = gameStateManager.getState().currentLocation?.id;
@@ -288,13 +305,18 @@ export class TravelDialog extends BaseDialog {
       return;
     }
 
-    // Check if traveling to Shanghai (requires airplane sound)
-    if (location.city === 'shanghai' && state.city === 'beijing') {
+    // Check if traveling across cities (requires airplane sound)
+    if (location.city !== state.city) {
       audioManager.play('airport');
     }
 
     // Trigger location change (this will generate events)
     const events = gameStateManager.changeLocation(location);
+
+    if (events[0]?.data?.travelBlocked) {
+      this.eventQueue.enqueue(events);
+      return;
+    }
 
     // Close travel dialog
     this.hide();
@@ -323,6 +345,7 @@ export class TravelDialog extends BaseDialog {
     this.layoutStatusDisplay();
     this.updateTabLabels(state.city);
     this.switchCityTab(state.city);
+    this.lastKnownCity = state.city;
 
     this.show();
   }
@@ -378,6 +401,12 @@ export class TravelDialog extends BaseDialog {
       this.timeLeftText.text = `${state.timeLeft}天`;
       this.layoutStatusDisplay();
       this.updateTabLabels(state.city);
+      if (this.lastKnownCity !== state.city) {
+        this.lastKnownCity = state.city;
+        const locations =
+          this.activeCity === 'beijing' ? BEIJING_LOCATIONS : SHANGHAI_LOCATIONS;
+        this.populateLocations(this.locationScrollBox, locations, this.locationItemWidth);
+      }
       this.refreshLocationHighlights();
     });
   }

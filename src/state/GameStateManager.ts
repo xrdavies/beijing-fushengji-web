@@ -311,6 +311,28 @@ export class GameStateManager {
    * Change location (triggers main game loop)
    */
   changeLocation(location: Location) {
+    const isLocalTravel = location.city === this.state.city;
+    const subwayCost = this.state.city === 'beijing'
+      ? GAME_CONSTANTS.SUBWAY_TRAVEL_COST_BEIJING
+      : GAME_CONSTANTS.SUBWAY_TRAVEL_COST_SHANGHAI;
+    const travelCost = isLocalTravel
+      ? subwayCost
+      : GAME_CONSTANTS.FLIGHT_TRAVEL_COST;
+
+    if (this.state.cash < travelCost) {
+      const travelLabel = isLocalTravel ? '地铁' : '机票';
+      return [
+        {
+          type: 'commercial',
+          message: `现金不足，${travelLabel}需要¥${travelCost.toLocaleString('zh-CN')}。`,
+          data: { travelBlocked: true }
+        }
+      ];
+    }
+
+    // Deduct travel cost
+    this.state.cash -= travelCost;
+
     // Play door close sound on location change
     audioManager.play('door_close');
 
@@ -320,6 +342,8 @@ export class GameStateManager {
       location_id: location.id,
       location_name: location.name,
       city: location.city,
+      travel_cost: travelCost,
+      travel_type: isLocalTravel ? 'subway' : 'flight',
       events_count: eventCount,
       time_left: this.state.timeLeft,
     });
