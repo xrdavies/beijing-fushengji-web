@@ -13,6 +13,7 @@ import { Text } from 'pixi.js';
 import { BaseDialog } from './BaseDialog';
 import { gameStateManager } from '@state/GameStateManager';
 import { createButton } from '../ui/SimpleUIHelpers';
+import { trackEvent } from '@utils/analytics';
 
 export class GameOverDialog extends BaseDialog {
   private scoreText!: Text;
@@ -175,6 +176,15 @@ export class GameOverDialog extends BaseDialog {
 
     // Calculate final score: cash + bank - debt
     this.finalScore = state.cash + state.bank - state.debt;
+
+    trackEvent('game_over', {
+      score: this.finalScore,
+      cash: state.cash,
+      bank: state.bank,
+      debt: state.debt,
+      time_left: state.timeLeft,
+      city: state.city,
+    });
 
     // Update UI
     this.scoreText.text = `¥${this.finalScore.toLocaleString('zh-CN')}`;

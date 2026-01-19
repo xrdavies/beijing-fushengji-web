@@ -49,6 +49,10 @@ npm run preview
 
 TypeScript • PixiJS v8 • @pixi/ui • @pixi/sound • Vite
 
+## Analytics (Optional)
+
+Google Analytics (GA4) is enabled via a hardcoded measurement ID. Update it in `src/utils/analytics.ts` if needed.
+
 ## 许可证 (License)
 
 [GPL-2.0](LICENSE) - 继承自原版游戏

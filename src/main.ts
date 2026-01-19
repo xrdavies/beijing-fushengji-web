@@ -13,6 +13,9 @@ import { MainGameScene } from '@renderer/scenes/MainGameScene';
 import { gameStateManager } from '@state/GameStateManager';
 import { assetLoader } from '@assets/AssetLoader';
 import { audioManager } from '@audio/AudioManager';
+import { initAnalytics, trackEvent } from '@utils/analytics';
+
+initAnalytics();
 
 const GAME_WIDTH = 800;
 const GAME_HEIGHT = 600;
@@ -27,7 +30,8 @@ class Game {
     console.log('🚀 Beijing Fushengji - Initializing...');
 
     // Load saved game if exists
-    if (gameStateManager.hasSavedGame()) {
+    const hasSavedGame = gameStateManager.hasSavedGame();
+    if (hasSavedGame) {
       const loaded = gameStateManager.loadGame();
       if (loaded) {
         console.log('💾 Loaded saved game');
@@ -37,6 +41,8 @@ class Game {
     } else {
       console.log('🆕 Starting new game');
     }
+
+    trackEvent('game_start', { has_save: hasSavedGame ? 1 : 0 });
 
     // Create PixiJS application
     this.app = new Application();
