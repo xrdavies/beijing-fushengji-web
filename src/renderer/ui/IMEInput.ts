@@ -34,8 +34,9 @@ export class IMEInput extends Input {
       return;
     }
 
-    if (this.suppressNextInput) {
-      this.suppressNextInput = false;
+    if (e.inputType === 'deleteContentBackward' || e.inputType === 'deleteContentForward') {
+      this._delete();
+      this.suppressNextKey = true;
       this.clearNativeInput();
       return;
     }
@@ -44,9 +45,8 @@ export class IMEInput extends Input {
       return;
     }
 
-    if (e.inputType === 'deleteContentBackward' || e.inputType === 'deleteContentForward') {
-      this._delete();
-      this.suppressNextKey = true;
+    if (this.suppressNextInput) {
+      this.suppressNextInput = false;
       this.clearNativeInput();
       return;
     }
@@ -62,9 +62,6 @@ export class IMEInput extends Input {
   }
 
   protected onKeyUp(e: KeyboardEvent): void {
-    if (this.isComposing) {
-      return;
-    }
     if (this.suppressNextKey) {
       this.suppressNextKey = false;
       return;
@@ -72,10 +69,19 @@ export class IMEInput extends Input {
 
     if (e.key === 'Backspace' || e.key === 'Delete') {
       this._delete();
+      this.clearNativeInput();
       return;
     }
 
-    if (e.key === 'Escape' || e.key === 'Enter') {
+    if (e.key === 'Escape') {
+      this.stopEditing();
+      return;
+    }
+
+    if (e.key === 'Enter') {
+      if (e.isComposing || this.isComposing) {
+        return;
+      }
       this.stopEditing();
     }
   }
