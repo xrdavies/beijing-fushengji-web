@@ -13,6 +13,10 @@ import { BaseDialog } from './BaseDialog';
 import { createButton } from '../ui/SimpleUIHelpers';
 import { fetchLeaderboard } from '@utils/leaderboard';
 
+const GAME_WIDTH = 800;
+const GAME_HEIGHT = 600;
+const MAX_TEXT_RESOLUTION = 3;
+
 export interface PlayerScore {
   rank: number;
   name: string;
@@ -25,7 +29,7 @@ export class TopPlayersDialog extends BaseDialog {
   private listHeight = 300;
 
   constructor() {
-    super(500, 500, '排行榜');
+    super(500, 500, '富人榜');
     this.createTopPlayersDialogUI();
   }
 
@@ -60,7 +64,7 @@ export class TopPlayersDialog extends BaseDialog {
     headerContainer.addChild(nameHeader);
 
     const scoreHeader = new Text({
-      text: '分数',
+      text: '资产',
       style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0xaaaaaa, fontWeight: 'bold' }
     });
     scoreHeader.x = 300;
@@ -90,6 +94,8 @@ export class TopPlayersDialog extends BaseDialog {
     closeButton.x = contentX + 150;
     closeButton.y = currentY;
     this.addChild(closeButton);
+
+    this.applyTextResolution(this, this.getTextResolution());
   }
 
   /**
@@ -105,6 +111,7 @@ export class TopPlayersDialog extends BaseDialog {
     }
 
     let yOffset = 10;
+    const resolution = this.getTextResolution();
 
     for (const player of players) {
       const rowContainer = new Container();
@@ -138,7 +145,7 @@ export class TopPlayersDialog extends BaseDialog {
 
       // Score
       const scoreText = new Text({
-        text: player.score.toLocaleString('zh-CN'),
+        text: '¥' + player.score.toLocaleString('zh-CN'),
         style: {
           fontFamily: 'Microsoft YaHei, Arial',
           fontSize: 16,
@@ -151,6 +158,7 @@ export class TopPlayersDialog extends BaseDialog {
       rowContainer.addChild(scoreText);
 
       rowContainer.y = yOffset;
+      this.applyTextResolution(rowContainer, resolution);
       this.scrollBox.addItem(rowContainer);
 
       yOffset += 35;
@@ -184,6 +192,7 @@ export class TopPlayersDialog extends BaseDialog {
     text.x = this.listWidth / 2;
     text.y = this.listHeight / 2;
     container.addChild(text);
+    this.applyTextResolution(container, this.getTextResolution());
     this.scrollBox.addItem(container);
   }
 
@@ -203,4 +212,22 @@ export class TopPlayersDialog extends BaseDialog {
     }
   }
 
+  private getTextResolution(): number {
+    const scale = Math.min(window.innerWidth / GAME_WIDTH, window.innerHeight / GAME_HEIGHT);
+    const devicePixelRatio = window.devicePixelRatio || 1;
+    return Math.min(devicePixelRatio * Math.max(1, scale), MAX_TEXT_RESOLUTION);
+  }
+
+  private applyTextResolution(container: Container, resolution: number): void {
+    for (const child of container.children) {
+      if (child instanceof Text) {
+        child.resolution = resolution;
+        child.roundPixels = true;
+      }
+
+      if (child instanceof Container && child.children.length > 0) {
+        this.applyTextResolution(child, resolution);
+      }
+    }
+  }
 }

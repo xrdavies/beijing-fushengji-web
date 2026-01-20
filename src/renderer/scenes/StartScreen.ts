@@ -131,7 +131,7 @@ export class StartScreen extends Container {
 
     this.nameInput = new IMEInput({
       bg: inputBg,
-      placeholder: '请输入名字',
+      placeholder: '请输入你的大名',
       value: '',
       maxLength: 8,
       align: 'left',
@@ -166,7 +166,7 @@ export class StartScreen extends Container {
     startButton.y = 440;
     this.addChild(startButton);
 
-    const leaderboardButton = createButton('排行榜', 140, 40, 0x3a7bc8, () => {
+    const leaderboardButton = createButton('富人榜', 140, 40, 0x3a7bc8, () => {
       if (this.onShowLeaderboard) {
         this.onShowLeaderboard();
       }
