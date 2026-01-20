@@ -249,7 +249,8 @@ export class MainGameScene extends Container {
       { id: 'clinic', label: '小诊所' },
       { id: 'house', label: '假中介' },
       { id: 'wangba', label: '黑网吧' },
-      { id: 'travel', label: '旅行社' },
+      { id: 'travel', label: '售票处' },
+      { id: 'leaderboard', label: '富人榜' },
     ];
     const buttonWidth = 86;
     const buttonHeight = 44; // Increased from 35 to 44 for better mobile touch
@@ -325,6 +326,9 @@ export class MainGameScene extends Container {
         break;
       case 'travel':
         this.travelDialog.open();
+        break;
+      case 'leaderboard':
+        this.topPlayersDialog.open();
         break;
     }
   }
