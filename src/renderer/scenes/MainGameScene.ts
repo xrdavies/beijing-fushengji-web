@@ -369,6 +369,9 @@ export class MainGameScene extends Container {
 
     this.gameOverDialog = new GameOverDialog();
     this.addChild(this.gameOverDialog);
+    this.gameOverDialog.setLeaderboardHandler(() => {
+      this.topPlayersDialog.open();
+    });
 
     this.eventQueue = new EventQueue(this.newsDialog, this.gameOverDialog);
 

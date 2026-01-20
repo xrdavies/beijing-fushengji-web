@@ -57,7 +57,7 @@ export class StartScreen extends Container {
     this.addChild(panel);
 
     const title = new Text({
-      text: '北京浮生记',
+      text: '北京浮生记(重制版)',
       style: {
         fontFamily: 'Microsoft YaHei, Arial',
         fontSize: 28,

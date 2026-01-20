@@ -14,6 +14,8 @@ import { BaseDialog } from './BaseDialog';
 import { gameStateManager } from '@state/GameStateManager';
 import { createButton } from '../ui/SimpleUIHelpers';
 import { trackEvent } from '@utils/analytics';
+import { submitScore } from '@utils/leaderboard';
+import type { GameState } from '@engine/types';
 
 export class GameOverDialog extends BaseDialog {
   private scoreText!: Text;
@@ -21,10 +23,15 @@ export class GameOverDialog extends BaseDialog {
   private ratingText!: Text;
 
   private finalScore: number = 0;
+  private onShowLeaderboard?: () => void;
 
   constructor() {
     super(500, 500, '游戏结束');
     this.createGameOverDialogUI();
+  }
+
+  setLeaderboardHandler(handler: () => void): void {
+    this.onShowLeaderboard = handler;
   }
 
   /**
@@ -157,8 +164,10 @@ export class GameOverDialog extends BaseDialog {
    * Handle view leaderboard button
    */
   private handleViewLeaderboard(): void {
-    console.log('Leaderboard feature not yet implemented');
     this.hide();
+    if (this.onShowLeaderboard) {
+      this.onShowLeaderboard();
+    }
   }
 
   /**
@@ -211,6 +220,7 @@ export class GameOverDialog extends BaseDialog {
     }
 
     this.show();
+    void this.submitFinalScore(state);
   }
 
   protected onOpen(): void {
@@ -223,5 +233,24 @@ export class GameOverDialog extends BaseDialog {
     // Triggered by: X button, ESC key, or any dialog close
     gameStateManager.resetGame();
     console.log('Game over dialog closed - Starting new game');
+  }
+
+  private async submitFinalScore(state: GameState): Promise<void> {
+    const playerName = state.playerName?.trim() || '无名小卒';
+    const record = await submitScore({
+      playerName,
+      totalWealth: this.finalScore,
+      cash: state.cash,
+      bank: state.bank,
+      debt: state.debt,
+      health: state.health,
+      fame: state.fame,
+    });
+
+    if (record) {
+      trackEvent('score_submitted', { total_wealth: record.totalWealth });
+    } else {
+      trackEvent('score_submit_failed', { reason: 'network' });
+    }
   }
 }
