@@ -1,0 +1,7 @@
+name = "beijing-fushengji-leaderboard"
+main = "src/index.ts"
+compatibility_date = "2025-02-01"
+
+[[kv_namespaces]]
+binding = "beijingfushengji-data"
+id = "09d3ee027255452490be3c6b85b1b5cc"
