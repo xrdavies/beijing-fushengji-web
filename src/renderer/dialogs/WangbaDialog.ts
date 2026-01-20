@@ -10,6 +10,7 @@
 
 import { Text } from 'pixi.js';
 import { BaseDialog } from './BaseDialog';
+import { audioManager } from '@audio/AudioManager';
 import { GAME_CONSTANTS } from '@engine/types';
 import { gameStateManager } from '@state/GameStateManager';
 import { randomInt } from '@utils/random';
@@ -25,6 +26,7 @@ export class WangbaDialog extends BaseDialog {
 
   constructor() {
     super(500, 400, '黑网吧');
+    this.doorSoundsEnabled = true;
     this.createWangbaDialogUI();
   }
 
@@ -129,6 +131,8 @@ export class WangbaDialog extends BaseDialog {
    * Handle play button - simulate internet activity
    */
   private handlePlay(): void {
+    audioManager.play('keyboard');
+
     // Random activities
     const activities = [
       { text: '你浏览了一些网页，偶然发现了一个红包！', minReward: 50, maxReward: 200 },

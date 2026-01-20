@@ -30,6 +30,7 @@ export class TopPlayersDialog extends BaseDialog {
 
   constructor() {
     super(500, 500, '富人榜');
+    this.doorSoundsEnabled = true;
     this.createTopPlayersDialogUI();
   }
 

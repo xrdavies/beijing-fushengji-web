@@ -25,6 +25,7 @@ export class HouseDialog extends BaseDialog {
 
   constructor() {
     super(500, 400, '假中介');
+    this.doorSoundsEnabled = true;
     this.createHouseDialogUI();
   }
 

@@ -40,6 +40,7 @@ export class TravelDialog extends BaseDialog {
 
   constructor(eventQueue: EventQueue) {
     super(600, 500, '旅行社');
+    this.doorSoundsEnabled = true;
     this.eventQueue = eventQueue;
     this.createTravelDialogUI();
   }
@@ -315,9 +316,9 @@ export class TravelDialog extends BaseDialog {
       return;
     }
 
-    // Check if traveling across cities (requires airplane sound)
+    // Check if traveling across cities (requires flight sound)
     if (location.city !== state.city) {
-      audioManager.play('airport');
+      audioManager.play('flight');
     }
 
     // Close travel dialog

@@ -31,6 +31,7 @@ export class HospitalDialog extends BaseDialog {
 
   constructor() {
     super(500, 450, '小诊所');
+    this.doorSoundsEnabled = true;
     this.createHospitalDialogUI();
   }
 
