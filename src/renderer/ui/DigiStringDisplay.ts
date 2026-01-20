@@ -1,6 +1,5 @@
 /**
  * DigiString Display - LED-style numeric display
- * Mimics the original CDigistring class from the C++ version
  *
  * Features:
  * - LED-style monospace font

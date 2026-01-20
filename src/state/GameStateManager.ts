@@ -38,7 +38,6 @@ export class GameStateManager {
 
   /**
    * Create initial game state
-   * Ported from: CSelectionDlg constructor and OnInitDialog() in SelectionDlg.cpp
    */
   private createInitialState(): GameState {
     const startingLocation =
@@ -53,6 +52,7 @@ export class GameStateManager {
       // Character
       health: GAME_CONSTANTS.STARTING_HEALTH,
       fame: GAME_CONSTANTS.STARTING_FAME,
+      playerName: '',
 
       // Inventory (8 empty slots)
       inventory: Array(8)
@@ -180,6 +180,9 @@ export class GameStateManager {
       }
 
       this.state = saveData.state;
+      if (typeof (this.state as { playerName?: string }).playerName !== 'string') {
+        this.state.playerName = '';
+      }
       this.notifyListeners();
       trackEvent('load_game', { success: 1, save_version: saveData.version });
       return true;
@@ -249,6 +252,17 @@ export class GameStateManager {
   resetGame(): void {
     this.state = this.createInitialState();
     trackEvent('new_game');
+    this.notifyListeners();
+    this.saveGame();
+  }
+
+  /**
+   * Set player name
+   */
+  setPlayerName(name: string): void {
+    const trimmed = Array.from(name.trim()).slice(0, 8).join('');
+    this.state.playerName = trimmed;
+    trackEvent('set_player_name', { length: Array.from(trimmed).length });
     this.notifyListeners();
     this.saveGame();
   }

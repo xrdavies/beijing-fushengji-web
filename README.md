@@ -2,23 +2,12 @@
 
 https://beijingfushengji.xyz/
 
-现代化的北京浮生记 Web 游戏版本，使用 PixiJS v8 构建。
-
-Modern web version of the classic Beijing Fushengji trading game, built with PixiJS v8.
+北京浮生记 Web 版，使用 PixiJS v8 构建。
 
 ## 简介 (About)
 
 经典贸易模拟游戏。在40天内通过买卖商品、管理健康和财务来获取最高分数。
 
-Classic trading simulation game. Achieve the highest score in 40 days by trading goods, managing health and finances.
-
-## 特性 (Features)
-
-- 100% 忠实原作 - 完整移植原版 C++ 游戏逻辑
-- PixiJS 渲染 - GPU 加速流畅体验
-- 自动存档 - localStorage 保存进度
-- 完整音效 - 原版音效系统
-- 现代技术栈 - TypeScript + Vite + PixiJS v8
 
 ## 快速开始 (Quick Start)
 
@@ -49,21 +38,16 @@ npm run preview
 
 TypeScript • PixiJS v8 • @pixi/ui • @pixi/sound • Vite
 
-## Analytics (Optional)
-
-Google Analytics (GA4) is enabled via a hardcoded measurement ID. Update it in `src/utils/analytics.ts` if needed.
 
 ## 许可证 (License)
 
-[GPL-2.0](LICENSE) - 继承自原版游戏
-
-**Web版**: Frozen (2026)  
-
-**原作者**: Guo xianghao (2012)  
-
-See `NOTICE` for attribution details.
+[GPL-2.0](LICENSE)
 
 ## 链接 (Links)
 
 - [问题反馈 Issues](https://github.com/xrdavies/beijing-fushengji-web/issues)
 - [原版 C++ 游戏](https://github.com/chrisguo/beijing_fushengji)
+
+## 致谢
+
+**原作者**: Guo Xianghao (2001)  

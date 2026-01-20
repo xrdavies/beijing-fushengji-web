@@ -1,11 +1,9 @@
 /**
  * Random number utilities
- * Ported from original C++ RandomNum() function
  */
 
 /**
  * Generate random integer in range [0, max)
- * Equivalent to C++ RandomNum(n) which returns rand() % n
  *
  * @param max - Upper bound (exclusive)
  * @returns Random integer from 0 to max-1

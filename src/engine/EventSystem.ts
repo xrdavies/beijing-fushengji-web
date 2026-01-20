@@ -1,7 +1,5 @@
 /**
  * Event System - Random event triggering and handling
- * Ported from: HandleNormalEvents() and related functions in SelectionDlg.cpp
- *
  * Handles three types of random events:
  * 1. Commercial Events - Market price changes, free items
  * 2. Health Events - Player health damage
@@ -16,9 +14,8 @@ import { randomInt } from '@utils/random';
 export class EventSystem {
   /**
    * Trigger commercial events (0-3 events per turn)
-   * Ported from: doRandomStuff() in SelectionDlg.cpp
    *
-   * Original algorithm:
+   * Algorithm:
    * - For each event, check: if (random(950) % event.freq === 0)
    * - If triggered, apply price change or give free items
    */
@@ -68,8 +65,7 @@ export class EventSystem {
       }
     }
 
-    // Special case: Event 17 adds debt
-    // Original C++: if (event index == 17) m_pDlg->MyDebt += 2500;
+    // Special case: Event 17 adds debt.
     if (COMMERCIAL_EVENTS.indexOf(event) === 17) {
       state.debt += 2500;
     }
@@ -83,9 +79,8 @@ export class EventSystem {
 
   /**
    * Trigger health events (0-1 event per turn)
-   * Ported from: doRandomEvent() in SelectionDlg.cpp
    *
-   * Original algorithm:
+   * Algorithm:
    * - For each event, check: if (random(1000) % event.freq === 0)
    * - If triggered, reduce health and play sound
    * - Check for auto-hospitalization if health < 85
@@ -113,7 +108,6 @@ export class EventSystem {
     }
 
     // Check for auto-hospitalization
-    // Original C++: if (health < 85 && timeLeft > 3)
     if (
       state.health < GAME_CONSTANTS.AUTO_HOSPITAL_HEALTH_THRESHOLD &&
       state.timeLeft > GAME_CONSTANTS.AUTO_HOSPITAL_MIN_TIME
@@ -129,7 +123,6 @@ export class EventSystem {
 
   /**
    * Auto-hospitalization when health is critically low
-   * Ported from: SelectionDlg.cpp auto-hospital logic
    */
   private autoHospitalize(state: GameState): GameEvent | null {
     // Random 1-2 days
@@ -144,13 +137,13 @@ export class EventSystem {
     // Add to debt
     state.debt += totalCost;
 
-    // Restore health by +10 (not full restore) - matching C++ line 1617
+    // Restore health by +10 (not full restore)
     state.health += 10;
     if (state.health > GAME_CONSTANTS.MAX_HEALTH) {
       state.health = GAME_CONSTANTS.MAX_HEALTH;
     }
 
-    // Lose time in hospital - matching C++ line 1620
+    // Lose time in hospital
     state.timeLeft -= days;
 
     return {
@@ -162,9 +155,8 @@ export class EventSystem {
 
   /**
    * Trigger theft events (0-1 event per turn)
-   * Ported from: onSteal() in SelectionDlg.cpp
    *
-   * Original algorithm:
+   * Algorithm:
    * - For each eve, check: if (random(1000) % event.freq === 0)
    * - If triggered, reduce cash or bank by percentage
    */
@@ -201,7 +193,6 @@ export class EventSystem {
 
   /**
    * Apply a single theft event
-   * Ported from: SelectionDlg.cpp lines 1791-1807
    */
   private applyTheftEvent(state: GameState, event: TheftEvent): number {
     if (event.fixedLoss && event.fixedLoss > 0) {
@@ -210,18 +201,18 @@ export class EventSystem {
       return loss;
     }
 
-    // Events 4 and 5 affect bank, others affect cash (C++ line 1791)
+    // Events 4 and 5 affect bank, others affect cash.
     const eventIndex = THEFT_EVENTS.indexOf(event);
     const affectsBank = (eventIndex === 4 || eventIndex === 5);
 
     if (affectsBank && state.bank > 0) {
-      // Telecom fraud - affects bank (C++ line 1807)
+      // Telecom fraud - affects bank.
       const oldBank = state.bank;
       state.bank = Math.floor((state.bank / 100) * (100 - event.ratio));
       if (state.bank < 0) state.bank = 0;
       return oldBank - state.bank;
     } else if (!affectsBank) {
-      // Other theft events - affect cash (C++ line 1796)
+      // Other theft events - affect cash.
       const oldCash = state.cash;
       state.cash = Math.floor((state.cash / 100) * (100 - event.ratio));
       if (state.cash < 0) state.cash = 0;
@@ -233,7 +224,6 @@ export class EventSystem {
 
   /**
    * Hacker event (if hacking mode enabled)
-   * Ported from: SelectionDlg.cpp lines 1814-1850
    *
    * Three-tier logic based on bank balance:
    * 1. Bank < 1000: No effect (too little to hack)
@@ -246,7 +236,7 @@ export class EventSystem {
       return null;
     }
 
-    // Bank < 1000: do nothing (C++ line 1817)
+    // Bank < 1000: do nothing.
     if (state.bank < 1000) {
       return null;
     }
@@ -256,7 +246,7 @@ export class EventSystem {
     let message: string;
 
     if (state.bank > 100000) {
-      // Rich players: High risk/reward (C++ lines 1819-1837)
+      // Rich players: High risk/reward.
       // Divisor: [2-21], amount: 4.76%-50% of bank
       amount = Math.floor(state.bank / (2 + randomInt(20)));
 
@@ -274,7 +264,7 @@ export class EventSystem {
         message = `你的黑客技术修改了银行数据库，你的存款增加了¥${amount.toLocaleString('zh-CN')}！`;
       }
     } else {
-      // Poor players: Always gain (C++ lines 1840-1847)
+      // Poor players: Always gain.
       // Divisor: [1-15], amount: 6.67%-100% of bank
       amount = Math.floor(state.bank / (1 + randomInt(15)));
       state.bank += amount;
@@ -291,13 +281,6 @@ export class EventSystem {
 
   /**
    * Check for debt penalty (debt > 100k)
-   * Ported from: SelectionDlg.cpp debt penalty check
-   *
-   * Original C++:
-   * if (MyDebt > 100000) {
-   *   m_nMyHealth -= 30;
-   *   PlaySound("kill.wav");
-   * }
    */
   checkDebtPenalty(state: GameState): GameEvent | null {
     if (state.debt > GAME_CONSTANTS.DEBT_PENALTY_THRESHOLD) {

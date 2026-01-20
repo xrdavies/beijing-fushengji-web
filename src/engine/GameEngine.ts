@@ -1,6 +1,5 @@
 /**
  * Game Engine - Core game logic and mechanics
- * Ported from: CSelectionDlg class in SelectionDlg.cpp
  *
  * Handles all game operations:
  * - Trading (buy/sell)
@@ -17,7 +16,6 @@ import { eventSystem } from './EventSystem';
 export class GameEngine {
   /**
    * Buy a drug
-   * Ported from: BuyDlg.cpp
    */
   buyDrug(state: GameState, drugId: number, quantity: number): Result<void> {
     // Validation
@@ -67,7 +65,6 @@ export class GameEngine {
 
   /**
    * Sell a drug
-   * Ported from: SellDlg.cpp
    */
   sellDrug(state: GameState, drugId: number, quantity: number): Result<void> {
     // Validation
@@ -105,14 +102,13 @@ export class GameEngine {
     }
 
     // Fame penalty for selling certain items
-    // Original C++ (lines 883-924): Checks by drug name
     // - "劣质假酒" → fame -= 10 (Drug ID 3)
-    // - "上海特色小食" → fame -= 7 (Drug ID 4)
+    // - "上海小宝贝" → fame -= 7 (Drug ID 4)
     if (drugId === 3) {
       state.fame -= 10;  // 劣质假酒
       if (state.fame < 0) state.fame = 0;
     } else if (drugId === 4) {
-      state.fame -= 7;  // 上海特色小食
+      state.fame -= 7;  // 上海小宝贝
       if (state.fame < 0) state.fame = 0;
     }
 
@@ -121,7 +117,6 @@ export class GameEngine {
 
   /**
    * Change location - triggers the core game loop
-   * Ported from: HandleNormalEvents() in SelectionDlg.cpp (lines 1447-1550)
    *
    * This is the main game loop that executes on each location change:
    * 1. Generate new market prices
@@ -217,11 +212,6 @@ export class GameEngine {
 
   /**
    * Handle cash and debt compound interest
-   * Ported from: HandleNormalEvents() in SelectionDlg.cpp
-   *
-   * Original C++:
-   * MyDebt = MyDebt + MyDebt * 0.10;  // 10% compound
-   * MyBank = MyBank + MyBank * 0.01;  // 1% interest
    */
   private handleCashAndDebt(state: GameState): void {
     // Debt compounds at 10% per turn
@@ -238,7 +228,6 @@ export class GameEngine {
 
   /**
    * Deposit money into bank
-   * Ported from: EnterBank.cpp
    */
   depositBank(state: GameState, amount: number): Result<void> {
     if (amount <= 0) {
@@ -257,7 +246,6 @@ export class GameEngine {
 
   /**
    * Withdraw money from bank
-   * Ported from: EnterBank.cpp
    */
   withdrawBank(state: GameState, amount: number): Result<void> {
     if (amount <= 0) {
@@ -276,7 +264,6 @@ export class GameEngine {
 
   /**
    * Pay off debt
-   * Ported from: Post office logic
    */
   payDebt(state: GameState, amount: number): Result<void> {
     if (amount <= 0) {
@@ -307,7 +294,6 @@ export class GameEngine {
 
   /**
    * Visit hospital to restore health
-   * Ported from: Hispital.cpp
    */
   visitHospital(state: GameState, healthPoints: number): Result<void> {
     if (healthPoints <= 0) {
@@ -336,7 +322,6 @@ export class GameEngine {
 
   /**
    * Rent house to increase capacity
-   * Ported from: SelectionDlg.cpp lines 2085-2093
    *
    * CRITICAL: Two-tier pricing system to balance game economy
    * - Poor players (≤30k): Fixed 25,000 cost
@@ -348,7 +333,7 @@ export class GameEngine {
       return Err(`容量已达上限${GAME_CONSTANTS.MAX_CAPACITY}`);
     }
 
-    // Two-tier pricing system (matches original C++ exactly)
+    // Two-tier pricing system
     let cost: number;
     if (state.cash <= 30000) {
       // Poor players: Fixed cost
@@ -370,7 +355,6 @@ export class GameEngine {
 
   /**
    * Visit internet cafe (wangba)
-   * Ported from: Wangba.cpp
    */
   visitWangba(state: GameState, rewardRange?: { min: number; max: number }): Result<number> {
     if (state.wangbaVisits >= GAME_CONSTANTS.MAX_WANGBA_VISITS) {
@@ -436,7 +420,6 @@ export class GameEngine {
 
   /**
    * Force sell all inventory (end game liquidation)
-   * Ported from: End game logic in SelectionDlg.cpp
    */
   forceSellAllItems(state: GameState): void {
     // Make all items available for selling

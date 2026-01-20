@@ -1,6 +1,5 @@
 /**
  * Price Generation System
- * Ported from: makeDrugPrices() in SelectionDlg.cpp (lines 1187-1205)
  *
  * Generates random market prices for 8 drugs with:
  * - Base price + random variance
@@ -17,25 +16,13 @@ export class PriceGenerator {
    * @param leaveout - Number of items to hide (set price to 0)
    *                   Normally 3, but 0 in last 2 days for liquidation
    * @returns Array of 8 prices (some may be 0 if left out)
-   *
-   * Original C++ code (SelectionDlg.cpp lines 1187-1205):
-   * ```cpp
-   * void CSelectionDlg::makeDrugPrices(int leaveout) {
-   *   m_DrugPrice[0] = 100 + RandomNum(350);
-   *   m_DrugPrice[1] = 15000 + RandomNum(15000);
-   *   ...
-   *   for (int i = 0; i < leaveout; i++) {
-   *     m_DrugPrice[RandomNum(8)] = 0;
-   *   }
-   * }
-   * ```
    */
   generatePrices(leaveout: number = 3): number[] {
     const prices: number[] = new Array(8);
 
     // Generate base prices with random variance
     // Formula: basePrice + randomInt(priceRange)
-    // Note: C++ RandomNum(X) returns [0, X-1], so we don't add +1 here
+    // randomInt returns [0, max-1], so we don't add +1 here
     prices[0] = DRUGS[0].minPrice + randomInt(DRUGS[0].maxPrice - DRUGS[0].minPrice); // 100-449 (not 450)
     prices[1] = DRUGS[1].minPrice + randomInt(DRUGS[1].maxPrice - DRUGS[1].minPrice); // 15000-29999 (not 30000)
     prices[2] = DRUGS[2].minPrice + randomInt(DRUGS[2].maxPrice - DRUGS[2].minPrice); // 5-54 (not 55)

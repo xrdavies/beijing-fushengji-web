@@ -2,16 +2,16 @@
  * TopPlayersDialog - Leaderboard dialog showing top 10 players
  *
  * Features:
- * - Display top 10 player scores
+ * - Display top player scores
  * - Scrollable list
  * - Rank, name, and score display
- * - Placeholder data (will load from localStorage later)
  */
 
 import { Text, Container } from 'pixi.js';
 import { ScrollBox } from '@pixi/ui';
 import { BaseDialog } from './BaseDialog';
 import { createButton } from '../ui/SimpleUIHelpers';
+import { fetchLeaderboard } from '@utils/leaderboard';
 
 export interface PlayerScore {
   rank: number;
@@ -21,6 +21,8 @@ export interface PlayerScore {
 
 export class TopPlayersDialog extends BaseDialog {
   private scrollBox!: ScrollBox;
+  private listWidth = 420;
+  private listHeight = 300;
 
   constructor() {
     super(500, 500, '排行榜');
@@ -34,7 +36,7 @@ export class TopPlayersDialog extends BaseDialog {
     const panelX = (800 - this.dialogWidth) / 2;
     const panelY = (600 - this.dialogHeight) / 2;
     const contentX = panelX + 30;
-    let currentY = panelY + 80;
+    let currentY = panelY + 65;
 
     // Header
     const headerContainer = new Container();
@@ -67,12 +69,12 @@ export class TopPlayersDialog extends BaseDialog {
 
     this.addChild(headerContainer);
 
-    currentY += 40;
+    currentY += 32;
 
     // Create scrollable list - ScrollBox IS a Container, no .view needed
     this.scrollBox = new ScrollBox({
-      width: 420,
-      height: 280,
+      width: this.listWidth,
+      height: this.listHeight,
       background: 0x1a1a1a,
       radius: 5,
     });
@@ -81,7 +83,7 @@ export class TopPlayersDialog extends BaseDialog {
     this.scrollBox.y = currentY;
     this.addChild(this.scrollBox);
 
-    currentY += 300;
+    currentY += this.listHeight + 20;
 
     // Close button
     const closeButton = createButton('关闭', 120, 40, 0x3a7bc8, () => this.hide());
@@ -96,6 +98,11 @@ export class TopPlayersDialog extends BaseDialog {
   private populateLeaderboard(players: PlayerScore[]): void {
     // Clear existing content
     this.scrollBox.removeItems();
+
+    if (players.length === 0) {
+      this.setStatus('暂无排行数据');
+      return;
+    }
 
     let yOffset = 10;
 
@@ -151,31 +158,11 @@ export class TopPlayersDialog extends BaseDialog {
   }
 
   /**
-   * Load scores from localStorage
-   * Currently returns placeholder data - will be implemented with real leaderboard system
-   */
-  private loadScores(): PlayerScore[] {
-    return [
-      { rank: 1, name: '富豪王', score: 5000000 },
-      { rank: 2, name: '商业大亨', score: 3500000 },
-      { rank: 3, name: '百万富翁', score: 2000000 },
-      { rank: 4, name: '成功人士', score: 1500000 },
-      { rank: 5, name: '小有成就', score: 1000000 },
-      { rank: 6, name: '普通玩家', score: 500000 },
-      { rank: 7, name: '努力中', score: 300000 },
-      { rank: 8, name: '新手', score: 100000 },
-      { rank: 9, name: '菜鸟', score: 50000 },
-      { rank: 10, name: '初学者', score: 10000 },
-    ];
-  }
-
-  /**
    * Open leaderboard dialog
    */
   open(): void {
-    const scores = this.loadScores();
-    this.populateLeaderboard(scores);
     this.show();
+    void this.refreshLeaderboard();
   }
 
   protected onOpen(): void {
@@ -185,4 +172,35 @@ export class TopPlayersDialog extends BaseDialog {
   protected onClose(): void {
     // Dialog closed
   }
+
+  private setStatus(message: string): void {
+    this.scrollBox.removeItems();
+    const container = new Container();
+    const text = new Text({
+      text: message,
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0x94a3b8 }
+    });
+    text.anchor.set(0.5, 0.5);
+    text.x = this.listWidth / 2;
+    text.y = this.listHeight / 2;
+    container.addChild(text);
+    this.scrollBox.addItem(container);
+  }
+
+  private async refreshLeaderboard(): Promise<void> {
+    this.setStatus('加载中...');
+    const leaderboard = await fetchLeaderboard();
+
+    if (!leaderboard) {
+      this.setStatus('排行榜加载失败');
+    } else {
+      const players = leaderboard.items.map((item, index) => ({
+        rank: index + 1,
+        name: item.playerName,
+        score: item.totalWealth,
+      }));
+      this.populateLeaderboard(players);
+    }
+  }
+
 }
