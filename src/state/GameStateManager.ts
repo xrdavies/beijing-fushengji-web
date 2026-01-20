@@ -38,7 +38,6 @@ export class GameStateManager {
 
   /**
    * Create initial game state
-   * Ported from: CSelectionDlg constructor and OnInitDialog() in SelectionDlg.cpp
    */
   private createInitialState(): GameState {
     const startingLocation =
@@ -181,7 +180,7 @@ export class GameStateManager {
       }
 
       this.state = saveData.state;
-      if (!('playerName' in this.state)) {
+      if (typeof (this.state as { playerName?: string }).playerName !== 'string') {
         this.state.playerName = '';
       }
       this.notifyListeners();

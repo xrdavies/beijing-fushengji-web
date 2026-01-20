@@ -1,6 +1,5 @@
 /**
  * Core type definitions for Beijing Fushengji game engine
- * Ported from original C++ codebase
  */
 
 // ============================================================================
@@ -21,16 +20,15 @@ export interface DrugInfo {
 }
 
 // The 8 tradeable goods
-// Drug names from original C++ game
 export const DRUGS: DrugInfo[] = [
-  { id: 0, name: '古董瓷器', minPrice: 100, maxPrice: 450 },
+  { id: 0, name: '二手古玩', minPrice: 100, maxPrice: 450 },
   { id: 1, name: '走私电器', minPrice: 15000, maxPrice: 30000 },
-  { id: 2, name: '盗版A片', minPrice: 5, maxPrice: 55 },
-  { id: 3, name: '劣质假酒', minPrice: 1000, maxPrice: 3500 },  // FIXED: was 紫砂茶具、古董茶
-  { id: 4, name: '上海小宝贝', minPrice: 5000, maxPrice: 14000 },  // FIXED: was 新泻特产、特色小食品
-  { id: 5, name: '仿爱马仕', minPrice: 250, maxPrice: 850 },
+  { id: 2, name: '盗版VCD', minPrice: 5, maxPrice: 55 },
+  { id: 3, name: '劣质假酒', minPrice: 1000, maxPrice: 3500 },
+  { id: 4, name: '上海小宝贝', minPrice: 5000, maxPrice: 14000 },
+  { id: 5, name: '进口玩具', minPrice: 250, maxPrice: 850 },
   { id: 6, name: '越南翡翠手镯', minPrice: 750, maxPrice: 1500 },
-  { id: 7, name: '印度神油', minPrice: 65, maxPrice: 245 },  // FIXED: was α街画报纸品
+  { id: 7, name: '印度神油', minPrice: 65, maxPrice: 245 },
 ];
 
 // ============================================================================
@@ -81,7 +79,6 @@ export const ALL_LOCATIONS = [...BEIJING_LOCATIONS, ...SHANGHAI_LOCATIONS];
 
 /**
  * Commercial Event (Market price changes, free items)
- * Ported from: Message gameMessages[] in SelectionDlg.cpp
  */
 export interface CommercialEvent {
   freq: number;         // Frequency weight (lower = more common)
@@ -94,7 +91,6 @@ export interface CommercialEvent {
 
 /**
  * Health Event (Damage to player health)
- * Ported from: BadEvent random_event[] in SelectionDlg.cpp
  */
 export interface HealthEvent {
   freq: number;         // Frequency weight
@@ -105,7 +101,6 @@ export interface HealthEvent {
 
 /**
  * Theft Event (Money loss)
- * Ported from: StealEvent random_steal_event[] in SelectionDlg.cpp
  */
 export interface TheftEvent {
   freq: number;         // Frequency weight

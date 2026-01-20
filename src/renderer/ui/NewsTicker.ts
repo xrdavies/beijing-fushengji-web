@@ -1,6 +1,5 @@
 /**
  * News Ticker - Scrolling text display for news and tips
- * Ported from: CTicker class in the original C++ version
  *
  * Features:
  * - Horizontal scrolling text
