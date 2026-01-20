@@ -21,6 +21,7 @@ export type SoundId =
   | 'flight'
   // Secondary sounds
   | 'breath'
+  | 'click'
   | 'clunk'
   | 'dog'
   | 'drop'
@@ -69,6 +70,7 @@ export class AudioManager {
 
     // Secondary sounds (load later)
     { id: 'breath', file: 'breath.wav', priority: 'secondary' },
+    { id: 'click', file: 'click.wav', priority: 'secondary' },
     { id: 'clunk', file: 'clunk.wav', priority: 'secondary' },
     { id: 'dog', file: 'dog.wav', priority: 'secondary' },
     { id: 'drop', file: 'drop.wav', priority: 'secondary' },
