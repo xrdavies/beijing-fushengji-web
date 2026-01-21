@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://beijingfushengji.xyz/sitemap.xml
