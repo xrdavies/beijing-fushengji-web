@@ -16,7 +16,7 @@ export class EventSystem {
    * Trigger commercial events (0-3 events per turn)
    *
    * Algorithm:
-   * - For each event, check: if (random(950) % event.freq === 0)
+   * - For each event, check: if (random(1000) % event.freq === 0)
    * - If triggered, apply price change or give free items
    */
   triggerCommercialEvents(state: GameState): GameEvent[] {
@@ -25,7 +25,7 @@ export class EventSystem {
     for (const event of COMMERCIAL_EVENTS) {
       // Weighted random selection based on frequency
       // Lower freq = more common (e.g., freq=17 triggers more often than freq=190)
-      if (randomInt(950) % event.freq === 0) {
+      if (randomInt(1000) % event.freq === 0) {
         events.push(this.applyCommercialEvent(state, event));
       }
     }
