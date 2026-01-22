@@ -252,7 +252,7 @@ export class MainGameScene extends Container {
       { id: 'house', label: '假中介' },
       { id: 'wangba', label: '黑网吧' },
       { id: 'travel', label: '售票处' },
-      { id: 'stock', label: '股市' },
+      { id: 'stock', label: '股票大厅' },
       { id: 'leaderboard', label: '富人榜' },
     ];
     const buttonWidth = 86;
