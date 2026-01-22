@@ -148,9 +148,10 @@ export class EventSystem {
         state.health -= event.hunt;
         if (state.health < 0) state.health = 0;
 
+        const healthLossText = `（健康-${event.hunt}）`;
         events.push({
           type: 'health',
-          message: event.msg,
+          message: `${event.msg}\n${healthLossText}`,
           sound: event.sound,
           data: { damage: event.hunt, newHealth: state.health }
         });
@@ -219,11 +220,13 @@ export class EventSystem {
     for (const event of THEFT_EVENTS) {
       // Weighted random selection
       if (randomInt(1000) % event.freq === 0) {
-        const lossAmount = this.applyTheftEvent(state, event);
+        const { lossAmount, target } = this.applyTheftEvent(state, event);
+        const lossLabel = target === 'bank' ? '存款' : '现金';
+        const lossText = lossAmount > 0 ? `（损失${lossLabel}¥${lossAmount.toLocaleString('zh-CN')}）` : '';
 
         events.push({
           type: 'theft',
-          message: event.msg,
+          message: lossText ? `${event.msg}\n${lossText}` : event.msg,
           sound: event.sound,
           data: { ratio: event.ratio, lossAmount }
         });
@@ -247,11 +250,11 @@ export class EventSystem {
   /**
    * Apply a single theft event
    */
-  private applyTheftEvent(state: GameState, event: TheftEvent): number {
+  private applyTheftEvent(state: GameState, event: TheftEvent): { lossAmount: number; target: 'cash' | 'bank' } {
     if (event.fixedLoss && event.fixedLoss > 0) {
       const loss = Math.min(state.cash, event.fixedLoss);
       state.cash -= loss;
-      return loss;
+      return { lossAmount: loss, target: 'cash' };
     }
 
     // Events 4 and 5 affect bank, others affect cash.
@@ -263,16 +266,16 @@ export class EventSystem {
       const oldBank = state.bank;
       state.bank = Math.floor((state.bank / 100) * (100 - event.ratio));
       if (state.bank < 0) state.bank = 0;
-      return oldBank - state.bank;
+      return { lossAmount: oldBank - state.bank, target: 'bank' };
     } else if (!affectsBank) {
       // Other theft events - affect cash.
       const oldCash = state.cash;
       state.cash = Math.floor((state.cash / 100) * (100 - event.ratio));
       if (state.cash < 0) state.cash = 0;
-      return oldCash - state.cash;
+      return { lossAmount: oldCash - state.cash, target: 'cash' };
     }
 
-    return 0;
+    return { lossAmount: 0, target: affectsBank ? 'bank' : 'cash' };
   }
 
   /**
