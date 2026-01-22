@@ -24,7 +24,7 @@ const TIME_OFFSET = 9_999_999_999_999;
 const TIME_KEY_WIDTH = 13;
 const LIST_PAGE_SIZE = 1000;
 
-const ALLOWED_ORIGINS = new Set(['https://beijingfushengji.xyz', 'http://localhost:3000']);
+const ALLOWED_ORIGINS = new Set(['https://beijingfushengji.xyz']);
 
 function buildCorsHeaders(origin: string | null): HeadersInit {
   const normalized = origin?.trim() ?? '';

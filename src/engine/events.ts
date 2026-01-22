@@ -29,7 +29,7 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
     freq: 139,
     msg: '卫生局官员说，今后将严查假酒，假酒供应量暴跌，市场劣质假酒价格看涨!',
     drug: 3,  // 劣质假酒
-    plus: 3,
+    plus: 2,
     minus: 0,
     add: 0
   },
@@ -47,7 +47,7 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
     freq: 41,
     msg: '网络上盗版VCD热卖，供不应求!',
     drug: 2,  // 盗版VCD
-    plus: 4,
+    plus: 5,
     minus: 0,
     add: 0
   },
@@ -56,7 +56,7 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
     freq: 37,
     msg: '北京市场上走私电器热销，许多人私下进货想趁机赚一笔!',
     drug: 1,  // 走私电器
-    plus: 3,
+    plus: 2,
     minus: 0,
     add: 0
   },
@@ -74,7 +74,7 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
     freq: 37,
     msg: 'Twitter网站最近发布了很多上海小宝贝的消息，引起了一片哗然!',
     drug: 4,  // 上海小宝贝
-    plus: 8,
+    plus: 3,
     minus: 0,
     add: 0
   },
@@ -83,7 +83,7 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
     freq: 15,
     msg: '谢霆锋最近出席活动说，我一定要使用印度神油! 最终印度神油供不应求!',
     drug: 7,  // 印度神油
-    plus: 7,
+    plus: 5,
     minus: 0,
     add: 0
   },
@@ -101,7 +101,7 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
     freq: 29,
     msg: '北京的大学生们开始寻找越南翡翠手镯，很受欢迎!',
     drug: 6,  // 越南翡翠手镯
-    plus: 7,
+    plus: 4,
     minus: 0,
     add: 0
   },
@@ -110,14 +110,14 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
     freq: 35,
     msg: '随着个人风潮的来临，走私电器价格暴涨!',
     drug: 1,  // 走私电器
-    plus: 8,
+    plus: 4,
     minus: 0,
     add: 0
   },
   // Event 11
   {
     freq: 17,
-    msg: '市场上出现了二手古玩!',
+    msg: '市场上出现了大量二手古玩!',
     drug: 0,  // 二手古玩
     plus: 0,
     minus: 8,
@@ -148,7 +148,7 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
     drug: 1,  // 走私电器
     plus: 0,
     minus: 0,
-    add: 2
+    add: 1
   },
   // Event 15
   {
@@ -157,7 +157,7 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
     drug: 0,  // 二手古玩
     plus: 0,
     minus: 5,
-    add: 6
+    add: 4
   },
   // Event 16
   {
@@ -172,7 +172,7 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
   // Special event: adds 2500 to debt (handled in EventSystem)
   {
     freq: 140,
-    msg: '媒体报道，最近有日本制造的中国仿品被出口! 据说日本制造商被查后，拒绝赔偿损失，还说是消息不实，所以八卦报纸公司送了你一个越南翡翠手镯作为标识硬抵押，还欠你2500元!',
+    msg: '媒体报道，最近有日本制造的中国仿品被出口! 据说日本制造商被查后，拒绝赔偿损失，还说是消息不实，所以八卦报纸公司送了你一个越南翡翠手镯作为标识硬抵押!',
     drug: 6,  // 越南翡翠手镯
     plus: 0,
     minus: 0,

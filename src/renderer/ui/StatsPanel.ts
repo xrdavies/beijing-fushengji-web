@@ -22,6 +22,7 @@ export class StatsPanel extends Container {
   private fameText: Text;
   private timeText: Text;
   private capacityText: Text;
+  private stockValueText: Text;
   private playerNameText: Text;
 
   constructor(width: number = 200, height: number = 300) {
@@ -45,75 +46,65 @@ export class StatsPanel extends Container {
     this.addChild(background);
 
     const headerRule = new Graphics();
-    headerRule.moveTo(12, 42);
-    headerRule.lineTo(width - 12, 42);
+    headerRule.moveTo(12, 38);
+    headerRule.lineTo(width - 12, 38);
     headerRule.stroke({ width: 1, color: 0x2f3842 });
     this.addChild(headerRule);
 
-    // Title
-    const title = new Text({
-      text: '玩家状态',
+    // Player name (replaces title)
+    this.playerNameText = new Text({
+      text: '无名小卒',
       style: {
-        fontFamily: 'Microsoft YaHei, Arial',
-        fontSize: 17,
+        fontFamily: 'Microsoft YaHei, Arial, Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji',
+        fontSize: 16,
         fill: 0xf8fafc,
         fontWeight: 'bold',
       }
     });
-    title.x = 12;
-    title.y = 10;
-    this.addChild(title);
+    this.playerNameText.x = 12;
+    this.playerNameText.y = 10;
+    this.addChild(this.playerNameText);
 
     // Create stat labels and values
-    let yPos = 54;
-    const lineHeight = 30;
-
-    // Player name
-    this.playerNameText = new Text({
-      text: '玩家: 无名小卒',
-      style: {
-        fontFamily: 'Microsoft YaHei, Arial, Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji',
-        fontSize: 14,
-        fill: 0xcbd5f5,
-      }
-    });
-    this.playerNameText.x = 12;
-    this.playerNameText.y = yPos;
-    this.addChild(this.playerNameText);
-    yPos += lineHeight;
-
-    // Health
-    this.healthText = this.createStatText('健康:', '100', 0x00ff00, 12, yPos);
-    this.addChild(this.healthText);
-    yPos += lineHeight;
+    let yPos = 48;
+    const lineHeight = 26;
+    const columnGap = 10;
+    const leftX = 12;
+    const columnWidth = (width - 24 - columnGap) / 2;
+    const rightX = leftX + columnWidth + columnGap;
 
     // Cash
-    this.cashText = this.createStatText('现金:', '¥2,000', 0xffdd00, 12, yPos);
+    this.cashText = this.createStatText('现金:', '¥2,000', 0xffdd00, leftX, yPos);
     this.addChild(this.cashText);
     yPos += lineHeight;
 
-    // Debt (red)
-    this.debtText = this.createStatText('债务:', '¥5,000', 0xff4444, 12, yPos);
-    this.addChild(this.debtText);
-    yPos += lineHeight;
-
     // Bank
-    this.bankText = this.createStatText('存款:', '¥0', 0x44ff44, 12, yPos);
+    this.bankText = this.createStatText('存款:', '¥0', 0x44ff44, leftX, yPos);
     this.addChild(this.bankText);
     yPos += lineHeight;
 
-    // Fame
-    this.fameText = this.createStatText('声望:', '100', 0xaaaaaa, 12, yPos);
+    // Stock value
+    this.stockValueText = this.createStatText('股票:', '¥0', 0x22c55e, leftX, yPos);
+    this.addChild(this.stockValueText);
+    yPos += lineHeight;
+
+    // Debt (red)
+    this.debtText = this.createStatText('债务:', '¥5,000', 0xff4444, leftX, yPos);
+    this.addChild(this.debtText);
+    yPos += lineHeight;
+
+    // Health
+    this.healthText = this.createStatText('健康:', '100', 0x00ff00, leftX, yPos);
+    this.addChild(this.healthText);
+    this.fameText = this.createStatText('声望:', '100', 0xaaaaaa, rightX, yPos);
     this.addChild(this.fameText);
     yPos += lineHeight;
 
     // Time
-    this.timeText = this.createStatText('时间:', '40/40天', 0xffffff, 12, yPos);
+    this.timeText = this.createStatText('时间:', '40/40天', 0xffffff, leftX, yPos);
     this.addChild(this.timeText);
-    yPos += lineHeight;
-
     // Capacity
-    this.capacityText = this.createStatText('容量:', '0/100', 0xaaaaaa, 12, yPos);
+    this.capacityText = this.createStatText('容量:', '0/100', 0xaaaaaa, rightX, yPos);
     this.addChild(this.capacityText);
   }
 
@@ -169,6 +160,14 @@ export class StatsPanel extends Container {
     this.capacityText.style.fill = capacityColor;
 
     // Player name
-    this.playerNameText.text = `玩家: ${state.playerName || '无名小卒'}`;
+    this.playerNameText.text = state.playerName || '无名小卒';
+
+    // Stock value
+    const stockValue = state.stockHoldings.reduce((sum, holding, index) => {
+      const shares = holding?.shares ?? 0;
+      const price = state.stockPrices[index] ?? 0;
+      return sum + shares * price;
+    }, 0);
+    this.stockValueText.text = `股票: ¥${stockValue.toLocaleString('zh-CN')}`;
   }
 }

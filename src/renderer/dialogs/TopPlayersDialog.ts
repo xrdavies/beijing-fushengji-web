@@ -21,15 +21,16 @@ export interface PlayerScore {
   rank: number;
   name: string;
   score: number;
+  timestamp: number;
 }
 
 export class TopPlayersDialog extends BaseDialog {
   private scrollBox!: ScrollBox;
-  private listWidth = 420;
+  private listWidth = 480;
   private listHeight = 300;
 
   constructor() {
-    super(500, 500, '富人榜');
+    super(560, 500, '富人榜');
     this.doorSoundsEnabled = true;
     this.createTopPlayersDialogUI();
   }
@@ -68,9 +69,17 @@ export class TopPlayersDialog extends BaseDialog {
       text: '资产',
       style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0xaaaaaa, fontWeight: 'bold' }
     });
-    scoreHeader.x = 300;
+    scoreHeader.x = 260;
     scoreHeader.y = 0;
     headerContainer.addChild(scoreHeader);
+
+    const dateHeader = new Text({
+      text: '日期',
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0xaaaaaa, fontWeight: 'bold' }
+    });
+    dateHeader.x = 370;
+    dateHeader.y = 0;
+    headerContainer.addChild(dateHeader);
 
     this.addChild(headerContainer);
 
@@ -92,7 +101,7 @@ export class TopPlayersDialog extends BaseDialog {
 
     // Close button
     const closeButton = createButton('关闭', 120, 40, 0x3a7bc8, () => this.hide());
-    closeButton.x = contentX + 150;
+    closeButton.x = contentX + (this.listWidth - 120) / 2;
     closeButton.y = currentY;
     this.addChild(closeButton);
 
@@ -154,9 +163,21 @@ export class TopPlayersDialog extends BaseDialog {
           fontWeight: 'bold'
         }
       });
-      scoreText.x = 280;
+      scoreText.x = 240;
       scoreText.y = 0;
       rowContainer.addChild(scoreText);
+
+      const dateText = new Text({
+        text: this.formatRecordDate(player.timestamp),
+        style: {
+          fontFamily: 'Microsoft YaHei, Arial',
+          fontSize: 13,
+          fill: 0x9aa4b2,
+        }
+      });
+      dateText.x = 350;
+      dateText.y = 2;
+      rowContainer.addChild(dateText);
 
       rowContainer.y = yOffset;
       this.applyTextResolution(rowContainer, resolution);
@@ -208,9 +229,22 @@ export class TopPlayersDialog extends BaseDialog {
         rank: index + 1,
         name: item.playerName,
         score: item.totalWealth,
+        timestamp: item.timestamp,
       }));
       this.populateLeaderboard(players);
     }
+  }
+
+  private formatRecordDate(timestamp: number): string {
+    if (!Number.isFinite(timestamp) || timestamp <= 0) {
+      return '--';
+    }
+
+    const date = new Date(timestamp);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   private getTextResolution(): number {

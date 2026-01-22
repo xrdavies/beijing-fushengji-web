@@ -22,27 +22,13 @@ export type SoundId =
   // Secondary sounds
   | 'breath'
   | 'click'
-  | 'clunk'
   | 'dog'
-  | 'drop'
-  | 'eat'
   | 'flee'
-  | 'hallu'
-  | 'money'
-  | 'opendoor'
-  | 'shutdoor'
   | 'vomit'
-  | 'hos'
   // Health/combat event sounds
   | 'harley'
   | 'hit'
   | 'keyboard'
-  | 'melee'
-  | 'thump'
-  | 'ow1'
-  | 'ow2'
-  | 'ouch'
-  | 'shot'
   | 'el'
   | 'level'
   | 'lan';
@@ -71,28 +57,14 @@ export class AudioManager {
     // Secondary sounds (load later)
     { id: 'breath', file: 'breath.wav', priority: 'secondary' },
     { id: 'click', file: 'click.wav', priority: 'secondary' },
-    { id: 'clunk', file: 'clunk.wav', priority: 'secondary' },
     { id: 'dog', file: 'dog.wav', priority: 'secondary' },
-    { id: 'drop', file: 'drop.wav', priority: 'secondary' },
-    { id: 'eat', file: 'eat.wav', priority: 'secondary' },
     { id: 'flee', file: 'flee.wav', priority: 'secondary' },
-    { id: 'hallu', file: 'hallu.wav', priority: 'secondary' },
-    { id: 'money', file: 'money.wav', priority: 'secondary' },
-    { id: 'opendoor', file: 'opendoor.wav', priority: 'secondary' },
-    { id: 'shutdoor', file: 'shutdoor.wav', priority: 'secondary' },
     { id: 'vomit', file: 'vomit.wav', priority: 'secondary' },
-    { id: 'hos', file: 'hos.wav', priority: 'secondary' },
 
     // Health/combat event sounds
     { id: 'harley', file: 'harley.wav', priority: 'secondary' },
     { id: 'hit', file: 'hit.wav', priority: 'secondary' },
     { id: 'keyboard', file: 'keyboard.wav', priority: 'secondary' },
-    { id: 'melee', file: 'melee.wav', priority: 'secondary' },
-    { id: 'thump', file: 'thump.wav', priority: 'secondary' },
-    { id: 'ow1', file: 'ow1.wav', priority: 'secondary' },
-    { id: 'ow2', file: 'ow2.wav', priority: 'secondary' },
-    { id: 'ouch', file: 'ouch.wav', priority: 'secondary' },
-    { id: 'shot', file: 'shot.wav', priority: 'secondary' },
     { id: 'el', file: 'el.wav', priority: 'secondary' },
     { id: 'level', file: 'level.wav', priority: 'secondary' },
     { id: 'lan', file: 'lan.wav', priority: 'secondary' },
