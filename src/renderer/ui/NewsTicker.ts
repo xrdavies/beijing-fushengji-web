@@ -73,6 +73,30 @@ export class NewsTicker extends Container {
   }
 
   /**
+   * Append a news item to the ticker rotation
+   */
+  addNewsItem(item: string, immediate: boolean = false): void {
+    const message = item.trim();
+    if (!message) {
+      return;
+    }
+
+    if (this.newsItems.length === 0) {
+      this.newsItems = [message];
+      this.currentIndex = 0;
+      this.loadNews(0);
+      return;
+    }
+
+    if (immediate) {
+      const insertIndex = Math.min(this.currentIndex + 1, this.newsItems.length);
+      this.newsItems.splice(insertIndex, 0, message);
+    } else {
+      this.newsItems.push(message);
+    }
+  }
+
+  /**
    * Load a specific news item
    */
   private loadNews(index: number): void {

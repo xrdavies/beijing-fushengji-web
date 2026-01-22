@@ -6,10 +6,11 @@
  * 3. Theft Events - Money loss
  */
 
-import type { GameState, GameEvent, CommercialEvent, TheftEvent } from './types';
-import { COMMERCIAL_EVENTS, HEALTH_EVENTS, THEFT_EVENTS } from './events';
+import type { GameState, GameEvent, CommercialEvent, TheftEvent, StockEvent } from './types';
+import { COMMERCIAL_EVENTS, HEALTH_EVENTS, THEFT_EVENTS, STOCK_EVENTS } from './events';
 import { GAME_CONSTANTS } from './types';
 import { randomInt } from '@utils/random';
+import { stockPriceGenerator } from './StockPriceGenerator';
 
 export class EventSystem {
   /**
@@ -31,6 +32,30 @@ export class EventSystem {
     }
 
     return events;
+  }
+
+  /**
+   * Trigger stock events (0-1 event per turn)
+   *
+   * Algorithm:
+   * - For each event, check: if (random(1000) % event.freq === 0)
+   * - If triggered, pick one at random to apply
+   */
+  triggerStockEvents(state: GameState): GameEvent[] {
+    const triggered: StockEvent[] = [];
+
+    for (const event of STOCK_EVENTS) {
+      if (randomInt(1000) % event.freq === 0) {
+        triggered.push(event);
+      }
+    }
+
+    if (triggered.length === 0) {
+      return [];
+    }
+
+    const chosen = triggered[randomInt(triggered.length)];
+    return [this.applyStockEvent(state, chosen)];
   }
 
   /**
@@ -74,6 +99,34 @@ export class EventSystem {
       type: 'commercial',
       message: event.msg,
       data: { drugId, plus: event.plus, minus: event.minus, add: event.add }
+    };
+  }
+
+  private applyStockEvent(state: GameState, event: StockEvent): GameEvent {
+    const stockId = event.stock;
+    const current = state.stockPrices[stockId];
+    if (typeof current !== 'number') {
+      return {
+        type: 'stock',
+        message: event.msg,
+        data: { stockId, plus: event.plus, minus: event.minus },
+      };
+    }
+
+    let next = current;
+    if (event.plus > 0) {
+      next = Math.round(next * event.plus);
+    }
+    if (event.minus > 0) {
+      next = Math.floor(next / event.minus);
+    }
+
+    state.stockPrices[stockId] = stockPriceGenerator.clampPrice(next, stockId);
+
+    return {
+      type: 'stock',
+      message: event.msg,
+      data: { stockId, plus: event.plus, minus: event.minus },
     };
   }
 

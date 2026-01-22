@@ -8,9 +8,9 @@
  * 3. Theft Events (8) - Money loss
  */
 
-import type { CommercialEvent, HealthEvent, TheftEvent } from './types';
+import type { CommercialEvent, HealthEvent, TheftEvent, StockEvent } from './types';
 
-// ============================================================================
+// ============================================================================ 
 // COMMERCIAL EVENTS (18 total)
 // ============================================================================
 
@@ -179,6 +179,163 @@ export const COMMERCIAL_EVENTS: CommercialEvent[] = [
     add: 1
     // Note: Adds 2500 to debt.
     // This will be handled specially in EventSystem
+  },
+];
+
+// ============================================================================
+// STOCK EVENTS (20 total)
+// ============================================================================
+
+export const STOCK_EVENTS: StockEvent[] = [
+  // 科技
+  {
+    freq: 55,
+    msg: '科技板块迎来政策利好，市场热情高涨！',
+    stock: 0,
+    plus: 2,
+    minus: 0,
+  },
+  {
+    freq: 70,
+    msg: '科技龙头遭遇监管整顿，股价大幅下挫！',
+    stock: 0,
+    plus: 0,
+    minus: 8,
+  },
+  // 外贸
+  {
+    freq: 60,
+    msg: '外贸订单激增，出口企业股价暴涨！',
+    stock: 1,
+    plus: 1.8,
+    minus: 0,
+  },
+  {
+    freq: 75,
+    msg: '国际局势紧张，外贸板块遭遇抛售！',
+    stock: 1,
+    plus: 0,
+    minus: 6,
+  },
+  // 地产
+  {
+    freq: 58,
+    msg: '地产刺激政策出台，地产股集体大涨！',
+    stock: 2,
+    plus: 1.9,
+    minus: 0,
+  },
+  {
+    freq: 72,
+    msg: '楼市成交骤降，地产板块暴跌！',
+    stock: 2,
+    plus: 0,
+    minus: 9,
+  },
+  // 金融
+  {
+    freq: 62,
+    msg: '金融机构盈利超预期，金融股拉升！',
+    stock: 3,
+    plus: 1.7,
+    minus: 0,
+  },
+  {
+    freq: 78,
+    msg: '金融风险暴露，市场信心崩盘！',
+    stock: 3,
+    plus: 0,
+    minus: 10,
+  },
+  // 消费
+  {
+    freq: 50,
+    msg: '消费热潮来袭，相关个股飙升！',
+    stock: 4,
+    plus: 1.6,
+    minus: 0,
+  },
+  {
+    freq: 80,
+    msg: '消费信心下滑，消费股遭重挫！',
+    stock: 4,
+    plus: 0,
+    minus: 5,
+  },
+  // 能源
+  {
+    freq: 54,
+    msg: '能源供应紧张，能源板块涨势惊人！',
+    stock: 5,
+    plus: 2,
+    minus: 0,
+  },
+  {
+    freq: 76,
+    msg: '国际油价暴跌，能源股大跌！',
+    stock: 5,
+    plus: 0,
+    minus: 7,
+  },
+  // 军工
+  {
+    freq: 52,
+    msg: '国防预算上调，军工板块直线拉升！',
+    stock: 6,
+    plus: 2,
+    minus: 0,
+  },
+  {
+    freq: 79,
+    msg: '军工订单延期，军工股遭遇抛售！',
+    stock: 6,
+    plus: 0,
+    minus: 9,
+  },
+  // 医药
+  {
+    freq: 57,
+    msg: '创新药获批，医药股暴涨！',
+    stock: 7,
+    plus: 1.8,
+    minus: 0,
+  },
+  {
+    freq: 82,
+    msg: '行业整顿升级，医药股大跌！',
+    stock: 7,
+    plus: 0,
+    minus: 6,
+  },
+  // 新能源
+  {
+    freq: 53,
+    msg: '新能源补贴加码，板块狂飙！',
+    stock: 8,
+    plus: 2,
+    minus: 0,
+  },
+  {
+    freq: 77,
+    msg: '原材料价格暴涨，新能源股暴跌！',
+    stock: 8,
+    plus: 0,
+    minus: 8,
+  },
+  // 物流
+  {
+    freq: 59,
+    msg: '电商旺季来临，物流股走强！',
+    stock: 9,
+    plus: 1.6,
+    minus: 0,
+  },
+  {
+    freq: 81,
+    msg: '运力过剩，物流板块回调！',
+    stock: 9,
+    plus: 0,
+    minus: 5,
   },
 ];
 

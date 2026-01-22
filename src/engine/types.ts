@@ -19,6 +19,40 @@ export interface DrugInfo {
   maxPrice: number;     // Maximum market price (exclusive upper bound - actual max is maxPrice-1)
 }
 
+export interface StockHolding {
+  id: number;
+  shares: number;
+  avgPrice: number;
+}
+
+export interface StockInfo {
+  id: number;
+  name: string;         // Chinese name
+  startMin: number;     // Initial price range min
+  startMax: number;     // Initial price range max
+  minPrice: number;     // Hard minimum clamp
+  maxPrice: number;     // Hard maximum clamp
+  dailyVolatility: number; // Daily noise range (0-1)
+  jumpChance: number;      // Chance of jump (0-1)
+  jumpMin: number;         // Jump magnitude min (0-1)
+  jumpMax: number;         // Jump magnitude max (0-1)
+}
+
+export interface StockCandle {
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
+
+export interface StockEvent {
+  freq: number;         // Frequency weight
+  msg: string;          // Event message (Chinese)
+  stock: number;        // Affected stock ID (0-9)
+  plus: number;         // Price multiplier (0 if not used)
+  minus: number;        // Price divisor (0 if not used)
+}
+
 // The 8 tradeable goods
 export const DRUGS: DrugInfo[] = [
   { id: 0, name: '二手古玩', minPrice: 100, maxPrice: 450 },
@@ -29,6 +63,130 @@ export const DRUGS: DrugInfo[] = [
   { id: 5, name: '进口玩具', minPrice: 250, maxPrice: 850 },
   { id: 6, name: '越南翡翠手镯', minPrice: 750, maxPrice: 1500 },
   { id: 7, name: '印度神油', minPrice: 65, maxPrice: 245 },
+];
+
+// The 10 stock tickers
+export const STOCKS: StockInfo[] = [
+  {
+    id: 0,
+    name: '中关村',
+    startMin: 1000,
+    startMax: 5000,
+    minPrice: 300,
+    maxPrice: 80000,
+    dailyVolatility: 0.12,
+    jumpChance: 0.08,
+    jumpMin: 0.3,
+    jumpMax: 1.2,
+  },
+  {
+    id: 1,
+    name: '深鸿基',
+    startMin: 800,
+    startMax: 4000,
+    minPrice: 250,
+    maxPrice: 60000,
+    dailyVolatility: 0.11,
+    jumpChance: 0.08,
+    jumpMin: 0.25,
+    jumpMax: 0.9,
+  },
+  {
+    id: 2,
+    name: '万科地产',
+    startMin: 1200,
+    startMax: 6000,
+    minPrice: 400,
+    maxPrice: 90000,
+    dailyVolatility: 0.13,
+    jumpChance: 0.08,
+    jumpMin: 0.3,
+    jumpMax: 1.2,
+  },
+  {
+    id: 3,
+    name: '广发证券',
+    startMin: 1500,
+    startMax: 7000,
+    minPrice: 500,
+    maxPrice: 100000,
+    dailyVolatility: 0.12,
+    jumpChance: 0.08,
+    jumpMin: 0.3,
+    jumpMax: 1.2,
+  },
+  {
+    id: 4,
+    name: '贵州茅台',
+    startMin: 600,
+    startMax: 3000,
+    minPrice: 200,
+    maxPrice: 50000,
+    dailyVolatility: 0.1,
+    jumpChance: 0.08,
+    jumpMin: 0.2,
+    jumpMax: 0.8,
+  },
+  {
+    id: 5,
+    name: '中国石油',
+    startMin: 900,
+    startMax: 4500,
+    minPrice: 300,
+    maxPrice: 70000,
+    dailyVolatility: 0.11,
+    jumpChance: 0.08,
+    jumpMin: 0.25,
+    jumpMax: 0.9,
+  },
+  {
+    id: 6,
+    name: '航天动力',
+    startMin: 1200,
+    startMax: 5500,
+    minPrice: 400,
+    maxPrice: 85000,
+    dailyVolatility: 0.13,
+    jumpChance: 0.09,
+    jumpMin: 0.35,
+    jumpMax: 1.2,
+  },
+  {
+    id: 7,
+    name: '上海医药',
+    startMin: 900,
+    startMax: 4800,
+    minPrice: 300,
+    maxPrice: 75000,
+    dailyVolatility: 0.11,
+    jumpChance: 0.08,
+    jumpMin: 0.3,
+    jumpMax: 1.0,
+  },
+  {
+    id: 8,
+    name: '华润电力',
+    startMin: 1100,
+    startMax: 5200,
+    minPrice: 350,
+    maxPrice: 90000,
+    dailyVolatility: 0.14,
+    jumpChance: 0.09,
+    jumpMin: 0.35,
+    jumpMax: 1.2,
+  },
+  {
+    id: 9,
+    name: '厦门象屿',
+    startMin: 700,
+    startMax: 3800,
+    minPrice: 250,
+    maxPrice: 65000,
+    dailyVolatility: 0.1,
+    jumpChance: 0.08,
+    jumpMin: 0.25,
+    jumpMax: 0.9,
+  },
 ];
 
 // ============================================================================
@@ -114,7 +272,7 @@ export interface TheftEvent {
  * Game Event Result (returned after location change)
  */
 export interface GameEvent {
-  type: 'commercial' | 'health' | 'theft' | 'debt_penalty' | 'auto_hospital' | 'game_over';
+  type: 'commercial' | 'health' | 'theft' | 'stock' | 'debt_penalty' | 'auto_hospital' | 'game_over';
   message: string;
   sound?: string;
   data?: any;           // Additional event-specific data
@@ -146,6 +304,11 @@ export interface GameState {
 
   // Market
   marketPrices: number[]; // Current prices for 8 drugs (m_DrugPrice[8])
+
+  // Stocks
+  stockPrices: number[];     // Current prices for stocks
+  stockHoldings: StockHolding[]; // Owned stock positions
+  stockHistory: StockCandle[][];  // Recent price history per stock
 
   // Flags & Counters
   soundEnabled: boolean;
@@ -207,6 +370,8 @@ export const GAME_CONSTANTS = {
   SUBWAY_TRAVEL_COST_BEIJING: 2,
   SUBWAY_TRAVEL_COST_SHANGHAI: 5,
   FLIGHT_TRAVEL_COST: 500,
+  STOCK_TRADE_FEE_RATE: 0.005,
+  STOCK_HISTORY_LENGTH: 25,
 
   // Auto-hospitalization
   AUTO_HOSPITAL_HEALTH_THRESHOLD: 85,
