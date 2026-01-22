@@ -64,7 +64,6 @@ export class AudioManager {
     { id: 'sell', file: 'money.wav', priority: 'critical' },
     { id: 'door_open', file: 'opendoor.wav', priority: 'critical' },
     { id: 'door_close', file: 'shutdoor.wav', priority: 'critical' },
-    { id: 'click', file: 'click.wav', priority: 'critical' },
     { id: 'death', file: 'death.wav', priority: 'critical' },
     { id: 'kill', file: 'kill.wav', priority: 'critical' },
     { id: 'flight', file: 'flight.wav', priority: 'critical' },
@@ -119,7 +118,7 @@ export class AudioManager {
 
     for (const config of criticalSounds) {
       try {
-        await sound.add(config.id, `/assets/sound/${config.file}`);
+        await sound.add(config.id, `${import.meta.env.BASE_URL}assets/sound/${config.file}`);
         this.loaded.add(config.id);
         console.log(`Loaded critical sound: ${config.id}`);
       } catch (error) {
@@ -136,7 +135,7 @@ export class AudioManager {
 
     for (const config of secondarySounds) {
       try {
-        await sound.add(config.id, `/assets/sound/${config.file}`);
+        await sound.add(config.id, `${import.meta.env.BASE_URL}assets/sound/${config.file}`);
         this.loaded.add(config.id);
         console.log(`Loaded secondary sound: ${config.id}`);
       } catch (error) {

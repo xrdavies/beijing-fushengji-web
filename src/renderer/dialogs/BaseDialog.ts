@@ -163,7 +163,6 @@ export abstract class BaseDialog extends Container {
     if (this.doorSoundsEnabled) {
       audioManager.play('door_open');
     }
-
     // Add keyboard listener when dialog opens
     if (this.escapeKeyHandler) {
       window.addEventListener('keydown', this.escapeKeyHandler);
