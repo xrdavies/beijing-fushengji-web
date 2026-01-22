@@ -4,6 +4,7 @@ export type ScoreRecord = {
   cash: number;
   bank: number;
   debt: number;
+  stockValue?: number;
   health: number;
   fame: number;
   timestamp: number;
@@ -13,6 +14,11 @@ export type ScoreSubmission = Omit<ScoreRecord, 'timestamp'>;
 
 export type LeaderboardResponse = {
   items: ScoreRecord[];
+};
+
+export type ScoreSubmissionResult = {
+  record: ScoreRecord;
+  stored: boolean;
 };
 
 const LEADERBOARD_API_BASE = 'https://rank-api.beijingfushengji.xyz';
@@ -25,7 +31,7 @@ async function parseJson<T>(response: Response): Promise<T | null> {
   }
 }
 
-export async function submitScore(payload: ScoreSubmission): Promise<ScoreRecord | null> {
+export async function submitScore(payload: ScoreSubmission): Promise<ScoreSubmissionResult | null> {
   try {
     const response = await fetch(`${LEADERBOARD_API_BASE}/api/score`, {
       method: 'POST',
@@ -35,10 +41,10 @@ export async function submitScore(payload: ScoreSubmission): Promise<ScoreRecord
 
     if (!response.ok) return null;
 
-    const data = await parseJson<{ ok: boolean; record?: ScoreRecord }>(response);
+    const data = await parseJson<{ ok: boolean; record?: ScoreRecord; stored?: boolean }>(response);
     if (!data?.ok || !data.record) return null;
 
-    return data.record;
+    return { record: data.record, stored: data.stored ?? false };
   } catch {
     return null;
   }

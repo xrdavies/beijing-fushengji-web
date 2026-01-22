@@ -8,6 +8,7 @@ type ScoreRecord = {
   cash: number;
   bank: number;
   debt: number;
+  stockValue?: number;
   health: number;
   fame: number;
   timestamp: number;
@@ -137,6 +138,7 @@ function recordFromMetadata(metadata: unknown): ScoreRecord | null {
     cash: meta.cash,
     bank: meta.bank,
     debt: meta.debt,
+    stockValue: typeof meta.stockValue === 'number' ? meta.stockValue : undefined,
     health: meta.health,
     fame: meta.fame,
     timestamp: meta.timestamp,
@@ -180,13 +182,15 @@ async function handleSubmitScore(request: Request, env: Env, origin: string | nu
   const cash = parseNumber(body.cash);
   const bank = parseNumber(body.bank);
   const debt = parseNumber(body.debt);
+  const stockValue = parseNumber(body.stockValue);
   const health = parseNumber(body.health);
   const fame = parseNumber(body.fame);
   if ([cash, bank, debt, health, fame].some((value) => value === null)) {
     return errorResponse('invalid_score_fields', 400, origin);
   }
 
-  const totalWealth = (cash as number) + (bank as number) - (debt as number);
+  const stockExtra = stockValue === null ? 0 : stockValue;
+  const totalWealth = (cash as number) + (bank as number) - (debt as number) + stockExtra;
   const timestamp = Date.now();
   const record: ScoreRecord = {
     playerName,
@@ -194,6 +198,7 @@ async function handleSubmitScore(request: Request, env: Env, origin: string | nu
     cash: cash as number,
     bank: bank as number,
     debt: debt as number,
+    stockValue: stockValue === null ? undefined : stockValue,
     health: health as number,
     fame: fame as number,
     timestamp,

@@ -8,9 +8,10 @@
  * - Location changes and event triggering
  */
 
-import type { GameState, GameEvent, Location, Result } from './types';
-import { DRUGS, GAME_CONSTANTS, Ok, Err } from './types';
+import type { GameState, GameEvent, Location, Result, StockCandle } from './types';
+import { DRUGS, GAME_CONSTANTS, STOCKS, Ok, Err } from './types';
 import { priceGenerator } from './PriceGenerator';
+import { stockPriceGenerator } from './StockPriceGenerator';
 import { eventSystem } from './EventSystem';
 
 export class GameEngine {
@@ -116,19 +117,97 @@ export class GameEngine {
   }
 
   /**
+   * Buy stock shares
+   */
+  buyStock(state: GameState, stockId: number, shares: number): Result<void> {
+    if (stockId < 0 || stockId >= STOCKS.length) {
+      return Err('无效的股票ID');
+    }
+
+    if (shares <= 0) {
+      return Err('购买数量必须大于0');
+    }
+
+    const price = state.stockPrices[stockId];
+    if (!price || price <= 0) {
+      return Err('该股票暂不可交易');
+    }
+
+    const totalCost = price * shares;
+    const fee = Math.ceil(totalCost * GAME_CONSTANTS.STOCK_TRADE_FEE_RATE);
+    const totalWithFee = totalCost + fee;
+
+    if (state.cash < totalWithFee) {
+      return Err(`现金不足！需要¥${totalWithFee.toLocaleString('zh-CN')}`);
+    }
+
+    state.cash -= totalWithFee;
+
+    const holding = state.stockHoldings[stockId];
+    const oldShares = holding.shares;
+    const newShares = oldShares + shares;
+    holding.avgPrice = Math.floor(
+      (holding.avgPrice * oldShares + price * shares) / newShares
+    );
+    holding.shares = newShares;
+
+    return Ok(undefined);
+  }
+
+  /**
+   * Sell stock shares
+   */
+  sellStock(state: GameState, stockId: number, shares: number): Result<void> {
+    if (stockId < 0 || stockId >= STOCKS.length) {
+      return Err('无效的股票ID');
+    }
+
+    if (shares <= 0) {
+      return Err('出售数量必须大于0');
+    }
+
+    const holding = state.stockHoldings[stockId];
+    if (!holding || holding.shares <= 0) {
+      return Err('你没有这只股票');
+    }
+
+    if (shares > holding.shares) {
+      return Err(`你只有${holding.shares}股${STOCKS[stockId].name}`);
+    }
+
+    const price = state.stockPrices[stockId];
+    if (!price || price <= 0) {
+      return Err('该股票暂不可交易');
+    }
+
+    const revenue = price * shares;
+    const fee = Math.ceil(revenue * GAME_CONSTANTS.STOCK_TRADE_FEE_RATE);
+    state.cash += Math.max(0, revenue - fee);
+    holding.shares -= shares;
+
+    if (holding.shares === 0) {
+      holding.avgPrice = 0;
+    }
+
+    return Ok(undefined);
+  }
+
+  /**
    * Change location - triggers the core game loop
    *
    * This is the main game loop that executes on each location change:
    * 1. Generate new market prices
-   * 2. Update finances (debt/bank interest)
-   * 3. Trigger commercial events
-   * 4. Trigger health events
-   * 5. Trigger theft events
-   * 6. Check debt penalty
-   * 7. Update location and decrement time
-   * 8. Check game over (time ran out)
-   * 9. Check game over (health depleted)
-   * 10. Check end game warning (ensure it is shown first)
+   * 2. Generate new stock prices
+   * 3. Update finances (debt/bank interest)
+   * 4. Trigger commercial events
+   * 5. Trigger stock events
+   * 6. Trigger health events
+   * 7. Trigger theft events
+   * 8. Check debt penalty
+   * 9. Update location and decrement time
+   * 10. Check game over (time ran out)
+   * 11. Check game over (health depleted)
+   * 12. Check end game warning (ensure it is shown first)
    */
   changeLocation(state: GameState, newLocation: Location): GameEvent[] {
     const events: GameEvent[] = [];
@@ -141,51 +220,68 @@ export class GameEngine {
 
     state.marketPrices = priceGenerator.generatePrices(leaveout);
 
-    // 2. Update finances
+    // 2. Generate new stock prices
+    if (!Array.isArray(state.stockPrices) || state.stockPrices.length === 0) {
+      state.stockPrices = stockPriceGenerator.generateInitialPrices();
+    }
+    state.stockPrices = stockPriceGenerator.generateNextPrices(state.stockPrices);
+
+    // 3. Update finances
     this.handleCashAndDebt(state);
 
-    // 3. Trigger commercial events (0-3 events)
+    // 4. Trigger commercial events (0-3 events)
     const commercialEvents = eventSystem.triggerCommercialEvents(state);
     events.push(...commercialEvents);
 
-    // 4. Trigger health events (0-1 event)
+    // 5. Trigger stock events (0-1 event)
+    const stockEvents = eventSystem.triggerStockEvents(state);
+    events.push(...stockEvents);
+    this.recordStockHistory(state);
+
+    // 6. Trigger health events (0-1 event)
     const healthEvents = eventSystem.triggerHealthEvents(state);
     events.push(...healthEvents);
 
-    // 5. Trigger theft events (0-1 event)
+    // 7. Trigger theft events (0-1 event)
     const theftEvents = eventSystem.triggerTheftEvents(state);
     events.push(...theftEvents);
 
-    // 6. Check debt penalty
+    // 8. Check debt penalty
     const debtPenalty = eventSystem.checkDebtPenalty(state);
     if (debtPenalty) {
       events.push(debtPenalty);
     }
 
-    // 7. Update location and decrement time
+    // 9. Update location and decrement time
     state.currentLocation = newLocation;
     state.city = newLocation.city;
     state.timeLeft--;
 
-    // 8. Check if game over (time ran out)
+    // 10. Check if game over (time ran out)
     // CRITICAL: Use <= 0 to catch negative values (in case of bugs)
     if (state.timeLeft <= 0) {
       // Auto-liquidate all inventory at current market prices
       const cashBefore = state.cash;
-      this.forceSellAllItems(state);
+      const itemRevenue = this.forceSellAllItems(state);
+      const stockRevenue = this.forceLiquidateStocks(state);
       const liquidationRevenue = state.cash - cashBefore;
 
       // Return game over event with liquidation info
       events.push({
         type: 'game_over',
-        message: `40天已到！\n自动卖出所有商品，获得¥${liquidationRevenue.toLocaleString('zh-CN')}`,
-        data: { liquidationRevenue, finalScore: this.calculateScore(state) },
+        message: `40天已到！\n自动卖出所有商品与股票，获得¥${liquidationRevenue.toLocaleString('zh-CN')}`,
+        data: {
+          liquidationRevenue,
+          itemRevenue,
+          stockRevenue,
+          finalScore: this.calculateScore(state),
+        },
       });
 
       return events;
     }
 
-    // 9. Check if game over (health depleted)
+    // 11. Check if game over (health depleted)
     if (state.health <= 0) {
       events.push({
         type: 'game_over',
@@ -196,7 +292,7 @@ export class GameEngine {
       return events;
     }
 
-    // 10. Check end game warning (ensure it is shown first)
+    // 12. Check end game warning (ensure it is shown first)
     const endGameWarning = eventSystem.getEndGameWarning(state);
     if (endGameWarning) {
       const warningEvent: GameEvent = {
@@ -412,30 +508,98 @@ export class GameEngine {
 
   /**
    * Calculate final score
-   * Score = Cash + Bank - Debt
+   * Score = Cash + Bank + StockValue - Debt
    */
   calculateScore(state: GameState): number {
-    return state.cash + state.bank - state.debt;
+    return state.cash + state.bank + this.calculateStockValue(state) - state.debt;
+  }
+
+  /**
+   * Calculate total stock value at current prices
+   */
+  calculateStockValue(state: GameState): number {
+    if (!Array.isArray(state.stockPrices) || !Array.isArray(state.stockHoldings)) {
+      return 0;
+    }
+
+    return state.stockHoldings.reduce((sum, holding) => {
+      const price = state.stockPrices[holding.id] ?? 0;
+      return sum + price * holding.shares;
+    }, 0);
+  }
+
+  private recordStockHistory(state: GameState): void {
+    if (!Array.isArray(state.stockHistory)) {
+      state.stockHistory = state.stockPrices.map((price) => [
+        { open: price, high: price, low: price, close: price },
+      ]);
+      return;
+    }
+
+    for (let i = 0; i < state.stockPrices.length; i++) {
+      const history = Array.isArray(state.stockHistory[i])
+        ? state.stockHistory[i]
+        : [];
+      const previous = history.length > 0 ? history[history.length - 1] : null;
+      const open =
+        previous && typeof previous === 'object' && 'close' in previous
+          ? (previous as StockCandle).close
+          : state.stockPrices[i];
+      const close = state.stockPrices[i];
+
+      history.push(stockPriceGenerator.buildCandle(i, open, close));
+      if (history.length > GAME_CONSTANTS.STOCK_HISTORY_LENGTH) {
+        history.splice(0, history.length - GAME_CONSTANTS.STOCK_HISTORY_LENGTH);
+      }
+      state.stockHistory[i] = history;
+    }
   }
 
   /**
    * Force sell all inventory (end game liquidation)
    */
-  forceSellAllItems(state: GameState): void {
+  forceSellAllItems(state: GameState): number {
     // Make all items available for selling
     state.marketPrices = priceGenerator.generatePrices(0);
 
     // Sell everything
+    let revenue = 0;
     for (let i = 0; i < 8; i++) {
       const item = state.inventory[i];
       if (item.quantity > 0 && state.marketPrices[i] > 0) {
-        const revenue = state.marketPrices[i] * item.quantity;
-        state.cash += revenue;
+        const itemRevenue = state.marketPrices[i] * item.quantity;
+        state.cash += itemRevenue;
+        revenue += itemRevenue;
         item.quantity = 0;
         item.id = -1;
         item.avgPrice = 0;
       }
     }
+
+    return revenue;
+  }
+
+  /**
+   * Liquidate all stock holdings at current prices
+   */
+  forceLiquidateStocks(state: GameState): number {
+    if (!Array.isArray(state.stockHoldings) || !Array.isArray(state.stockPrices)) {
+      return 0;
+    }
+
+    let revenue = 0;
+    for (const holding of state.stockHoldings) {
+      if (holding.shares > 0) {
+        const price = state.stockPrices[holding.id] ?? 0;
+        const stockRevenue = price * holding.shares;
+        state.cash += stockRevenue;
+        revenue += stockRevenue;
+        holding.shares = 0;
+        holding.avgPrice = 0;
+      }
+    }
+
+    return revenue;
   }
 
   /**

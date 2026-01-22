@@ -16,6 +16,7 @@ export type SoundId =
   | 'sell'
   | 'door_open'
   | 'door_close'
+  | 'click'
   | 'death'
   | 'kill'
   | 'airport'
@@ -62,6 +63,7 @@ export class AudioManager {
     { id: 'sell', file: 'money.wav', priority: 'critical' },
     { id: 'door_open', file: 'opendoor.wav', priority: 'critical' },
     { id: 'door_close', file: 'shutdoor.wav', priority: 'critical' },
+    { id: 'click', file: 'click.wav', priority: 'critical' },
     { id: 'death', file: 'death.wav', priority: 'critical' },
     { id: 'kill', file: 'kill.wav', priority: 'critical' },
     { id: 'airport', file: 'Airport.wav', priority: 'critical' },

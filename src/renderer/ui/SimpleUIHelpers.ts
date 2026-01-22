@@ -51,6 +51,7 @@ export function createButton(
 export class SimpleSlider extends Container {
   private bg: Graphics;
   private handle: Graphics;
+  private readonly handleRadius: number = 18;
   private minValue: number;
   private maxValue: number;
   private currentValue: number;
@@ -77,7 +78,7 @@ export class SimpleSlider extends Container {
 
     // Handle - increased to 18px radius for better touch
     this.handle = new Graphics();
-    this.handle.circle(0, 0, 18);
+    this.handle.circle(0, 0, this.handleRadius);
     this.handle.fill(0x3a7bc8);
     this.handle.y = 18;
     this.handle.eventMode = 'static';
@@ -90,8 +91,11 @@ export class SimpleSlider extends Container {
 
   private setupInteraction(): void {
     const updateFromGlobal = (globalX: number) => {
-      const clampedX = Math.max(0, Math.min(globalX, this.sliderWidth));
-      const ratio = clampedX / this.sliderWidth;
+      const usableWidth = this.sliderWidth - this.handleRadius * 2;
+      const minX = this.handleRadius;
+      const maxX = this.sliderWidth - this.handleRadius;
+      const clampedX = Math.max(minX, Math.min(globalX, maxX));
+      const ratio = usableWidth > 0 ? (clampedX - minX) / usableWidth : 0;
       this.currentValue = this.minValue + ratio * (this.maxValue - this.minValue);
       this.updateHandlePosition();
       if (this.onChange) {
@@ -126,7 +130,8 @@ export class SimpleSlider extends Container {
   private updateHandlePosition(): void {
     const range = this.maxValue - this.minValue;
     const ratio = range <= 0 ? 0 : (this.currentValue - this.minValue) / range;
-    this.handle.x = ratio * this.sliderWidth;
+    const usableWidth = this.sliderWidth - this.handleRadius * 2;
+    this.handle.x = this.handleRadius + ratio * Math.max(0, usableWidth);
   }
 
   public setValue(value: number): void {

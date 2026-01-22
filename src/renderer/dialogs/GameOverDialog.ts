@@ -24,6 +24,7 @@ export class GameOverDialog extends BaseDialog {
 
   private finalScore: number = 0;
   private onShowLeaderboard?: () => void;
+  private onRecordNews?: (message: string) => void;
 
   constructor() {
     super(500, 500, '游戏结束');
@@ -32,6 +33,10 @@ export class GameOverDialog extends BaseDialog {
 
   setLeaderboardHandler(handler: () => void): void {
     this.onShowLeaderboard = handler;
+  }
+
+  setRecordNewsHandler(handler: (message: string) => void): void {
+    this.onRecordNews = handler;
   }
 
   /**
@@ -182,15 +187,17 @@ export class GameOverDialog extends BaseDialog {
    */
   openWithScore(): void {
     const state = gameStateManager.getState();
+    const stockValue = gameStateManager.calculateStockValue();
 
-    // Calculate final score: cash + bank - debt
-    this.finalScore = state.cash + state.bank - state.debt;
+    // Calculate final score: cash + bank + stocks - debt
+    this.finalScore = gameStateManager.calculateScore();
 
     trackEvent('game_over', {
       score: this.finalScore,
       cash: state.cash,
       bank: state.bank,
       debt: state.debt,
+      stock_value: stockValue,
       time_left: state.timeLeft,
       city: state.city,
     });
@@ -202,6 +209,7 @@ export class GameOverDialog extends BaseDialog {
     const breakdown = [
       `现金: ¥${state.cash.toLocaleString('zh-CN')}`,
       `存款: ¥${state.bank.toLocaleString('zh-CN')}`,
+      `股票: ¥${stockValue.toLocaleString('zh-CN')}`,
       `债务: -¥${state.debt.toLocaleString('zh-CN')}`,
     ];
     this.assetsText.text = breakdown.join('\n');
@@ -237,18 +245,25 @@ export class GameOverDialog extends BaseDialog {
 
   private async submitFinalScore(state: GameState): Promise<void> {
     const playerName = state.playerName?.trim() || '无名小卒';
-    const record = await submitScore({
+    const stockValue = gameStateManager.calculateStockValue();
+    const result = await submitScore({
       playerName,
       totalWealth: this.finalScore,
       cash: state.cash,
       bank: state.bank,
       debt: state.debt,
+      stockValue,
       health: state.health,
       fame: state.fame,
     });
 
-    if (record) {
-      trackEvent('score_submitted', { total_wealth: record.totalWealth });
+    if (result?.record) {
+      trackEvent('score_submitted', { total_wealth: result.record.totalWealth });
+      if (result.stored && this.onRecordNews) {
+        this.onRecordNews(
+          `富人榜快讯：${result.record.playerName} 资产¥${result.record.totalWealth.toLocaleString('zh-CN')}`
+        );
+      }
     } else {
       trackEvent('score_submit_failed', { reason: 'network' });
     }
