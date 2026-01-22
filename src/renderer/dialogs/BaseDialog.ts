@@ -10,6 +10,7 @@
 
 import { Container, Graphics, Text } from 'pixi.js';
 import { FancyButton } from '@pixi/ui';
+import { audioManager } from '@audio/AudioManager';
 
 export abstract class BaseDialog extends Container {
   protected background!: Graphics;
@@ -18,6 +19,7 @@ export abstract class BaseDialog extends Container {
   protected closeButton!: FancyButton;
   protected dialogWidth: number;
   protected dialogHeight: number;
+  protected doorSoundsEnabled: boolean = false;
 
   private escapeKeyHandler?: (event: KeyboardEvent) => void;
 
@@ -158,6 +160,10 @@ export abstract class BaseDialog extends Container {
     this.alpha = 0;
     this.scale.set(0.9);
 
+    if (this.doorSoundsEnabled) {
+      audioManager.play('door_open');
+    }
+
     // Add keyboard listener when dialog opens
     if (this.escapeKeyHandler) {
       window.addEventListener('keydown', this.escapeKeyHandler);
@@ -173,6 +179,10 @@ export abstract class BaseDialog extends Container {
    * Hide dialog with animation
    */
   hide(): void {
+    if (this.doorSoundsEnabled) {
+      audioManager.play('door_close');
+    }
+
     // Fade out animation
     this.animateOut(() => {
       this.visible = false;

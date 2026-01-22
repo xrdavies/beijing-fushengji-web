@@ -19,12 +19,15 @@ export class HouseDialog extends BaseDialog {
   private newCapacityText!: Text;
   private costText!: Text;
   private confirmButton!: Container;
+  private confirmButtonText: Text | null = null;
+  private readonly confirmButtonLabel: string = '租一间';
 
   private currentCapacity: number = 0;
   private upgradeCost: number = 0;
 
   constructor() {
     super(500, 400, '假中介');
+    this.doorSoundsEnabled = true;
     this.createHouseDialogUI();
   }
 
@@ -117,10 +120,13 @@ export class HouseDialog extends BaseDialog {
     currentY += 70;
 
     // Buttons
-    this.confirmButton = createButton('租用房屋', 120, 40, 0x00aa00, () => this.handleConfirm());
+    this.confirmButton = createButton(this.confirmButtonLabel, 120, 40, 0x00aa00, () => this.handleConfirm());
     this.confirmButton.x = contentX + 80;
     this.confirmButton.y = currentY;
     this.addChild(this.confirmButton);
+    this.confirmButtonText = this.confirmButton.children.find(
+      (child) => child instanceof Text
+    ) as Text | undefined || null;
 
     const cancelButton = createButton('取消', 120, 40, 0x666666, () => this.hide());
     cancelButton.x = contentX + 230;
@@ -179,7 +185,7 @@ export class HouseDialog extends BaseDialog {
       this.costText.text = `¥${this.upgradeCost.toLocaleString('zh-CN')}`;
       this.costText.style.fill = canAfford ? 0x00ff00 : 0xff4444;
     }
-    this.updateConfirmButtonState(!isMaxCapacity && canAfford);
+    this.updateConfirmButtonState(isMaxCapacity, canAfford);
 
     this.show();
   }
@@ -199,9 +205,24 @@ export class HouseDialog extends BaseDialog {
     return Math.floor(cash / 2) - 2000;
   }
 
-  private updateConfirmButtonState(enabled: boolean): void {
+  private updateConfirmButtonState(isMaxCapacity: boolean, canAfford: boolean): void {
+    let enabled = true;
+    let label = this.confirmButtonLabel;
+
+    if (isMaxCapacity) {
+      enabled = false;
+      label = '没有可租';
+    } else if (!canAfford) {
+      enabled = false;
+      label = '钱不够用';
+    }
+
     this.confirmButton.alpha = enabled ? 1 : 0.5;
     this.confirmButton.eventMode = enabled ? 'static' : 'none';
     this.confirmButton.cursor = enabled ? 'pointer' : 'default';
+
+    if (this.confirmButtonText) {
+      this.confirmButtonText.text = label;
+    }
   }
 }

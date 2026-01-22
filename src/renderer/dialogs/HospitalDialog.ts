@@ -24,6 +24,8 @@ export class HospitalDialog extends BaseDialog {
   private totalCostText!: Text;
   private slider!: SimpleSlider;
   private confirmButton!: Container;
+  private confirmButtonText: Text | null = null;
+  private readonly confirmButtonLabel: string = '治一下吧';
 
   private healthPoints: number = 0;
   private maxHealthPoints: number = 0;
@@ -31,6 +33,7 @@ export class HospitalDialog extends BaseDialog {
 
   constructor() {
     super(500, 450, '小诊所');
+    this.doorSoundsEnabled = true;
     this.createHospitalDialogUI();
   }
 
@@ -152,10 +155,13 @@ export class HospitalDialog extends BaseDialog {
     currentY += 60;
 
     // Buttons
-    this.confirmButton = createButton('接受治疗', 120, 40, 0x00aa00, () => this.handleConfirm());
+    this.confirmButton = createButton(this.confirmButtonLabel, 120, 40, 0x00aa00, () => this.handleConfirm());
     this.confirmButton.x = contentX + 80;
     this.confirmButton.y = currentY;
     this.addChild(this.confirmButton);
+    this.confirmButtonText = this.confirmButton.children.find(
+      (child) => child instanceof Text
+    ) as Text | undefined || null;
 
     const cancelButton = createButton('取消', 120, 40, 0x666666, () => this.hide());
     cancelButton.x = contentX + 230;
@@ -248,7 +254,7 @@ export class HospitalDialog extends BaseDialog {
     this.slider.setValue(0);
     this.healthPoints = 0;
     this.updateHealthDisplay();
-    this.updateConfirmButtonState(this.maxHealthPoints > 0);
+    this.updateConfirmButtonState();
 
     this.show();
   }
@@ -261,9 +267,28 @@ export class HospitalDialog extends BaseDialog {
     // Dialog closed
   }
 
-  private updateConfirmButtonState(enabled: boolean): void {
+  private updateConfirmButtonState(): void {
+    const state = gameStateManager.getState();
+    const missingHealth = GAME_CONSTANTS.MAX_HEALTH - state.health;
+    const maxByCash = Math.floor(state.cash / GAME_CONSTANTS.HOSPITAL_COST_PER_HP);
+
+    let enabled = true;
+    let label = this.confirmButtonLabel;
+
+    if (missingHealth <= 0) {
+      enabled = false;
+      label = '你很健康';
+    } else if (maxByCash <= 0) {
+      enabled = false;
+      label = '没钱治';
+    }
+
     this.confirmButton.alpha = enabled ? 1 : 0.5;
     this.confirmButton.eventMode = enabled ? 'static' : 'none';
     this.confirmButton.cursor = enabled ? 'pointer' : 'default';
+
+    if (this.confirmButtonText) {
+      this.confirmButtonText.text = label;
+    }
   }
 }

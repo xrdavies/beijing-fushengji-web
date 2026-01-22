@@ -8,8 +8,9 @@
  * - Simulates random internet browsing activities
  */
 
-import { Text } from 'pixi.js';
+import { Container, Text } from 'pixi.js';
 import { BaseDialog } from './BaseDialog';
+import { audioManager } from '@audio/AudioManager';
 import { GAME_CONSTANTS } from '@engine/types';
 import { gameStateManager } from '@state/GameStateManager';
 import { randomInt } from '@utils/random';
@@ -19,12 +20,19 @@ export class WangbaDialog extends BaseDialog {
   private visitsText!: Text;
   private resultText!: Text;
   private rewardText!: Text;
+  private playButton!: Container;
+  private playButtonText: Text | null = null;
 
   private visits: number = 0;
   private reward: number = 0;
+  private readonly playButtonWidth: number = 170;
+  private readonly playButtonHeight: number = 40;
+  private readonly playButtonLabel: string =
+    `开始上网 (¥${GAME_CONSTANTS.WANGBA_ENTRY_COST.toLocaleString('zh-CN')})`;
 
   constructor() {
     super(500, 400, '黑网吧');
+    this.doorSoundsEnabled = true;
     this.createWangbaDialogUI();
   }
 
@@ -114,10 +122,19 @@ export class WangbaDialog extends BaseDialog {
     currentY += 60;
 
     // Buttons
-    const playButton = createButton(`开始上网 (¥${GAME_CONSTANTS.WANGBA_ENTRY_COST.toLocaleString('zh-CN')})`, 170, 40, 0x3a7bc8, () => this.handlePlay());
-    playButton.x = contentX + 75;
-    playButton.y = currentY;
-    this.addChild(playButton);
+    this.playButton = createButton(
+      this.playButtonLabel,
+      this.playButtonWidth,
+      this.playButtonHeight,
+      0x3a7bc8,
+      () => this.handlePlay()
+    );
+    this.playButton.x = contentX + 75;
+    this.playButton.y = currentY;
+    this.addChild(this.playButton);
+    this.playButtonText = this.playButton.children.find(
+      (child) => child instanceof Text
+    ) as Text | undefined || null;
 
     const closeButton = createButton('离开', 100, 40, 0x666666, () => this.hide());
     closeButton.x = contentX + 250;
@@ -129,6 +146,8 @@ export class WangbaDialog extends BaseDialog {
    * Handle play button - simulate internet activity
    */
   private handlePlay(): void {
+    audioManager.play('keyboard');
+
     // Random activities
     const activities = [
       { text: '你浏览了一些网页，偶然发现了一个红包！', minReward: 50, maxReward: 200 },
@@ -145,7 +164,8 @@ export class WangbaDialog extends BaseDialog {
     const result = gameStateManager.visitWangba(activity.minReward, activity.maxReward);
 
     if (result.success) {
-      this.visits++;
+      const updatedState = gameStateManager.getState();
+      this.visits = updatedState.wangbaVisits;
       this.visitsText.text = this.visits.toString();
       this.resultText.text = activity.text;
       this.reward = result.value;
@@ -156,6 +176,8 @@ export class WangbaDialog extends BaseDialog {
       this.resultText.text = result.error;
       this.rewardText.text = '';
     }
+
+    this.updatePlayButtonState();
   }
 
   /**
@@ -184,6 +206,7 @@ export class WangbaDialog extends BaseDialog {
     this.visitsText.text = this.visits.toString();
     this.resultText.text = '点击"开始上网"按钮试试运气...';
     this.rewardText.text = '';
+    this.updatePlayButtonState();
 
     this.show();
   }
@@ -194,5 +217,31 @@ export class WangbaDialog extends BaseDialog {
 
   protected onClose(): void {
     // Dialog closed
+  }
+
+  private updatePlayButtonState(): void {
+    const state = gameStateManager.getState();
+    const hasVisits = state.wangbaVisits < GAME_CONSTANTS.MAX_WANGBA_VISITS;
+    const hasCash = state.cash >= GAME_CONSTANTS.WANGBA_ENTRY_COST;
+    const enabled = hasVisits && hasCash;
+
+    if (!this.playButton) {
+      return;
+    }
+
+    this.playButton.eventMode = enabled ? 'static' : 'none';
+    this.playButton.cursor = enabled ? 'pointer' : 'default';
+    this.playButton.alpha = enabled ? 1 : 0.55;
+
+    if (this.playButtonText) {
+      if (enabled) {
+        this.playButtonText.text = this.playButtonLabel;
+      } else if (!hasVisits) {
+        this.playButtonText.text = '老板不让进';
+      } else {
+        this.playButtonText.text = '没钱了';
+      }
+      this.playButtonText.x = this.playButtonWidth / 2;
+    }
   }
 }

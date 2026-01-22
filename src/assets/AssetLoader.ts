@@ -162,7 +162,7 @@ export class AssetLoader {
     // - shutdoor.mp3
     // - death.mp3
     // - kill.mp3
-    // - airport.mp3
+    // - flight.mp3
 
     console.log('⚠️  Audio assets not yet converted - will be loaded in Phase 4');
   }
