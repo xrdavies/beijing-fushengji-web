@@ -18,9 +18,10 @@ export type SoundId =
   | 'door_close'
   | 'death'
   | 'kill'
-  | 'airport'
+  | 'flight'
   // Secondary sounds
   | 'breath'
+  | 'click'
   | 'clunk'
   | 'dog'
   | 'drop'
@@ -35,6 +36,7 @@ export type SoundId =
   // Health/combat event sounds
   | 'harley'
   | 'hit'
+  | 'keyboard'
   | 'melee'
   | 'thump'
   | 'ow1'
@@ -64,10 +66,11 @@ export class AudioManager {
     { id: 'door_close', file: 'shutdoor.wav', priority: 'critical' },
     { id: 'death', file: 'death.wav', priority: 'critical' },
     { id: 'kill', file: 'kill.wav', priority: 'critical' },
-    { id: 'airport', file: 'Airport.wav', priority: 'critical' },
+    { id: 'flight', file: 'flight.wav', priority: 'critical' },
 
     // Secondary sounds (load later)
     { id: 'breath', file: 'breath.wav', priority: 'secondary' },
+    { id: 'click', file: 'click.wav', priority: 'secondary' },
     { id: 'clunk', file: 'clunk.wav', priority: 'secondary' },
     { id: 'dog', file: 'dog.wav', priority: 'secondary' },
     { id: 'drop', file: 'drop.wav', priority: 'secondary' },
@@ -83,6 +86,7 @@ export class AudioManager {
     // Health/combat event sounds
     { id: 'harley', file: 'harley.wav', priority: 'secondary' },
     { id: 'hit', file: 'hit.wav', priority: 'secondary' },
+    { id: 'keyboard', file: 'keyboard.wav', priority: 'secondary' },
     { id: 'melee', file: 'melee.wav', priority: 'secondary' },
     { id: 'thump', file: 'thump.wav', priority: 'secondary' },
     { id: 'ow1', file: 'ow1.wav', priority: 'secondary' },

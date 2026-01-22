@@ -23,6 +23,7 @@ import type { GameState } from '@engine/types';
 import { gameStateManager } from '@state/GameStateManager';
 import { gameEngine } from '@engine/GameEngine';
 import { assetLoader } from '@assets/AssetLoader';
+import { audioManager } from '@audio/AudioManager';
 
 // Import all dialogs
 import { BuyDialog } from '../dialogs/BuyDialog';
@@ -187,6 +188,7 @@ export class MainGameScene extends Container {
     }
 
     settingsButton.onPress.connect(() => {
+      audioManager.play('click');
       this.settingsDialog.open();
     });
   }
@@ -212,6 +214,7 @@ export class MainGameScene extends Container {
 
     // Set click handler - Open BuyDialog
     this.marketList.setOnItemClick((drugId) => {
+      audioManager.play('click');
       this.buyDialog.openForDrug(drugId);
     });
   }
@@ -227,6 +230,7 @@ export class MainGameScene extends Container {
 
     // Set click handler - Open SellDialog
     this.inventoryList.setOnItemClick((drugId) => {
+      audioManager.play('click');
       this.sellDialog.openForDrug(drugId);
     });
   }

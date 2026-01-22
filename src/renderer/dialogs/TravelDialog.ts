@@ -316,9 +316,9 @@ export class TravelDialog extends BaseDialog {
       return;
     }
 
-    // Check if traveling across cities (requires airplane sound)
+    // Check if traveling across cities (requires flight sound)
     if (location.city !== state.city) {
-      audioManager.play('airport');
+      audioManager.play('flight');
     }
 
     // Close travel dialog

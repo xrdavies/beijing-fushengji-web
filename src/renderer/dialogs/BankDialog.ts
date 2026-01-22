@@ -11,6 +11,7 @@
 
 import { Container, Graphics, Text, type TextStyleOptions } from 'pixi.js';
 import { BaseDialog } from './BaseDialog';
+import { audioManager } from '@audio/AudioManager';
 import { gameStateManager } from '@state/GameStateManager';
 import { GAME_CONSTANTS } from '@engine/types';
 import { createButton, SimpleSlider } from '../ui/SimpleUIHelpers';
@@ -33,6 +34,8 @@ export class BankDialog extends BaseDialog {
   private debtText!: Text;
   private amountText!: Text;
   private slider!: SimpleSlider;
+  private confirmButton!: Container;
+  private confirmButtonText: Text | null = null;
 
   private currentAmount: number = 0;
   private maxAmount: number = 0;
@@ -158,10 +161,15 @@ export class BankDialog extends BaseDialog {
     currentY += 80;
 
     // Buttons
-    const confirmButton = createButton('确认', 120, 40, 0x00aa00, () => this.handleConfirm());
-    confirmButton.x = contentX + 80;
-    confirmButton.y = currentY;
-    this.addChild(confirmButton);
+    this.confirmButton = createButton('确认', 120, 40, 0x00aa00, () => this.handleConfirm());
+    this.confirmButton.x = contentX + 80;
+    this.confirmButton.y = currentY;
+    this.addChild(this.confirmButton);
+
+    this.confirmButtonText = this.confirmButton.children.find(
+      (child) => child instanceof Text
+    ) as Text | undefined || null;
+    this.updateConfirmButtonLabel();
 
     const cancelButton = createButton('取消', 120, 40, 0x666666, () => this.hide());
     cancelButton.x = contentX + 230;
@@ -233,6 +241,7 @@ export class BankDialog extends BaseDialog {
   private switchMode(mode: 'deposit' | 'withdraw' | 'repay'): void {
     this.mode = mode;
     this.updateTabStyles();
+    this.updateConfirmButtonLabel();
     this.updateMaxAmount();
     this.slider.setValue(0);
     this.currentAmount = 0;
@@ -283,6 +292,7 @@ export class BankDialog extends BaseDialog {
     }
 
     if (result && result.success) {
+      audioManager.play('sell');
       this.hide();
     } else if (result) {
       console.error(`Bank transaction failed: ${result.error}`);
@@ -315,6 +325,7 @@ export class BankDialog extends BaseDialog {
 
     this.mode = 'deposit';
     this.updateTabStyles();
+    this.updateConfirmButtonLabel();
     this.updateMaxAmount();
     this.slider.setValue(0);
     this.currentAmount = 0;
@@ -358,6 +369,20 @@ export class BankDialog extends BaseDialog {
       this.repayTabBg.roundRect(0, 0, tabWidth, tabHeight, 6);
       this.repayTabBg.fill(this.mode === 'repay' ? activeColor : inactiveColor);
       this.repayTabText.style.fill = this.mode === 'repay' ? activeText : inactiveText;
+    }
+  }
+
+  private updateConfirmButtonLabel(): void {
+    if (!this.confirmButtonText) {
+      return;
+    }
+
+    if (this.mode === 'deposit') {
+      this.confirmButtonText.text = '确认存款';
+    } else if (this.mode === 'withdraw') {
+      this.confirmButtonText.text = '确认取款';
+    } else {
+      this.confirmButtonText.text = '确认还债';
     }
   }
 }
