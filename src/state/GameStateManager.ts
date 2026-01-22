@@ -10,11 +10,12 @@
  * - Auto-save on state changes
  */
 
-import type { GameEvent, GameState, Location } from '@engine/types';
-import { BEIJING_LOCATIONS, DRUGS, GAME_CONSTANTS } from '@engine/types';
+import type { GameEvent, GameState, Location, StockCandle } from '@engine/types';
+import { BEIJING_LOCATIONS, DRUGS, GAME_CONSTANTS, STOCKS } from '@engine/types';
 import { gameEngine } from '@engine/GameEngine';
 import { audioManager } from '@audio/AudioManager';
 import { priceGenerator } from '@engine/PriceGenerator';
+import { stockPriceGenerator } from '@engine/StockPriceGenerator';
 import { trackEvent } from '@utils/analytics';
 
 type StateListener = (state: GameState) => void;
@@ -42,6 +43,9 @@ export class GameStateManager {
   private createInitialState(): GameState {
     const startingLocation =
       BEIJING_LOCATIONS[Math.floor(Math.random() * BEIJING_LOCATIONS.length)];
+
+    const initialStockState =
+      stockPriceGenerator.generateInitialHistory(GAME_CONSTANTS.STOCK_HISTORY_LENGTH);
 
     return {
       // Financial
@@ -72,11 +76,64 @@ export class GameStateManager {
       // Market (generate initial prices - normal leaveout of 3)
       marketPrices: priceGenerator.generatePrices(GAME_CONSTANTS.MARKET_LEAVEOUT_NORMAL),
 
+      // Stocks
+      stockPrices: initialStockState.prices,
+      stockHoldings: Array(STOCKS.length)
+        .fill(null)
+        .map((_, index) => ({
+          id: index,
+          shares: 0,
+          avgPrice: 0,
+        })),
+      stockHistory: initialStockState.history,
+
       // Flags
       soundEnabled: true,
       hackingEnabled: false,
       wangbaVisits: 0,
     };
+  }
+
+  private createFlatCandle(price: number): StockCandle {
+    return { open: price, high: price, low: price, close: price };
+  }
+
+  private normalizeStockHistory(): void {
+    const prices = this.state.stockPrices;
+    if (!Array.isArray(prices) || prices.length !== STOCKS.length) {
+      this.state.stockHistory = [];
+      return;
+    }
+
+    const history = this.state.stockHistory;
+    if (!Array.isArray(history) || history.length !== STOCKS.length) {
+      this.state.stockHistory = prices.map((price) => [this.createFlatCandle(price)]);
+      return;
+    }
+
+    this.state.stockHistory = history.map((entry, index) => {
+      if (!Array.isArray(entry) || entry.length === 0) {
+        return [this.createFlatCandle(prices[index])];
+      }
+
+      const sample = entry[0] as any;
+      if (typeof sample === 'number') {
+        return (entry as number[]).map((value) => this.createFlatCandle(value));
+      }
+
+      if (sample && typeof sample === 'object' && 'close' in sample) {
+        return entry as StockCandle[];
+      }
+
+      return [this.createFlatCandle(prices[index])];
+    });
+
+    if (this.state.stockHistory.some((entry) => entry.length < GAME_CONSTANTS.STOCK_HISTORY_LENGTH)) {
+      this.state.stockHistory = stockPriceGenerator.generateHistoryFromCurrent(
+        this.state.stockPrices,
+        GAME_CONSTANTS.STOCK_HISTORY_LENGTH
+      );
+    }
   }
 
   /**
@@ -183,6 +240,19 @@ export class GameStateManager {
       if (typeof (this.state as { playerName?: string }).playerName !== 'string') {
         this.state.playerName = '';
       }
+      if (!Array.isArray(this.state.stockPrices) || this.state.stockPrices.length !== STOCKS.length) {
+        this.state.stockPrices = stockPriceGenerator.generateInitialPrices();
+      }
+      if (!Array.isArray(this.state.stockHoldings) || this.state.stockHoldings.length !== STOCKS.length) {
+        this.state.stockHoldings = Array(STOCKS.length)
+          .fill(null)
+          .map((_, index) => ({
+            id: index,
+            shares: 0,
+            avgPrice: 0,
+          }));
+      }
+      this.normalizeStockHistory();
       this.notifyListeners();
       trackEvent('load_game', { success: 1, save_version: saveData.version });
       return true;
@@ -237,6 +307,19 @@ export class GameStateManager {
       }
 
       this.state = saveData.state;
+      if (!Array.isArray(this.state.stockPrices) || this.state.stockPrices.length !== STOCKS.length) {
+        this.state.stockPrices = stockPriceGenerator.generateInitialPrices();
+      }
+      if (!Array.isArray(this.state.stockHoldings) || this.state.stockHoldings.length !== STOCKS.length) {
+        this.state.stockHoldings = Array(STOCKS.length)
+          .fill(null)
+          .map((_, index) => ({
+            id: index,
+            shares: 0,
+            avgPrice: 0,
+          }));
+      }
+      this.normalizeStockHistory();
       this.notifyListeners();
       this.saveGame();
       return true;
@@ -314,6 +397,54 @@ export class GameStateManager {
         value: revenue,
         currency: 'CNY',
         city: this.state.city,
+      });
+      this.notifyListeners();
+      this.autoSave();
+    }
+    return result;
+  }
+
+  /**
+   * Buy stock shares
+   */
+  buyStock(stockId: number, shares: number) {
+    const price = this.state.stockPrices[stockId];
+    const totalCost = price * shares;
+    const stockName = STOCKS[stockId]?.name ?? `stock_${stockId}`;
+
+    const result = gameEngine.buyStock(this.state, stockId, shares);
+    if (result.success) {
+      trackEvent('buy_stock', {
+        stock_id: stockId,
+        stock_name: stockName,
+        shares,
+        price,
+        value: totalCost,
+        currency: 'CNY',
+      });
+      this.notifyListeners();
+      this.autoSave();
+    }
+    return result;
+  }
+
+  /**
+   * Sell stock shares
+   */
+  sellStock(stockId: number, shares: number) {
+    const price = this.state.stockPrices[stockId];
+    const revenue = price * shares;
+    const stockName = STOCKS[stockId]?.name ?? `stock_${stockId}`;
+
+    const result = gameEngine.sellStock(this.state, stockId, shares);
+    if (result.success) {
+      trackEvent('sell_stock', {
+        stock_id: stockId,
+        stock_name: stockName,
+        shares,
+        price,
+        value: revenue,
+        currency: 'CNY',
       });
       this.notifyListeners();
       this.autoSave();
@@ -501,10 +632,18 @@ export class GameStateManager {
   }
 
   /**
+   * Calculate current stock value
+   */
+  calculateStockValue(): number {
+    return gameEngine.calculateStockValue(this.state);
+  }
+
+  /**
    * Force sell all items (end game)
    */
   forceSellAllItems(): void {
     gameEngine.forceSellAllItems(this.state);
+    gameEngine.forceLiquidateStocks(this.state);
     this.notifyListeners();
     this.autoSave();
   }

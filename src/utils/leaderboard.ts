@@ -4,6 +4,7 @@ export type ScoreRecord = {
   cash: number;
   bank: number;
   debt: number;
+  stockValue?: number;
   health: number;
   fame: number;
   timestamp: number;

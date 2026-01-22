@@ -36,6 +36,7 @@ import { SettingsDialog } from '../dialogs/SettingsDialog';
 import { BossDialog } from '../dialogs/BossDialog';
 import { GameOverDialog } from '../dialogs/GameOverDialog';
 import { TravelDialog } from '../dialogs/TravelDialog';
+import { StockDialog } from '../dialogs/StockDialog';
 import { ConfirmDialog } from '../dialogs/ConfirmDialog';
 import { StartScreen } from './StartScreen';
 
@@ -57,6 +58,7 @@ export class MainGameScene extends Container {
   private hospitalDialog!: HospitalDialog;
   private houseDialog!: HouseDialog;
   private wangbaDialog!: WangbaDialog;
+  private stockDialog!: StockDialog;
   private newsDialog!: NewsDialog;
   private topPlayersDialog!: TopPlayersDialog;
   private settingsDialog!: SettingsDialog;
@@ -250,6 +252,7 @@ export class MainGameScene extends Container {
       { id: 'house', label: '假中介' },
       { id: 'wangba', label: '黑网吧' },
       { id: 'travel', label: '售票处' },
+      { id: 'stock', label: '股市' },
       { id: 'leaderboard', label: '富人榜' },
     ];
     const buttonWidth = 86;
@@ -327,6 +330,9 @@ export class MainGameScene extends Container {
       case 'travel':
         this.travelDialog.open();
         break;
+      case 'stock':
+        this.stockDialog.open();
+        break;
       case 'leaderboard':
         this.topPlayersDialog.open();
         break;
@@ -356,6 +362,9 @@ export class MainGameScene extends Container {
 
     this.wangbaDialog = new WangbaDialog();
     this.addChild(this.wangbaDialog);
+
+    this.stockDialog = new StockDialog();
+    this.addChild(this.stockDialog);
 
     // Info dialogs
     this.newsDialog = new NewsDialog();

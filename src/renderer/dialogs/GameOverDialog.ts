@@ -182,15 +182,17 @@ export class GameOverDialog extends BaseDialog {
    */
   openWithScore(): void {
     const state = gameStateManager.getState();
+    const stockValue = gameStateManager.calculateStockValue();
 
-    // Calculate final score: cash + bank - debt
-    this.finalScore = state.cash + state.bank - state.debt;
+    // Calculate final score: cash + bank + stocks - debt
+    this.finalScore = gameStateManager.calculateScore();
 
     trackEvent('game_over', {
       score: this.finalScore,
       cash: state.cash,
       bank: state.bank,
       debt: state.debt,
+      stock_value: stockValue,
       time_left: state.timeLeft,
       city: state.city,
     });
@@ -202,6 +204,7 @@ export class GameOverDialog extends BaseDialog {
     const breakdown = [
       `现金: ¥${state.cash.toLocaleString('zh-CN')}`,
       `存款: ¥${state.bank.toLocaleString('zh-CN')}`,
+      `股票: ¥${stockValue.toLocaleString('zh-CN')}`,
       `债务: -¥${state.debt.toLocaleString('zh-CN')}`,
     ];
     this.assetsText.text = breakdown.join('\n');
@@ -237,12 +240,14 @@ export class GameOverDialog extends BaseDialog {
 
   private async submitFinalScore(state: GameState): Promise<void> {
     const playerName = state.playerName?.trim() || '无名小卒';
+    const stockValue = gameStateManager.calculateStockValue();
     const record = await submitScore({
       playerName,
       totalWealth: this.finalScore,
       cash: state.cash,
       bank: state.bank,
       debt: state.debt,
+      stockValue,
       health: state.health,
       fame: state.fame,
     });
