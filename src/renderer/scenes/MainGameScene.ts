@@ -17,6 +17,7 @@ import { StatsPanel } from '../ui/StatsPanel';
 import { MarketList } from '../ui/MarketList';
 import { InventoryList } from '../ui/InventoryList';
 import { NewsTicker } from '../ui/NewsTicker';
+import { fetchLeaderboard, type ScoreRecord } from '@utils/leaderboard';
 import { EventQueue } from '../ui/EventQueue';
 import type { GameState } from '@engine/types';
 import { gameStateManager } from '@state/GameStateManager';
@@ -66,6 +67,9 @@ export class MainGameScene extends Container {
   private gameOverDialog!: GameOverDialog;
   private travelDialog!: TravelDialog;
   private confirmDialog!: ConfirmDialog;
+  private leaderboardSeen = new Set<string>();
+  private leaderboardPolling = false;
+  private lastTimeLeft: number | null = null;
 
   constructor(app: Application) {
     super();
@@ -240,6 +244,8 @@ export class MainGameScene extends Container {
     const newsItems = assetLoader.getNewsItems();
     const tipsItems = assetLoader.getTipsItems();
     this.newsTicker.setNewsItems([...newsItems, ...tipsItems]);
+
+    this.startLeaderboardNewsPolling();
   }
 
   /**
@@ -385,6 +391,9 @@ export class MainGameScene extends Container {
     this.gameOverDialog.setLeaderboardHandler(() => {
       this.topPlayersDialog.open();
     });
+    this.gameOverDialog.setRecordNewsHandler((message) => {
+      this.newsTicker.addNewsItem(message, true);
+    });
 
     this.eventQueue = new EventQueue(this.newsDialog, this.gameOverDialog);
 
@@ -398,6 +407,58 @@ export class MainGameScene extends Container {
     this.startScreen.setLeaderboardHandler(() => {
       this.topPlayersDialog.open();
     });
+  }
+
+  private buildLeaderboardKey(record: ScoreRecord): string {
+    return `${record.playerName}|${record.timestamp}|${record.totalWealth}`;
+  }
+
+  private async primeLeaderboardNews(): Promise<void> {
+    const leaderboard = await fetchLeaderboard();
+    if (!leaderboard) {
+      return;
+    }
+
+    for (const item of leaderboard.items) {
+      this.leaderboardSeen.add(this.buildLeaderboardKey(item));
+    }
+  }
+
+  private async pollLeaderboardNews(): Promise<void> {
+    if (this.leaderboardPolling) {
+      return;
+    }
+    this.leaderboardPolling = true;
+    try {
+      const leaderboard = await fetchLeaderboard();
+      if (!leaderboard) {
+        return;
+      }
+
+      const newRecords = leaderboard.items.filter((item) => {
+        const key = this.buildLeaderboardKey(item);
+        return !this.leaderboardSeen.has(key);
+      });
+
+      for (const item of leaderboard.items) {
+        this.leaderboardSeen.add(this.buildLeaderboardKey(item));
+      }
+
+      if (newRecords.length > 0) {
+        newRecords.sort((a, b) => b.timestamp - a.timestamp);
+        const latest = newRecords[0];
+        this.newsTicker.addNewsItem(
+          `富人榜快讯：${latest.playerName} 资产¥${latest.totalWealth.toLocaleString('zh-CN')}`,
+          true
+        );
+      }
+    } finally {
+      this.leaderboardPolling = false;
+    }
+  }
+
+  private startLeaderboardNewsPolling(): void {
+    void this.primeLeaderboardNews();
   }
 
   /**
@@ -415,6 +476,15 @@ export class MainGameScene extends Container {
     this.statsPanel.update(state);
     this.marketList.update(state);
     this.inventoryList.update(state);
+
+    if (this.lastTimeLeft === null) {
+      this.lastTimeLeft = state.timeLeft;
+    } else if (state.timeLeft < this.lastTimeLeft) {
+      this.lastTimeLeft = state.timeLeft;
+      void this.pollLeaderboardNews();
+    } else {
+      this.lastTimeLeft = state.timeLeft;
+    }
 
     if (!state.playerName) {
       if (!this.startScreen.visible) {

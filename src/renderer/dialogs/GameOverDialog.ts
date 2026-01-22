@@ -24,6 +24,7 @@ export class GameOverDialog extends BaseDialog {
 
   private finalScore: number = 0;
   private onShowLeaderboard?: () => void;
+  private onRecordNews?: (message: string) => void;
 
   constructor() {
     super(500, 500, '游戏结束');
@@ -32,6 +33,10 @@ export class GameOverDialog extends BaseDialog {
 
   setLeaderboardHandler(handler: () => void): void {
     this.onShowLeaderboard = handler;
+  }
+
+  setRecordNewsHandler(handler: (message: string) => void): void {
+    this.onRecordNews = handler;
   }
 
   /**
@@ -241,7 +246,7 @@ export class GameOverDialog extends BaseDialog {
   private async submitFinalScore(state: GameState): Promise<void> {
     const playerName = state.playerName?.trim() || '无名小卒';
     const stockValue = gameStateManager.calculateStockValue();
-    const record = await submitScore({
+    const result = await submitScore({
       playerName,
       totalWealth: this.finalScore,
       cash: state.cash,
@@ -252,8 +257,13 @@ export class GameOverDialog extends BaseDialog {
       fame: state.fame,
     });
 
-    if (record) {
-      trackEvent('score_submitted', { total_wealth: record.totalWealth });
+    if (result?.record) {
+      trackEvent('score_submitted', { total_wealth: result.record.totalWealth });
+      if (result.stored && this.onRecordNews) {
+        this.onRecordNews(
+          `富人榜快讯：${result.record.playerName} 资产¥${result.record.totalWealth.toLocaleString('zh-CN')}`
+        );
+      }
     } else {
       trackEvent('score_submit_failed', { reason: 'network' });
     }

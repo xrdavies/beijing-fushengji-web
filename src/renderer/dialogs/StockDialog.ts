@@ -55,7 +55,6 @@ export class StockDialog extends BaseDialog {
 
   constructor() {
     super(720, 580, '股市');
-    this.doorSoundsEnabled = true;
     this.createStockDialogUI();
   }
 

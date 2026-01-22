@@ -118,7 +118,7 @@ export class GameStateManager {
 
       const sample = entry[0] as any;
       if (typeof sample === 'number') {
-        return (entry as number[]).map((value) => this.createFlatCandle(value));
+        return (entry as unknown as number[]).map((value) => this.createFlatCandle(value));
       }
 
       if (sample && typeof sample === 'object' && 'close' in sample) {
