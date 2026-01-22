@@ -25,6 +25,7 @@ export class WangbaDialog extends BaseDialog {
 
   constructor() {
     super(500, 400, '黑网吧');
+    this.doorSoundsEnabled = true;
     this.createWangbaDialogUI();
   }
 

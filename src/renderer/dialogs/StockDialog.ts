@@ -55,6 +55,7 @@ export class StockDialog extends BaseDialog {
 
   constructor() {
     super(720, 580, '股市');
+    this.doorSoundsEnabled = true;
     this.createStockDialogUI();
   }
 
@@ -158,7 +159,6 @@ export class StockDialog extends BaseDialog {
       container.on('pointerover', () => updateItemState(true));
       container.on('pointerout', () => updateItemState(false));
       container.on('pointertap', () => {
-        audioManager.play('click');
         this.selectStock(i);
       });
 

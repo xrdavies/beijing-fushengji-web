@@ -39,6 +39,7 @@ export class BankDialog extends BaseDialog {
 
   constructor() {
     super(500, 450, '银行');
+    this.doorSoundsEnabled = true;
     this.createBankDialogUI();
   }
 
