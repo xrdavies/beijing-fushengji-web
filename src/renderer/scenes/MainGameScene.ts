@@ -14,12 +14,14 @@
 import { Container, Graphics, Text, Application, FillGradient } from 'pixi.js';
 import { Button } from '@pixi/ui';
 import { StatsPanel } from '../ui/StatsPanel';
+import { SubwayMap } from '../ui/SubwayMap';
 import { MarketList } from '../ui/MarketList';
 import { InventoryList } from '../ui/InventoryList';
 import { NewsTicker } from '../ui/NewsTicker';
 import { fetchLeaderboard, type ScoreRecord } from '@utils/leaderboard';
 import { EventQueue } from '../ui/EventQueue';
-import type { GameState } from '@engine/types';
+import type { GameState, Location } from '@engine/types';
+import { GAME_CONSTANTS, getCityLabel, getFlightCost } from '@engine/types';
 import { gameStateManager } from '@state/GameStateManager';
 import { gameEngine } from '@engine/GameEngine';
 import { assetLoader } from '@assets/AssetLoader';
@@ -45,6 +47,7 @@ import { StartScreen } from './StartScreen';
 export class MainGameScene extends Container {
   private app: Application;
   private statsPanel!: StatsPanel;
+  private subwayMap!: SubwayMap;
   private marketList!: MarketList;
   private inventoryList!: InventoryList;
   private newsTicker!: NewsTicker;
@@ -81,6 +84,7 @@ export class MainGameScene extends Container {
 
     // Create UI components
     this.createStatsPanel();
+    this.createSubwayMap();
     this.createMarketList();
     this.createInventoryList();
     this.createNewsTicker();
@@ -197,17 +201,29 @@ export class MainGameScene extends Container {
    * Create stats panel (top right)
    */
   private createStatsPanel(): void {
-    this.statsPanel = new StatsPanel(200, 300);
-    this.statsPanel.x = 580;
+    this.statsPanel = new StatsPanel(280, 220);
+    this.statsPanel.x = 500;
     this.statsPanel.y = 72;
     this.addChild(this.statsPanel);
+  }
+
+  /**
+   * Create subway map (under stats panel)
+   */
+  private createSubwayMap(): void {
+    this.subwayMap = new SubwayMap(280, 180, (location) => {
+      this.handleMapLocationSelect(location);
+    });
+    this.subwayMap.x = this.statsPanel.x;
+    this.subwayMap.y = this.statsPanel.y + this.statsPanel.height + 8;
+    this.addChild(this.subwayMap);
   }
 
   /**
    * Create market list (left side)
    */
   private createMarketList(): void {
-    this.marketList = new MarketList(270, 400);
+    this.marketList = new MarketList(230, 400);
     this.marketList.x = 20;
     this.marketList.y = 72;
     this.addChild(this.marketList);
@@ -223,8 +239,8 @@ export class MainGameScene extends Container {
    * Create inventory list (center)
    */
   private createInventoryList(): void {
-    this.inventoryList = new InventoryList(270, 400);
-    this.inventoryList.x = 300;
+    this.inventoryList = new InventoryList(230, 400);
+    this.inventoryList.x = 260;
     this.inventoryList.y = 72;
     this.addChild(this.inventoryList);
 
@@ -261,7 +277,7 @@ export class MainGameScene extends Container {
       { id: 'clinic', label: '小诊所' },
       { id: 'house', label: '假中介' },
       { id: 'wangba', label: '黑网吧' },
-      { id: 'travel', label: '售票处' },
+      { id: 'travel', label: '旅行社' },
       { id: 'stock', label: '股票大厅' },
       { id: 'leaderboard', label: '富人榜' },
     ];
@@ -269,7 +285,7 @@ export class MainGameScene extends Container {
     const buttonHeight = 44; // Increased from 35 to 44 for better mobile touch
     const spacing = 12;
     const startX = 24;
-    const startY = 482; // Balanced spacing above the ticker
+    const startY = 500; // Leave room for subway map
 
     for (let i = 0; i < buttons.length; i++) {
       const { id, label } = buttons[i];
@@ -480,6 +496,8 @@ export class MainGameScene extends Container {
     this.statsPanel.update(state);
     this.marketList.update(state);
     this.inventoryList.update(state);
+    this.subwayMap.setCity(state.city);
+    this.subwayMap.setCurrentLocation(state.currentLocation?.id ?? null);
 
     if (this.lastTimeLeft === null) {
       this.lastTimeLeft = state.timeLeft;
@@ -505,6 +523,50 @@ export class MainGameScene extends Container {
         this.eventQueue.enqueue([gameEngine.getGameOverEvent(state)]);
       }
     }
+  }
+
+  private handleMapLocationSelect(location: Location): void {
+    const state = gameStateManager.getState();
+
+    if (gameStateManager.isGameOver()) {
+      this.eventQueue.enqueue([gameEngine.getGameOverEvent(state)]);
+      return;
+    }
+
+    if (state.currentLocation?.id === location.id) {
+      return;
+    }
+
+    const isLocalTravel = location.city === state.city;
+    const subwayCost = state.city === 'beijing'
+      ? GAME_CONSTANTS.SUBWAY_TRAVEL_COST_BEIJING
+      : GAME_CONSTANTS.SUBWAY_TRAVEL_COST_SHANGHAI;
+    const travelCost = isLocalTravel
+      ? subwayCost
+      : getFlightCost(location.city);
+    const travelLabel = isLocalTravel ? '地铁' : '机票';
+    const cityLabel = getCityLabel(location.city);
+
+    this.confirmDialog.showConfirm(
+      `前往${cityLabel} · ${location.name}？${travelLabel}费用¥${travelCost.toLocaleString('zh-CN')}`,
+      () => this.performLocationChange(location)
+    );
+  }
+
+  private performLocationChange(location: Location): void {
+    const state = gameStateManager.getState();
+    const events = gameStateManager.changeLocation(location);
+
+    if (events[0]?.data?.travelBlocked) {
+      this.eventQueue.enqueue(events);
+      return;
+    }
+
+    if (location.city !== state.city) {
+      audioManager.play('flight');
+    }
+
+    this.eventQueue.enqueue(events);
   }
 
   handleResize(): void {

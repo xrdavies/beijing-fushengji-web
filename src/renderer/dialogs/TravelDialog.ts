@@ -1,12 +1,10 @@
 /**
- * TravelDialog - Location and city selection dialog
+ * TravelDialog - City travel selection dialog
  *
  * Features:
- * - List of Beijing locations (10)
- * - List of Shanghai locations (10)
- * - City switching (costs airplane ticket)
- * - Current location highlight
- * - Time cost display
+ * - List of cities with flight ticket prices
+ * - Current city highlighted and disabled
+ * - Time remaining display
  */
 
 import { Container, Graphics, Text } from 'pixi.js';
@@ -14,32 +12,31 @@ import { ScrollBox } from '@pixi/ui';
 import { BaseDialog } from './BaseDialog';
 import { gameStateManager } from '@state/GameStateManager';
 import { gameEngine } from '@engine/GameEngine';
-import { BEIJING_LOCATIONS, GAME_CONSTANTS, SHANGHAI_LOCATIONS, type City, type Location } from '@engine/types';
+import {
+  CITY_TRAVEL_OPTIONS,
+  getCityLabel,
+  type City,
+  type CityTravelOption,
+} from '@engine/types';
 import { createButton } from '../ui/SimpleUIHelpers';
 import { EventQueue } from '../ui/EventQueue';
 import { audioManager } from '@audio/AudioManager';
 
 export class TravelDialog extends BaseDialog {
-  private locationScrollBox!: ScrollBox;
-  private activeCity: City = 'beijing';
-  private lastKnownCity: City | null = null;
-  private locationItemWidth: number = 0;
-  private locationLabelText!: Text;
+  private cityScrollBox!: ScrollBox;
+  private cityItemUpdateFns: Map<City, (hovered?: boolean) => void> = new Map();
+  private cityLabelText!: Text;
   private currentCityText!: Text;
-  private locationSeparatorText!: Text;
-  private currentLocationText!: Text;
   private statusContentWidth: number = 0;
   private timeLeftLabelText!: Text;
   private timeLeftText!: Text;
-  private locationItemUpdateFns: Map<number, (hovered?: boolean) => void> = new Map();
-  private tabButtons: Array<{ city: City; background: Graphics; label: Text }> = [];
-  private tabWidth: number = 120;
-  private tabHeight: number = 30;
+  private cityItemWidth: number = 0;
+  private cityColumnGap: number = 0;
   private unsubscribeState: (() => void) | null = null;
   private eventQueue: EventQueue;
 
   constructor(eventQueue: EventQueue) {
-    super(600, 500, '旅行社');
+    super(520, 420, '旅行社');
     this.doorSoundsEnabled = true;
     this.eventQueue = eventQueue;
     this.createTravelDialogUI();
@@ -56,11 +53,12 @@ export class TravelDialog extends BaseDialog {
 
     const contentWidth = this.dialogWidth - 60;
     const listWidth = contentWidth;
-    const listHeight = 250;
-    const listPadding = 14;
+    const listHeight = 220;
+    const listPadding = 12;
     const columnGap = 16;
     const itemWidth = Math.floor((listWidth - listPadding * 2 - columnGap) / 2);
-    this.locationItemWidth = itemWidth;
+    this.cityItemWidth = itemWidth;
+    this.cityColumnGap = columnGap;
     this.statusContentWidth = contentWidth;
 
     // Current status
@@ -68,13 +66,13 @@ export class TravelDialog extends BaseDialog {
     statusContainer.x = contentX;
     statusContainer.y = currentY;
 
-    this.locationLabelText = new Text({
-      text: '当前位置:',
+    this.cityLabelText = new Text({
+      text: '当前城市:',
       style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0xaaaaaa }
     });
-    this.locationLabelText.x = 0;
-    this.locationLabelText.y = 0;
-    statusContainer.addChild(this.locationLabelText);
+    this.cityLabelText.x = 0;
+    this.cityLabelText.y = 0;
+    statusContainer.addChild(this.cityLabelText);
 
     this.currentCityText = new Text({
       text: '北京',
@@ -82,20 +80,6 @@ export class TravelDialog extends BaseDialog {
     });
     this.currentCityText.y = 0;
     statusContainer.addChild(this.currentCityText);
-
-    this.locationSeparatorText = new Text({
-      text: '*',
-      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0xffffff, fontWeight: 'bold' }
-    });
-    this.locationSeparatorText.y = 0;
-    statusContainer.addChild(this.locationSeparatorText);
-
-    this.currentLocationText = new Text({
-      text: '未知',
-      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0xffffff, fontWeight: 'bold' }
-    });
-    this.currentLocationText.y = 0;
-    statusContainer.addChild(this.currentLocationText);
 
     this.timeLeftLabelText = new Text({
       text: '剩余时间:',
@@ -112,67 +96,27 @@ export class TravelDialog extends BaseDialog {
     statusContainer.addChild(this.timeLeftText);
 
     this.layoutStatusDisplay();
-
     this.addChild(statusContainer);
 
-    currentY += 64;
+    currentY += 56;
 
-    // Tabs
-    const tabHeight = this.tabHeight;
-    const tabWidth = this.tabWidth;
-    const tabGap = 12;
-    const tabContainer = new Container();
-    tabContainer.x = contentX;
-    tabContainer.y = currentY;
-
-    const createTab = (city: City, label: string, index: number) => {
-      const tab = new Container();
-      tab.eventMode = 'static';
-      tab.cursor = 'pointer';
-      tab.x = index * (tabWidth + tabGap);
-
-      const background = new Graphics();
-      background.roundRect(0, 0, tabWidth, tabHeight, 6);
-      tab.addChild(background);
-
-      const text = new Text({
-        text: label,
-        style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0xffffff, fontWeight: 'bold' }
-      });
-      text.anchor.set(0.5);
-      text.x = tabWidth / 2;
-      text.y = tabHeight / 2;
-      tab.addChild(text);
-
-      tab.on('pointerdown', () => this.switchCityTab(city));
-
-      this.tabButtons.push({ city, background, label: text });
-      tabContainer.addChild(tab);
-    };
-
-    createTab('beijing', '北京（本地旅行）', 0);
-    createTab('shanghai', '上海（需要机票）', 1);
-    this.addChild(tabContainer);
-
-    currentY += tabHeight + 12;
-
-    // Location list ScrollBox
-    this.locationScrollBox = new ScrollBox({
+    // City list ScrollBox
+    this.cityScrollBox = new ScrollBox({
       width: listWidth,
       height: listHeight,
       background: 0x1a1a1a,
-      radius: 5,
+      radius: 6,
       type: 'vertical',
       padding: listPadding,
-      elementsMargin: 12,
+      elementsMargin: 10,
     });
-    this.locationScrollBox.x = contentX;
-    this.locationScrollBox.y = currentY;
-    this.addChild(this.locationScrollBox);
+    this.cityScrollBox.x = contentX;
+    this.cityScrollBox.y = currentY;
+    this.addChild(this.cityScrollBox);
 
-    this.switchCityTab(this.activeCity);
+    this.populateCities();
 
-    currentY += listHeight + 14;
+    currentY += listHeight + 16;
 
     // Close button
     const closeButton = createButton('关闭', 120, 40, 0x666666, () => this.hide());
@@ -181,149 +125,123 @@ export class TravelDialog extends BaseDialog {
     this.addChild(closeButton);
   }
 
-  /**
-   * Populate locations in a scrollbox
-   */
-  private populateLocations(scrollBox: ScrollBox, locations: Location[], itemWidth: number): void {
-    scrollBox.removeItems();
-    this.locationItemUpdateFns.clear();
+  private populateCities(): void {
+    this.cityScrollBox.removeItems();
+    this.cityItemUpdateFns.clear();
 
     const textResolution = this.currentCityText?.resolution || window.devicePixelRatio || 1;
     const currentCity = gameStateManager.getState().city;
-    const subwayCost = currentCity === 'beijing'
-      ? GAME_CONSTANTS.SUBWAY_TRAVEL_COST_BEIJING
-      : GAME_CONSTANTS.SUBWAY_TRAVEL_COST_SHANGHAI;
-    const itemHeight = 34;
-    const columnGap = 16;
+    const itemHeight = 38;
     const baseColor = 0x2a2a2a;
     const hoverColor = 0x3a7bc8;
     const highlightColor = 0x3a4a66;
 
-    for (let i = 0; i < locations.length; i += 2) {
+    for (let i = 0; i < CITY_TRAVEL_OPTIONS.length; i += 2) {
       const rowContainer = new Container();
+      const rowOptions = CITY_TRAVEL_OPTIONS.slice(i, i + 2);
 
-      const rowLocations = locations.slice(i, i + 2);
+      rowOptions.forEach((option, columnIndex) => {
+        const itemContainer = new Container();
+        itemContainer.eventMode = 'static';
+        itemContainer.cursor = option.city === currentCity ? 'default' : 'pointer';
+        itemContainer.x = columnIndex * (this.cityItemWidth + this.cityColumnGap);
 
-      rowLocations.forEach((location, columnIndex) => {
-      const itemContainer = new Container();
-      itemContainer.interactive = true;
-      itemContainer.cursor = 'pointer';
-      itemContainer.x = columnIndex * (itemWidth + columnGap);
+        const background = new Graphics();
+        const renderBackground = (color: number) => {
+          background.clear();
+          background.roundRect(0, 0, this.cityItemWidth, itemHeight, 6);
+          background.fill(color);
+        };
+        renderBackground(baseColor);
+        itemContainer.addChild(background);
 
-      // Background
-      const background = new Graphics();
-      const renderBackground = (color: number) => {
-        background.clear();
-        background.roundRect(0, 0, itemWidth, itemHeight, 6);
-        background.fill(color);
-      };
-      renderBackground(baseColor);
-      itemContainer.addChild(background);
+        const nameText = new Text({
+          text: option.label,
+          style: {
+            fontFamily: 'Microsoft YaHei, Arial',
+            fontSize: 15,
+            fill: 0xffffff,
+          }
+        });
+        nameText.resolution = textResolution;
+        nameText.roundPixels = true;
+        nameText.x = 12;
+        nameText.y = Math.round((itemHeight - nameText.height) / 2);
+        itemContainer.addChild(nameText);
 
-      // Location name
-      const nameText = new Text({
-        text: location.name,
-        style: {
-          fontFamily: 'Microsoft YaHei, Arial',
-          fontSize: 15,
-          fill: 0xffffff,
+        const isCurrent = option.city === currentCity;
+        const isAvailable = option.city === 'beijing' || option.city === 'shanghai';
+        const costLabel = new Text({
+          text: isCurrent
+            ? '当前城市'
+            : isAvailable
+              ? `机票 ¥${option.flightCost.toLocaleString('zh-CN')}`
+              : '航班尚未开通',
+          style: {
+            fontFamily: 'Microsoft YaHei, Arial',
+            fontSize: 13,
+            fill: isCurrent ? 0x9aa4b2 : isAvailable ? 0xffc97a : 0x64748b,
+          }
+        });
+        costLabel.resolution = textResolution;
+        costLabel.roundPixels = true;
+        costLabel.anchor.set(1, 0);
+        costLabel.x = this.cityItemWidth - 12;
+        costLabel.y = Math.round((itemHeight - costLabel.height) / 2);
+        itemContainer.addChild(costLabel);
+
+        const updateItemState = (hovered: boolean = false) => {
+          if (hovered && !isCurrent && isAvailable) {
+            renderBackground(hoverColor);
+            return;
+          }
+          renderBackground(isCurrent ? highlightColor : baseColor);
+        };
+        this.cityItemUpdateFns.set(option.city, updateItemState);
+        updateItemState();
+
+        if (!isCurrent && isAvailable) {
+          itemContainer.on('pointerdown', () => {
+            this.handleCitySelect(option);
+          });
+          itemContainer.on('pointerover', () => {
+            updateItemState(true);
+          });
+          itemContainer.on('pointerout', () => {
+            updateItemState(false);
+          });
         }
-      });
-      nameText.resolution = textResolution;
-      nameText.roundPixels = true;
-      nameText.x = 12;
-      nameText.y = Math.round((itemHeight - nameText.height) / 2);
-      itemContainer.addChild(nameText);
 
-      const isLocal = location.city === currentCity;
-      const costValue = isLocal ? subwayCost : GAME_CONSTANTS.FLIGHT_TRAVEL_COST;
-      const costText = isLocal ? `地铁 ¥${costValue}` : `机票 ¥${costValue}`;
-      const costLabel = new Text({
-        text: costText,
-        style: {
-          fontFamily: 'Microsoft YaHei, Arial',
-          fontSize: 13,
-          fill: isLocal ? 0x9aa4b2 : 0xffc97a,
-        }
-      });
-      costLabel.resolution = textResolution;
-      costLabel.roundPixels = true;
-      costLabel.anchor.set(1, 0);
-      costLabel.x = itemWidth - 12;
-      costLabel.y = Math.round((itemHeight - costLabel.height) / 2);
-      itemContainer.addChild(costLabel);
-
-      const updateItemState = (hovered: boolean = false) => {
-        const currentId = gameStateManager.getState().currentLocation?.id;
-        const isCurrent = currentId === location.id;
-        if (hovered) {
-          renderBackground(hoverColor);
-          return;
-        }
-        renderBackground(isCurrent ? highlightColor : baseColor);
-      };
-      this.locationItemUpdateFns.set(location.id, updateItemState);
-      updateItemState();
-
-      // Click handler
-      itemContainer.on('pointerdown', () => {
-        this.handleLocationSelect(location);
+        rowContainer.addChild(itemContainer);
       });
 
-      // Hover effect
-      itemContainer.on('pointerover', () => {
-        updateItemState(true);
-      });
-
-      itemContainer.on('pointerout', () => {
-        updateItemState(false);
-      });
-
-      rowContainer.addChild(itemContainer);
-      });
-
-      scrollBox.addItem(rowContainer);
+      this.cityScrollBox.addItem(rowContainer);
     }
   }
 
-  /**
-   * Handle location selection
-   */
-  private handleLocationSelect(location: Location): void {
+  private handleCitySelect(option: CityTravelOption): void {
     const state = gameStateManager.getState();
 
-    // CRITICAL: Prevent travel if game is over (time up OR player dead)
     if (gameStateManager.isGameOver()) {
-      console.log('Game is over, cannot travel');
       this.hide();
       this.eventQueue.enqueue([gameEngine.getGameOverEvent(state)]);
       return;
     }
 
-    // Check if already at this location
-    if (state.currentLocation?.id === location.id) {
-      console.log('Already at this location');
+    if (state.city === option.city) {
       return;
     }
 
-    // Trigger location change (this will generate events)
-    const events = gameStateManager.changeLocation(location);
+    const events = gameStateManager.changeLocation(option.defaultLocation);
 
     if (events[0]?.data?.travelBlocked) {
-      // Close travel dialog so the error dialog is visible immediately.
       this.hide();
       this.eventQueue.enqueue(events);
       return;
     }
 
-    // Check if traveling across cities (requires flight sound)
-    if (location.city !== state.city) {
-      audioManager.play('flight');
-    }
-
-    // Close travel dialog
+    audioManager.play('flight');
     this.hide();
-
     this.eventQueue.enqueue(events);
   }
 
@@ -331,24 +249,17 @@ export class TravelDialog extends BaseDialog {
    * Open travel dialog
    */
   open(): void {
-    // CRITICAL: Prevent opening if game is over (time up OR player dead)
     if (gameStateManager.isGameOver()) {
-      console.log('Game is over, cannot open travel');
       const state = gameStateManager.getState();
       this.eventQueue.enqueue([gameEngine.getGameOverEvent(state)]);
       return;
     }
 
     const state = gameStateManager.getState();
-
-    // Update UI
-    this.currentCityText.text = state.city === 'beijing' ? '北京' : '上海';
-    this.currentLocationText.text = state.currentLocation?.name ?? '未知';
+    this.currentCityText.text = getCityLabel(state.city);
     this.timeLeftText.text = `${state.timeLeft}天`;
     this.layoutStatusDisplay();
-    this.updateTabLabels(state.city);
-    this.switchCityTab(state.city);
-    this.lastKnownCity = state.city;
+    this.populateCities();
 
     this.show();
   }
@@ -364,29 +275,16 @@ export class TravelDialog extends BaseDialog {
     }
   }
 
-  private layoutLocationDisplay(): void {
-    const labelGap = 8;
-    const separatorGap = 6;
-    const labelRight = this.locationLabelText.x + this.locationLabelText.width;
-
-    this.currentCityText.x = labelRight + labelGap;
-    this.locationSeparatorText.x = this.currentCityText.x + this.currentCityText.width + separatorGap;
-    this.currentLocationText.x =
-      this.locationSeparatorText.x + this.locationSeparatorText.width + separatorGap;
-  }
-
   private layoutStatusDisplay(): void {
-    this.layoutLocationDisplay();
+    const labelGap = 8;
+    const cityLabelRight = this.cityLabelText.x + this.cityLabelText.width;
+    this.currentCityText.x = cityLabelRight + labelGap;
 
     const timeGap = 8;
     const timeGroupWidth = this.timeLeftLabelText.width + timeGap + this.timeLeftText.width;
     const timeGroupX = this.statusContentWidth - timeGroupWidth;
     this.timeLeftLabelText.x = timeGroupX;
     this.timeLeftText.x = timeGroupX + this.timeLeftLabelText.width + timeGap;
-  }
-
-  private refreshLocationHighlights(): void {
-    this.locationItemUpdateFns.forEach((updateItem) => updateItem(false));
   }
 
   private bindLiveUpdates(): void {
@@ -399,46 +297,10 @@ export class TravelDialog extends BaseDialog {
         return;
       }
 
-      this.currentCityText.text = state.city === 'beijing' ? '北京' : '上海';
-      this.currentLocationText.text = state.currentLocation?.name ?? '未知';
+      this.currentCityText.text = getCityLabel(state.city);
       this.timeLeftText.text = `${state.timeLeft}天`;
       this.layoutStatusDisplay();
-      this.updateTabLabels(state.city);
-      if (this.lastKnownCity !== state.city) {
-        this.lastKnownCity = state.city;
-        const locations =
-          this.activeCity === 'beijing' ? BEIJING_LOCATIONS : SHANGHAI_LOCATIONS;
-        this.populateLocations(this.locationScrollBox, locations, this.locationItemWidth);
-      }
-      this.refreshLocationHighlights();
-    });
-  }
-
-  private updateTabLabels(currentCity: City): void {
-    this.tabButtons.forEach((tab) => {
-      const isLocal = tab.city === currentCity;
-      const cityLabel = tab.city === 'beijing' ? '北京' : '上海';
-      tab.label.text = `${cityLabel}（${isLocal ? '本地旅行' : '需要机票'}）`;
-    });
-  }
-
-  private switchCityTab(city: City): void {
-    if (this.activeCity === city && this.locationItemUpdateFns.size > 0) {
-      this.refreshLocationHighlights();
-      return;
-    }
-
-    this.activeCity = city;
-    const locations = city === 'beijing' ? BEIJING_LOCATIONS : SHANGHAI_LOCATIONS;
-    this.populateLocations(this.locationScrollBox, locations, this.locationItemWidth);
-    this.refreshLocationHighlights();
-
-    this.tabButtons.forEach((tab) => {
-      const isActive = tab.city === city;
-      tab.background.clear();
-      tab.background.roundRect(0, 0, this.tabWidth, this.tabHeight, 6);
-      tab.background.fill(isActive ? 0x3a7bc8 : 0x2a2a2a);
-      tab.label.style.fill = isActive ? 0xffffff : 0xaaaaaa;
+      this.populateCities();
     });
   }
 }

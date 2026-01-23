@@ -11,7 +11,7 @@
  */
 
 import type { GameEvent, GameState, Location, StockCandle } from '@engine/types';
-import { BEIJING_LOCATIONS, DRUGS, GAME_CONSTANTS, STOCKS } from '@engine/types';
+import { BEIJING_LOCATIONS, DRUGS, GAME_CONSTANTS, STOCKS, getFlightCost } from '@engine/types';
 import { gameEngine } from '@engine/GameEngine';
 import { audioManager } from '@audio/AudioManager';
 import { priceGenerator } from '@engine/PriceGenerator';
@@ -462,7 +462,7 @@ export class GameStateManager {
       : GAME_CONSTANTS.SUBWAY_TRAVEL_COST_SHANGHAI;
     const travelCost = isLocalTravel
       ? subwayCost
-      : GAME_CONSTANTS.FLIGHT_TRAVEL_COST;
+      : getFlightCost(location.city);
 
     if (this.state.cash < travelCost) {
       const travelLabel = isLocalTravel ? '地铁' : '机票';
