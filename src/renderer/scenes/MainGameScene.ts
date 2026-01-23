@@ -201,7 +201,7 @@ export class MainGameScene extends Container {
    * Create stats panel (top right)
    */
   private createStatsPanel(): void {
-    this.statsPanel = new StatsPanel(280, 220);
+    this.statsPanel = new StatsPanel(280, 212);
     this.statsPanel.x = 500;
     this.statsPanel.y = 72;
     this.addChild(this.statsPanel);
