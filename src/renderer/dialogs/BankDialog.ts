@@ -126,7 +126,15 @@ export class BankDialog extends BaseDialog {
     interestInfo.y = currentY;
     this.addChild(interestInfo);
 
-    currentY += 40;
+    const debtInterestInfo = new Text({
+      text: `债务利息: ${GAME_CONSTANTS.DEBT_INTEREST_RATE * 100}% 每天`,
+      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0xff8f8f }
+    });
+    debtInterestInfo.x = contentX;
+    debtInterestInfo.y = currentY + 20;
+    this.addChild(debtInterestInfo);
+
+    currentY += 52;
 
     // Amount slider
     const sliderLabel = new Text({

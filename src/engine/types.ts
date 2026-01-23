@@ -193,7 +193,35 @@ export const STOCKS: StockInfo[] = [
 // Location System
 // ============================================================================
 
-export type City = 'beijing' | 'shanghai';
+export type City = 'beijing' | 'shanghai' | 'shenzhen' | 'guangzhou' | 'xiamen' | 'chengdu' | 'hangzhou';
+
+export const CITY_LABELS: Record<City, string> = {
+  beijing: '北京',
+  shanghai: '上海',
+  shenzhen: '深圳',
+  guangzhou: '广州',
+  xiamen: '厦门',
+  chengdu: '成都',
+  hangzhou: '杭州',
+};
+
+export const CITY_FLIGHT_COSTS: Record<City, number> = {
+  beijing: 500,
+  shanghai: 500,
+  shenzhen: 900,
+  guangzhou: 850,
+  xiamen: 800,
+  chengdu: 950,
+  hangzhou: 650,
+};
+
+export function getCityLabel(city: City): string {
+  return CITY_LABELS[city];
+}
+
+export function getFlightCost(city: City): number {
+  return CITY_FLIGHT_COSTS[city];
+}
 
 export interface Location {
   id: number;
@@ -213,6 +241,8 @@ export const BEIJING_LOCATIONS: Location[] = [
   { id: 7, name: '长春街', city: 'beijing' },
   { id: 8, name: '公主坟', city: 'beijing' },
   { id: 9, name: '苹果园', city: 'beijing' },
+  { id: 20, name: '西单', city: 'beijing' },
+  { id: 21, name: '国贸', city: 'beijing' },
 ];
 
 // Shanghai locations (10)
@@ -229,7 +259,72 @@ export const SHANGHAI_LOCATIONS: Location[] = [
   { id: 19, name: '豫园', city: 'shanghai' },
 ];
 
-export const ALL_LOCATIONS = [...BEIJING_LOCATIONS, ...SHANGHAI_LOCATIONS];
+const OTHER_CITY_LOCATIONS: Location[] = [
+  { id: 100, name: '深圳', city: 'shenzhen' },
+  { id: 101, name: '广州', city: 'guangzhou' },
+  { id: 102, name: '厦门', city: 'xiamen' },
+  { id: 103, name: '成都', city: 'chengdu' },
+  { id: 104, name: '杭州', city: 'hangzhou' },
+];
+
+export interface CityTravelOption {
+  city: City;
+  label: string;
+  flightCost: number;
+  defaultLocation: Location;
+}
+
+export const CITY_TRAVEL_OPTIONS: CityTravelOption[] = [
+  {
+    city: 'beijing',
+    label: CITY_LABELS.beijing,
+    flightCost: CITY_FLIGHT_COSTS.beijing,
+    defaultLocation: BEIJING_LOCATIONS[0],
+  },
+  {
+    city: 'shanghai',
+    label: CITY_LABELS.shanghai,
+    flightCost: CITY_FLIGHT_COSTS.shanghai,
+    defaultLocation: SHANGHAI_LOCATIONS.find((location) => location.name === '人民广场')
+      ?? SHANGHAI_LOCATIONS[0],
+  },
+  {
+    city: 'shenzhen',
+    label: CITY_LABELS.shenzhen,
+    flightCost: CITY_FLIGHT_COSTS.shenzhen,
+    defaultLocation: OTHER_CITY_LOCATIONS[0],
+  },
+  {
+    city: 'guangzhou',
+    label: CITY_LABELS.guangzhou,
+    flightCost: CITY_FLIGHT_COSTS.guangzhou,
+    defaultLocation: OTHER_CITY_LOCATIONS[1],
+  },
+  {
+    city: 'xiamen',
+    label: CITY_LABELS.xiamen,
+    flightCost: CITY_FLIGHT_COSTS.xiamen,
+    defaultLocation: OTHER_CITY_LOCATIONS[2],
+  },
+  {
+    city: 'chengdu',
+    label: CITY_LABELS.chengdu,
+    flightCost: CITY_FLIGHT_COSTS.chengdu,
+    defaultLocation: OTHER_CITY_LOCATIONS[3],
+  },
+  {
+    city: 'hangzhou',
+    label: CITY_LABELS.hangzhou,
+    flightCost: CITY_FLIGHT_COSTS.hangzhou,
+    defaultLocation: OTHER_CITY_LOCATIONS[4],
+  },
+];
+
+export const ALL_LOCATIONS = [
+  ...BEIJING_LOCATIONS,
+  ...SHANGHAI_LOCATIONS,
+  ...OTHER_CITY_LOCATIONS,
+];
 
 // ============================================================================
 // Event System
