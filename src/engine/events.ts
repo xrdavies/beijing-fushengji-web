@@ -464,7 +464,7 @@ export const THEFT_EVENTS: TheftEvent[] = [
     freq: 27,
     msg: '黑车司机说你没带驾照？不拿出钱来就去找警察吧!',
     ratio: 10
-    // Note: This affects bank, not cash.
+    // Note: This affects bank; if bank is empty, it falls back to cash.
   },
   // Event 6
   {
