@@ -274,6 +274,7 @@ export class EventSystem {
     // Events 4 and 5 affect bank, others affect cash.
     const eventIndex = THEFT_EVENTS.indexOf(event);
     const affectsBank = (eventIndex === 4 || eventIndex === 5);
+    const allowCashFallback = eventIndex === 5;
 
     if (affectsBank && state.bank > 0) {
       // Telecom fraud - affects bank.
@@ -281,15 +282,15 @@ export class EventSystem {
       state.bank = Math.floor((state.bank / 100) * (100 - event.ratio));
       if (state.bank < 0) state.bank = 0;
       return { lossAmount: oldBank - state.bank, target: 'bank' };
-    } else if (!affectsBank || (affectsBank && state.bank <= 0)) {
-      // Other theft events - affect cash.
+    } else if (!affectsBank || (allowCashFallback && state.bank <= 0)) {
+      // Other theft events - affect cash (Event 5 can fallback to cash).
       const oldCash = state.cash;
       state.cash = Math.floor((state.cash / 100) * (100 - event.ratio));
       if (state.cash < 0) state.cash = 0;
       return { lossAmount: oldCash - state.cash, target: 'cash' };
     }
 
-    return { lossAmount: 0, target: affectsBank ? 'bank' : 'cash' };
+    return { lossAmount: 0, target: 'bank' };
   }
 
   /**
