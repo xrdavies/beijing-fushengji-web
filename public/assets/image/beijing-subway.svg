@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" viewBox="0 0 800 520">
+  <text x="40" y="40" font-family="PingFang SC, Noto Sans SC, sans-serif" font-size="20" font-weight="600" fill="#111">北京地铁示意</text>
+
+  <!-- Line 1 (straight) -->
+  <polyline points="80,260 180,260 300,260 400,260 520,260 640,260"
+            fill="none" stroke="#2b7bff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Line 2 (circle) -->
+  <polyline points="300,260 300,170 400,120 520,170 520,260 520,360 300,360 300,260"
+            fill="none" stroke="#ff3b30" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Line 1 stations -->
+  <circle cx="80" cy="260" r="9" fill="#fff" stroke="#2b7bff" stroke-width="4"/>
+  <text x="60" y="240" font-family="PingFang SC, Noto Sans SC, sans-serif" font-size="16" fill="#222">苹果园</text>
+
+  <circle cx="180" cy="260" r="9" fill="#fff" stroke="#2b7bff" stroke-width="4"/>
+  <text x="160" y="240" font-family="PingFang SC, Noto Sans SC, sans-serif" font-size="16" fill="#222">公主坟</text>
+
+  <circle cx="300" cy="260" r="11" fill="#fff" stroke="#111" stroke-width="3"/>
+  <text x="280" y="240" font-family="PingFang SC, Noto Sans SC, sans-serif" font-size="16" fill="#222">复兴门</text>
+
+  <circle cx="400" cy="260" r="9" fill="#fff" stroke="#2b7bff" stroke-width="4"/>
+  <text x="380" y="240" font-family="PingFang SC, Noto Sans SC, sans-serif" font-size="16" fill="#222">西单</text>
+
+  <circle cx="520" cy="260" r="11" fill="#fff" stroke="#111" stroke-width="3"/>
+  <text x="500" y="240" font-family="PingFang SC, Noto Sans SC, sans-serif" font-size="16" fill="#222">建国门</text>
+
+  <circle cx="640" cy="260" r="9" fill="#fff" stroke="#2b7bff" stroke-width="4"/>
+  <text x="620" y="240" font-family="PingFang SC, Noto Sans SC, sans-serif" font-size="16" fill="#222">国贸</text>
+
+  <!-- Line 2 stations -->
+  <circle cx="300" cy="170" r="9" fill="#fff" stroke="#ff3b30" stroke-width="4"/>
+  <text x="260" y="160" font-family="PingFang SC, Noto Sans SC, sans-serif" font-size="16" fill="#222">西直门</text>
+
+  <circle cx="400" cy="120" r="9" fill="#fff" stroke="#ff3b30" stroke-width="4"/>
+  <text x="370" y="110" font-family="PingFang SC, Noto Sans SC, sans-serif" font-size="16" fill="#222">积水潭</text>
+
+  <circle cx="520" cy="170" r="9" fill="#fff" stroke="#ff3b30" stroke-width="4"/>
+  <text x="500" y="160" font-family="PingFang SC, Noto Sans SC, sans-serif" font-size="16" fill="#222">东直门</text>
+
+  <circle cx="520" cy="360" r="9" fill="#fff" stroke="#ff3b30" stroke-width="4"/>
+  <text x="500" y="385" font-family="PingFang SC, Noto Sans SC, sans-serif" font-size="16" fill="#222">北京站</text>
+
+  <circle cx="300" cy="360" r="9" fill="#fff" stroke="#ff3b30" stroke-width="4"/>
+  <text x="260" y="385" font-family="PingFang SC, Noto Sans SC, sans-serif" font-size="16" fill="#222">崇文门</text>
+</svg>
