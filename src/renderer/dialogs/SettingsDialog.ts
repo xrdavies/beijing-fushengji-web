@@ -35,7 +35,7 @@ export class SettingsDialog extends BaseDialog {
 
     // Sound setting
     const soundLabel = new Text({
-      text: '音效:',
+      text: '音效',
       style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0xaaaaaa }
     });
     this.addChild(soundLabel);
@@ -59,7 +59,7 @@ export class SettingsDialog extends BaseDialog {
 
     // Hacking setting
     const hackingLabel = new Text({
-      text: '黑客模式(增加网吧收益50%):',
+      text: '黑客模式(增加网吧收益50%)',
       style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 14, fill: 0xaaaaaa }
     });
     this.addChild(hackingLabel);
@@ -137,23 +137,12 @@ export class SettingsDialog extends BaseDialog {
 
     // Credits
     const webAuthorText = new Text({
-      text: 'Web版: Frozen (2026)',
+      text: 'Frozen (2026)',
       style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 10, fill: 0x888888 }
-      
     });
     webAuthorText.x = contentX;
     webAuthorText.y = currentY;
     this.addChild(webAuthorText);
-
-    currentY += 11;
-
-    const originalAuthorText = new Text({
-      text: '原作者: Guo xianghao (2012)',
-      style: { fontFamily: 'Microsoft YaHei, Arial', fontSize: 10, fill: 0x888888 }
-    });
-    originalAuthorText.x = contentX;
-    originalAuthorText.y = currentY;
-    this.addChild(originalAuthorText);
 
     currentY += 13;
 
