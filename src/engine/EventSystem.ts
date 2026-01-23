@@ -90,15 +90,23 @@ export class EventSystem {
       }
     }
 
+    let message = event.msg;
+    let debtIncrease = 0;
+
     // Special case: Event 17 adds debt.
     if (COMMERCIAL_EVENTS.indexOf(event) === 17) {
-      state.debt += 2500;
+      debtIncrease = 2500;
+      state.debt += debtIncrease;
+    }
+
+    if (debtIncrease > 0) {
+      message = `${message}\n（债务+¥${debtIncrease.toLocaleString('zh-CN')}）`;
     }
 
     return {
       type: 'commercial',
-      message: event.msg,
-      data: { drugId, plus: event.plus, minus: event.minus, add: event.add }
+      message,
+      data: { drugId, plus: event.plus, minus: event.minus, add: event.add, debtIncrease }
     };
   }
 
@@ -145,15 +153,17 @@ export class EventSystem {
       // Weighted random selection
       if (randomInt(1000) % event.freq === 0) {
         // Apply health damage
+        const prevHealth = state.health;
         state.health -= event.hunt;
         if (state.health < 0) state.health = 0;
+        const actualDamage = prevHealth - state.health;
 
-        const healthLossText = `（健康-${event.hunt}）`;
+        const healthLossText = `（健康-${actualDamage}）`;
         events.push({
           type: 'health',
           message: `${event.msg}\n${healthLossText}`,
           sound: event.sound,
-          data: { damage: event.hunt, newHealth: state.health }
+          data: { damage: actualDamage, newHealth: state.health }
         });
 
         // Only one health event per turn
@@ -189,21 +199,25 @@ export class EventSystem {
     const totalCost = days * costPerDay;
 
     // Add to debt
+    const prevDebt = state.debt;
     state.debt += totalCost;
+    const debtIncrease = state.debt - prevDebt;
 
     // Restore health by +10 (not full restore)
+    const prevHealth = state.health;
     state.health += 10;
     if (state.health > GAME_CONSTANTS.MAX_HEALTH) {
       state.health = GAME_CONSTANTS.MAX_HEALTH;
     }
+    const healthGain = state.health - prevHealth;
 
     // Lose time in hospital
     state.timeLeft -= days;
 
     return {
       type: 'auto_hospital',
-      message: `你的健康状况太差，被强制送往医院治疗${days}天，花费¥${totalCost.toLocaleString('zh-CN')}（已计入债务）`,
-      data: { days, cost: totalCost }
+      message: `你的健康状况太差，被强制送往医院治疗${days}天，花费¥${totalCost.toLocaleString('zh-CN')}（已计入债务）\n（健康+${healthGain}，债务+¥${debtIncrease.toLocaleString('zh-CN')}）`,
+      data: { days, cost: totalCost, healthGain, debtIncrease }
     };
   }
 
@@ -260,6 +274,7 @@ export class EventSystem {
     // Events 4 and 5 affect bank, others affect cash.
     const eventIndex = THEFT_EVENTS.indexOf(event);
     const affectsBank = (eventIndex === 4 || eventIndex === 5);
+    const allowCashFallback = eventIndex === 5;
 
     if (affectsBank && state.bank > 0) {
       // Telecom fraud - affects bank.
@@ -267,15 +282,15 @@ export class EventSystem {
       state.bank = Math.floor((state.bank / 100) * (100 - event.ratio));
       if (state.bank < 0) state.bank = 0;
       return { lossAmount: oldBank - state.bank, target: 'bank' };
-    } else if (!affectsBank) {
-      // Other theft events - affect cash.
+    } else if (!affectsBank || (allowCashFallback && state.bank <= 0)) {
+      // Other theft events - affect cash (Event 5 can fallback to cash).
       const oldCash = state.cash;
       state.cash = Math.floor((state.cash / 100) * (100 - event.ratio));
       if (state.cash < 0) state.cash = 0;
       return { lossAmount: oldCash - state.cash, target: 'cash' };
     }
 
-    return { lossAmount: 0, target: affectsBank ? 'bank' : 'cash' };
+    return { lossAmount: 0, target: 'bank' };
   }
 
   /**
@@ -340,14 +355,16 @@ export class EventSystem {
    */
   checkDebtPenalty(state: GameState): GameEvent | null {
     if (state.debt > GAME_CONSTANTS.DEBT_PENALTY_THRESHOLD) {
+      const prevHealth = state.health;
       state.health -= GAME_CONSTANTS.DEBT_PENALTY_DAMAGE;
       if (state.health < 0) state.health = 0;
+      const actualDamage = prevHealth - state.health;
 
       return {
         type: 'debt_penalty',
-        message: `你的债务超过¥${GAME_CONSTANTS.DEBT_PENALTY_THRESHOLD.toLocaleString('zh-CN')}，债主派人来教训你！你损失了${GAME_CONSTANTS.DEBT_PENALTY_DAMAGE}点健康！`,
+        message: `你的债务超过¥${GAME_CONSTANTS.DEBT_PENALTY_THRESHOLD.toLocaleString('zh-CN')}，债主派人来教训你！\n（健康-${actualDamage}）`,
         sound: 'kill.wav',
-        data: { damage: GAME_CONSTANTS.DEBT_PENALTY_DAMAGE }
+        data: { damage: actualDamage }
       };
     }
 
